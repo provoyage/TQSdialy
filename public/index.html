@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diary</title>
+    <meta name="description" content="A simple, premium web diary application.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-book-open"></i>
+                <h1>Diary</h1>
+            </div>
+            <nav class="nav-menu">
+                <button id="btn-view-list" class="nav-item active">
+                    <i class="fa-solid fa-search"></i>
+                    <span>検索</span>
+                </button>
+                <button id="btn-view-calendar" class="nav-item">
+                    <i class="fa-regular fa-calendar-alt"></i>
+                    <span>カレンダー</span>
+                </button>
+                <button id="btn-settings" class="nav-item">
+                    <i class="fa-solid fa-cog"></i>
+                    <span>設定</span>
+                </button>
+                <button id="btn-new-entry" class="nav-item">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    <span>書く</span>
+                </button>
+                <button id="btn-mypage" class="nav-item">
+                    <i class="fa-solid fa-user-circle"></i>
+                    <span>マイページ</span>
+                </button>
+            </nav>
+            <div class="theme-toggle">
+                <!-- User Profile Section -->
+                <div id="user-profile-section" class="user-profile hidden">
+                    <img id="user-avatar" src="" alt="User" class="user-avatar">
+                    <div class="user-info">
+                        <span id="user-name" class="user-name">Guest</span>
+                        <button id="btn-logout" class="btn-text-sm">ログアウト</button>
+                    </div>
+                </div>
+                <button id="btn-login" class="nav-item full-width" style="justify-content:center; margin-bottom:1rem;">
+                    <i class="fa-brands fa-google"></i>
+                    <span>ログイン</span>
+                </button>
+
+                <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- View: My Page -->
+            <section id="view-mypage" class="view-section hidden">
+                <header class="section-header">
+                    <h2>マイページ</h2>
+                </header>
+                <div class="mypage-container" id="mypage-container">
+                    <!-- Stats injected by JS -->
+                </div>
+            </section>
+
+            <!-- View: Entry List -->
+            <section id="view-list" class="view-section active">
+                <header class="section-header">
+                    <h2>検索</h2>
+                    <div class="search-bar">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="search-input" placeholder="日記を検索...">
+                    </div>
+                </header>
+                <div id="entry-list-container" class="entry-grid">
+                    <!-- Entries will be injected here -->
+                    <div class="empty-state">
+                        <p>まだ日記がありません。</p>
+                        <button class="btn-primary" onclick="app.navigateToWrite()">最初の日記を書く</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Calendar -->
+            <section id="view-calendar" class="view-section hidden">
+                <header class="section-header">
+                    <h2>カレンダー</h2>
+                </header>
+                <div class="calendar-container">
+                    <div class="calendar-controls">
+                        <button id="btn-prev-month" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h3 id="calendar-month-year">2025年 12月</h3>
+                        <button id="btn-next-month" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="weekdays-grid">
+                        <div>日</div>
+                        <div>月</div>
+                        <div>火</div>
+                        <div>水</div>
+                        <div>木</div>
+                        <div>金</div>
+                        <div>土</div>
+                    </div>
+                    <div id="calendar-days-grid" class="days-grid">
+                        <!-- Days injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Editor -->
+            <section id="view-editor" class="view-section hidden">
+                <header class="section-header">
+                    <h2 id="editor-title-label">新しい日記</h2>
+                    <div class="editor-actions">
+                        <!-- <button id="btn-analyze" class="btn-text" style="color:var(--accent); display:none;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI採点
+                        </button> -->
+                        <select id="select-lock-status" class="btn-secondary"
+                            style="margin-right:auto; border-color:transparent; background:transparent;">
+                            <option value="unlocked">🔓 公開</option>
+                            <option value="locked">🔒 ロック</option>
+                        </select>
+                        <button id="btn-delete-entry" class="btn-text" style="color:#ff6b6b; display:none;">
+                            <i class="fa-solid fa-trash"></i> 削除
+                        </button>
+                        <button id="btn-edit-entry" class="btn-primary" style="display:none;">
+                            <i class="fa-solid fa-pen"></i> 編集
+                        </button>
+                        <button id="btn-cancel" class="btn-text">キャンセル</button>
+                        <button id="btn-save" class="btn-primary">
+                            <i class="fa-solid fa-save"></i> 保存
+                        </button>
+                    </div>
+                </header>
+                <div class="editor-container">
+                    <div class="editor-meta">
+                        <span id="entry-date-display"><i class="fa-regular fa-calendar"></i> 今日</span>
+                        <span id="entry-score-display" style="margin-left: 1rem;"></span>
+                    </div>
+
+                    <!-- Photo Upload Section -->
+                    <div class="photo-section">
+                        <input type="file" id="entry-image-input" accept="image/*" style="display: none;">
+                        <button id="btn-upload-image" class="btn-secondary">
+                            <i class="fa-regular fa-image"></i> 本日のハイライトを追加
+                        </button>
+                        <div id="image-preview-container" class="hidden">
+                            <label class="highlight-label">本日のハイライト</label>
+                            <img id="image-preview" src="" alt="Highlight">
+                            <button id="btn-remove-image" class="icon-btn-small"><i
+                                    class="fa-solid fa-times"></i></button>
+                        </div>
+                    </div>
+
+                    <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
+                    <!-- Text Display Div for View Mode (Auto-expand) -->
+                    <div id="entry-content-display-text" class="entry-content-text hidden"></div>
+
+                    <!-- Unlock Overlay -->
+                    <div id="lock-overlay" class="lock-overlay hidden">
+                        <i class="fa-solid fa-lock"
+                            style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>この日記はロックされています</h3>
+                        <p style="color:var(--text-muted); margin-bottom:1.5rem;">閲覧するにはパスワードを入力してください</p>
+                        <div style="display:flex; gap:10px; justify-content:center; flex-wrap: wrap;">
+                            <input type="password" id="input-unlock-pass" placeholder="パスワード"
+                                style="padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); background:var(--bg-input); color:var(--text-main);">
+                            <button id="btn-unlock-entry" class="btn-primary">解除</button>
+                        </div>
+                        <button id="btn-forgot-pass" class="btn-text-sm"
+                            style="margin-top: 1rem; color: var(--text-muted); width: auto; display: inline-block;">
+                            <i class="fa-solid fa-key"></i> パスワードを忘れた場合 (Google認証)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal hidden">
+        <div class="modal-content">
+            <h3>設定</h3>
+
+            <h3>パスワード設定</h3>
+            <div class="input-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label for="input-current-pass">現在のパスワード</label>
+                    <button id="btn-forgot-pass-settings" class="btn-text-sm"
+                        style="color:var(--accent); margin-bottom:0.5rem;">
+                        (忘れた場合)
+                    </button>
+                </div>
+                <input type="password" id="input-current-pass" placeholder="現在のパスワード (未設定なら空欄)">
+            </div>
+            <div class="input-group">
+                <label for="input-new-pass">新しいパスワード</label>
+                <input type="password" id="input-new-pass" placeholder="新しいパスワード">
+            </div>
+            <button id="btn-update-pass" class="btn-secondary" style="width:100%; margin-bottom:1rem;">
+                <i class="fa-brands fa-google"></i> Google認証して変更
+            </button>
+
+            <div class="modal-actions">
+                <button id="btn-close-settings" class="btn-primary">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="modal-delete-confirm" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="font-size: 3rem; color: #ff6b6b; margin-bottom: 1rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>日記を削除しますか？</h3>
+            <p style="opacity: 0.8; margin-bottom: 2rem;">この操作は取り消せません。本当に削除してもよろしいですか？</p>
+            <div class="modal-actions" style="justify-content: center; gap: 1rem;">
+                <button id="btn-cancel-delete" class="btn-text" style="color: var(--text-primary);">キャンセル</button>
+                <button id="btn-confirm-delete" class="btn-primary"
+                    style="background: #ff6b6b; border: none;">削除する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple Password Input Modal (for Reset) -->
+    <div id="modal-reset-input" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3>新しいパスワード</h3>
+            <p style="margin-bottom:1rem; color:var(--text-muted);">認証に成功しました。<br>新しいロック用パスワードを入力してください。</p>
+            <div class="input-group">
+                <input type="password" id="input-reset-new-pass" placeholder="新しいパスワード (空欄でロック解除)"
+                    style="width:100%; padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--accent); background:var(--bg-input); color:var(--text-main);">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-cancel-reset" class="btn-text">キャンセル</button>
+                <button id="btn-save-reset" class="btn-primary">変更を保存</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Firebase SDK (Compat) -->
+    <!-- MUST BE LOADED BEFORE SCRIPT.JS -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- App Logic (No Module) -->
+    <script src="script.js?v=77"></script>
+
+    <!-- Global Error Handler -->
+    <script>
+        window.onerror = function (msg, url, line) {
+            alert("System Error: " + msg + "\n" + url + ":" + line);
+        };
+    </script>
+</body>
+
+</html>
