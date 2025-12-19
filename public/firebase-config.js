@@ -11,27 +11,31 @@ const firebaseConfig = {
     measurementId: "G-9M5CRKPD5V"
 };
 
-// Initialize Firebase
+// Global Variables
+// Defined with 'var' or implicitly to be safe, but User requested 'const'.
+// We assume this file is loaded exactly once.
+
+let app;
+let auth;
+let db;
+let googleProvider;
+
 if (typeof firebase !== 'undefined') {
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-        console.log('[Firebase Config] Initialized.');
+        // Initialize and assign to global 'app'
+        app = firebase.initializeApp(firebaseConfig);
+        console.log('[Firebase Config] Initialized new app instance.');
     } else {
-        console.log('[Firebase Config] Already initialized.');
+        app = firebase.app();
+        console.log('[Firebase Config] Using existing app instance.');
     }
+
+    // Assign services
+    auth = firebase.auth();
+    db = firebase.firestore();
+    googleProvider = new firebase.auth.GoogleAuthProvider();
+
+    console.log('[Firebase Config] Globals ready: app, auth, db');
 } else {
     console.error('[Firebase Config] Firebase SDK (compat) not found!');
 }
-
-// Define Global Variables for script.js to use
-// Using 'var' or 'window.x' is safer for globals to avoid "Identifier already declared" if script is re-run, 
-// but User asked for "const auth = ...". 
-// However, since this file is loaded once, 'const' at top level is fine in a non-module script.
-// BUT, if script.js ALSO has 'let auth', that's the conflict. 
-// script.js will have NO declaration.
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-console.log('[Firebase Config] Global variables (auth, db) ready.');

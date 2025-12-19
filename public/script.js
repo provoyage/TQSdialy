@@ -448,7 +448,7 @@ function unlockEntry() {
             }
             if (entry.aiScore && entry.aiScore.total) { renderAiResult(entry.title, entry.aiAdvice, entry.aiScore); }
             else {
-                if (dom.displayScore) dom.displayScore.innerHTML = `<button id="btn-retry-ai" class="btn-primary" style="margin:0 auto;" onclick="app.retryAnalysis('${entry.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI分析を実行</button>`;
+                if (dom.displayScore) dom.displayScore.innerHTML = `<button id="btn-retry-ai" class="btn-primary" style="margin:0 auto;" onclick="retryAnalysisHelper('${entry.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI分析を実行</button>`;
             }
         }
     } else {
@@ -545,7 +545,7 @@ function renderEntryList() {
     const filtered = appState.entries.filter(e => appState.filterByDate ? new Date(e.date).toDateString() === appState.filterByDate.toDateString() : true);
 
     if (filtered.length === 0) {
-        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>日記はまだありません</p></div>';
+        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>日記はまだありません</p><button class="btn-primary" onclick="openEntry()">最初の日記を書く</button></div>';
         return;
     }
 
