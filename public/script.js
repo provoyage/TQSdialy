@@ -637,7 +637,14 @@ function renderCalendar() {
     }
 }
 
-// --- Event Listeners ---
+// --- Utils ---
+window.autoResizeTextarea = function () {
+    const tx = document.getElementById('entry-content');
+    if (!tx) return;
+    tx.style.height = 'auto';
+    tx.style.height = (tx.scrollHeight) + 'px';
+};
+
 function setupEventListeners() {
     if (dom.btnViewList) dom.btnViewList.onclick = () => navigateTo('list');
     if (dom.btnViewCalendar) dom.btnViewCalendar.onclick = () => navigateTo('calendar');
@@ -876,13 +883,9 @@ function setupEventListeners() {
     };
 
     // Auto Resize Textarea
-    const tx = dom.inputContent;
-    const autoResizeTextarea = () => {
-        if (!tx) return;
-        tx.style.height = 'auto';
-        tx.style.height = (tx.scrollHeight) + 'px';
-    };
-    if (tx) tx.addEventListener('input', autoResizeTextarea);
+    if (dom.inputContent) {
+        dom.inputContent.addEventListener('input', window.autoResizeTextarea);
+    }
 }
 
 // --- Utils ---
