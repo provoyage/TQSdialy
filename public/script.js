@@ -4,15 +4,7 @@
  */
 
 // --- FIREBASE SETUP ---
-const firebaseConfig = {
-    apiKey: "AIzaSyB9niJY05o052OIdFl8ynkAaU7Tkmoaets",
-    authDomain: "tqsdiary-c640a.firebaseapp.com",
-    projectId: "tqsdiary-c640a",
-    storageBucket: "tqsdiary-c640a.firebasestorage.app",
-    messagingSenderId: "108616601222",
-    appId: "1:108616601222:web:05846c67cdfc861df98b07",
-    measurementId: "G-9M5CRKPD5V"
-};
+// Config is now loaded from firebase-config.js
 
 let auth = null;
 let db = null;
@@ -20,13 +12,15 @@ let googleProvider = null;
 
 try {
     if (typeof firebase !== 'undefined') {
+        // App should already be initialized by firebase-config.js
         if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+            console.error('Firebase not initialized! Check loading order.');
+        } else {
+            auth = firebase.auth();
+            db = firebase.firestore();
+            googleProvider = new firebase.auth.GoogleAuthProvider();
+            console.log('Firebase Services Ready');
         }
-        auth = firebase.auth();
-        db = firebase.firestore();
-        googleProvider = new firebase.auth.GoogleAuthProvider();
-        console.log('Firebase Initialized Successfully');
     } else {
         console.error('Firebase SDK not found. Verify internet connection.');
     }
