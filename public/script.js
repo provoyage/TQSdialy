@@ -4,29 +4,7 @@
  */
 
 // --- FIREBASE SETUP ---
-// Config is now loaded from firebase-config.js
-
-let auth = null;
-let db = null;
-let googleProvider = null;
-
-try {
-    if (typeof firebase !== 'undefined') {
-        // App should already be initialized by firebase-config.js
-        if (!firebase.apps.length) {
-            console.error('Firebase not initialized! Check loading order.');
-        } else {
-            auth = firebase.auth();
-            db = firebase.firestore();
-            googleProvider = new firebase.auth.GoogleAuthProvider();
-            console.log('Firebase Services Ready');
-        }
-    } else {
-        console.error('Firebase SDK not found. Verify internet connection.');
-    }
-} catch (e) {
-    console.error('Firebase Initialization Error:', e);
-}
+// Config and Global Variables (auth, db, googleProvider) are loaded from firebase-config.js
 
 // --- State Management ---
 const appState = {

@@ -9,6 +9,12 @@ const firebaseConfig = {
     measurementId: "G-9M5CRKPD5V"
 };
 
+// Global Variables for App Logic
+// These are declared here so script.js can use them without redeclaring.
+let auth = null;
+let db = null;
+let googleProvider = null;
+
 // Initialize Firebase (Compat)
 // This file must be loaded AFTER firebase-app-compat.js
 if (typeof firebase !== 'undefined') {
@@ -18,6 +24,13 @@ if (typeof firebase !== 'undefined') {
     } else {
         console.log('[FireBase Config] Already initialized.');
     }
+
+    // Assign instances to global variables
+    auth = firebase.auth();
+    db = firebase.firestore();
+    googleProvider = new firebase.auth.GoogleAuthProvider();
+    console.log('[FireBase Config] Services exposed globally.');
+
 } else {
     console.error('[FireBase Config] Firebase SDK (compat) not found. Check script loading order.');
 }
