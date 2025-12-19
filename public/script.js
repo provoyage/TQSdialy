@@ -7,9 +7,14 @@
 // NOTE: firebaseConfig, auth, db, googleProvider are defined in firebase-config.js
 // which MUST be loaded before this file.
 
-if (typeof auth === 'undefined' || typeof db === 'undefined') {
-    console.error("CRITICAL ERROR: 'auth' or 'db' is not defined. Ensure firebase-config.js is loaded first.");
-    alert("System Error: Firebase initialization failed. Please reload.");
+if (typeof auth === 'undefined' && typeof window.auth === 'undefined') {
+    console.error("CRITICAL: 'auth' is undefined.");
+    // Fallback check
+    window.addEventListener('load', () => {
+        if (!window.auth) {
+            alert("【システムエラー】\nFirebaseの読み込みに失敗しました。\n\n1. インターネット接続を確認してください。\n2. ブラウザの広告ブロック機能をOFFにしてみてください。\n3. debug_auth.html を開いて詳細を確認してください。");
+        }
+    });
 }
 
 // --- State Management ---
@@ -107,8 +112,9 @@ function init() {
     applyTheme(appState.theme);
 
     // Auth Listener
-    if (auth) {
-        auth.onAuthStateChanged((user) => {
+    // Auth Listener
+    if (window.auth) {
+        window.auth.onAuthStateChanged((user) => {
             if (user) {
                 appState.user = user;
                 updateAuthUI(true);
@@ -149,6 +155,7 @@ function updateAuthUI(isLoggedIn) {
 // --- Firestore Data Operations ---
 
 async function loadEntries() {
+    const db = window.db;
     if (!appState.user || !db) return;
     try {
         const snapshot = await db.collection('users')
@@ -169,6 +176,9 @@ async function loadEntries() {
 }
 
 async function saveEntryToFirestore(entry) {
+    const auth = window.auth;
+    const db = window.db;
+
     if (!auth || !auth.currentUser || !db) { // Check auth AND auth.currentUser to prevent crash
         alert('エラー: ログイン状態が確認できません。ページをリロードして再ログインしてください。');
         return false;
@@ -213,6 +223,7 @@ async function saveEntryToFirestore(entry) {
 }
 
 async function deleteEntryFromFirestore(entryId) {
+    const db = window.db;
     if (!appState.user || !db) return;
     try {
         await db.collection('users').doc(appState.user.uid).collection('entries').doc(entryId).delete();
@@ -709,42 +720,58 @@ function setupEventListeners() {
     if (dom.btnMyPage) dom.btnMyPage.onclick = () => navigateTo('mypage');
 
     // Auth
-    if (dom.btnLogin) {
-        dom.btnLogin.addEventListener('click', async () => {
-            if (window.location.protocol === 'file:') {
-                alert("【重要】\nこのアプリをフォルダから直接開いています（file://）。\nGoogleログインは「ローカルサーバー」経由でないと動作しません。\n\nVS Codeの「Live Server」機能を使って開いてください。");
-                return;
-            }
+    // --- Auth Functions ---
+    window.googleLogin = async function () {
+        console.log('[DEBUG] Google Login Triggered');
 
-            if (!auth || !googleProvider) {
-                showToast('ログイン設定エラー: APIキーを確認してください', 'error');
-                return;
+        // Protocol Check
+        if (window.location.protocol === 'file:') {
+            alert("【重要】\nこのアプリをフォルダから直接開いています（file://）。\nGoogleログインは「ローカルサーバー」経由でないと動作しません。\n\nVS Codeの「Live Server」機能を使って開いてください。");
+            return;
+        }
+
+        // Config Check
+        if (!window.auth || !window.googleProvider) {
+            console.error('Auth/Provider missing:', window.auth, window.googleProvider);
+            alert('システムエラー: Firebase Authの初期化が完了していません。\nページをリロードしてください。');
+            return;
+        }
+
+        try {
+            console.log('[DEBUG] Calling signInWithPopup...');
+            await window.auth.signInWithPopup(window.googleProvider);
+            console.log('[DEBUG] signInWithPopup completed');
+        } catch (e) {
+            console.error('Login Error:', e);
+            let msg = 'ログイン失敗: ' + e.message;
+            if (e.code === 'auth/operation-not-allowed-in-this-environment' || e.message.includes('file://')) {
+                msg = '【エラー】\nブラウザのセキュリティ制限により、ファイルから直接開くとGoogleログインは使えません。\n\n必ず「Live Server」などのローカルサーバーを使用してください。';
+            } else if (e.code === 'auth/popup-blocked') {
+                msg = '【エラー】\nポップアップがブロックされました。ブラウザの設定で許可してください。';
+            } else if (e.code === 'auth/unauthorized-domain') {
+                msg = '【エラー】\nこのドメインは許可されていません。Firebaseコンソールで認証済みドメインに追加してください。';
             }
-            try {
-                await auth.signInWithPopup(googleProvider);
-            }
-            catch (e) {
-                console.error(e);
-                let msg = 'ログイン失敗: ' + e.message;
-                if (e.code === 'auth/operation-not-allowed-in-this-environment' || e.message.includes('file://')) {
-                    msg = '【エラー】\nブラウザのセキュリティ制限により、ファイルから直接開くとGoogleログインは使えません。\n\n必ず「Live Server」などのローカルサーバーを使用してください。';
-                    alert(msg);
-                } else if (e.code === 'auth/popup-blocked') {
-                    msg = '【エラー】\nポップアップがブロックされました。ブラウザの設定で許可してください。';
-                    alert(msg);
-                } else {
-                    alert(msg); // Force alert for other errors too
-                }
-                showToast(msg, 'error');
-            }
+            alert(msg);
+        }
+    };
+
+    // Auth Listeners
+    if (dom.btnLogin) {
+        dom.btnLogin.onclick = window.googleLogin; // Direct assignment for reliability
+        dom.btnLogin.addEventListener('click', (e) => {
+            // Backup listener
+            e.preventDefault();
+            window.googleLogin();
         });
     }
 
-    if (dom.btnLogout) dom.btnLogout.onclick = async () => {
-        if (!auth) return;
-        try { await auth.signOut(); }
-        catch (e) { showToast('ログアウト失敗', 'error'); }
-    };
+    if (dom.btnLogout) {
+        dom.btnLogout.onclick = async () => {
+            if (!window.auth) return;
+            try { await window.auth.signOut(); showToast('ログアウトしました'); }
+            catch (e) { showToast('ログアウト失敗', 'error'); }
+        };
+    }
 
     // Search
     if (dom.searchInput) dom.searchInput.addEventListener('input', (e) => {
@@ -879,11 +906,17 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
 
-function applyTheme(t) {
-    document.body.setAttribute('data-theme', t);
-    const btn = dom.btnThemeToggle;
-    if (btn) btn.innerHTML = t === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+// --- Theme ---
+window.applyTheme = function (theme) {
+    if (theme === 'light') {
+        document.body.setAttribute('data-theme', 'light');
+        if (dom.btnThemeToggle) dom.btnThemeToggle.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    } else {
+        document.body.removeAttribute('data-theme');
+        if (dom.btnThemeToggle) dom.btnThemeToggle.innerHTML = '<i class="fa-solid fa-moon"></i>';
+    }
 }
+const applyTheme = window.applyTheme; // local alias logic
 
 // AI Integration (Gemini)
 // Requires a valid API Key.
@@ -937,6 +970,31 @@ async function analyzeDiary(text) {
     }
 }
 
-// --- Start ---
-// window.onload ensures HTML references are ready
-window.onload = init;
+// --- Global Exports (for HTML onclick handlers) ---
+window.openEntry = openEntry;
+window.retryAnalysisHelper = retryAnalysisHelper;
+window.navigateTo = navigateTo; // Expose navigation
+window.app = {
+    navigateToWrite: () => openEntry(),
+    retryAnalysis: retryAnalysisHelper
+};
+window.appState = appState;
+
+// --- Initialization ---
+function safeInit() {
+    if (window.isInitialized) return;
+    window.isInitialized = true;
+    console.log('[App] Starting initialization...');
+    try {
+        init();
+    } catch (e) {
+        console.error('[App] Init crashed:', e);
+        alert('アプリの起動に失敗しました: ' + e.message);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit);
+} else {
+    safeInit();
+}

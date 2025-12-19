@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Firebase Auth Debugger</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #333;
+            color: white;
+        }
+
+        .log {
+            background: #000;
+            padding: 10px;
+            border: 1px solid #555;
+            height: 300px;
+            overflow-y: scroll;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Firebase Auth Debugger</h1>
+    <p>This page tests ONLY the Firebase connection and Google Login.</p>
+    <button id="btn-login" onclick="startLogin()">Test Google Login</button>
+    <button onclick="checkAuth()">Check Current User</button>
+    <div id="status">Status: Waiting for SDK...</div>
+    <div id="logs" class="log"></div>
+
+    <!-- 1. Load Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- 2. Test Script -->
+    <script>
+        const logDiv = document.getElementById('logs');
+        function log(msg) {
+            const l = document.createElement('div');
+            l.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logDiv.appendChild(l);
+            console.log(msg);
+        }
+
+        log('Starting Debugger...');
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9niJY05o052OIdFl8ynkAaU7Tkmoaets",
+            authDomain: "tqsdiary-c640a.firebaseapp.com",
+            projectId: "tqsdiary-c640a",
+            storageBucket: "tqsdiary-c640a.firebasestorage.app",
+            messagingSenderId: "108616601222",
+            appId: "1:108616601222:web:05846c67cdfc861df98b07",
+            measurementId: "G-9M5CRKPD5V"
+        };
+
+        let app, auth, provider;
+
+        window.onload = function () {
+            if (typeof firebase === 'undefined') {
+                log('CRITICAL ERROR: Firebase SDK not loaded. Check internet connection or ad blockers.');
+                return;
+            }
+            log('Firebase SDK loaded.');
+
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                provider = new firebase.auth.GoogleAuthProvider();
+                log('Firebase initialized successfully.');
+                document.getElementById('status').textContent = 'Status: Ready';
+
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        log(`User is Signed In: ${user.email} (${user.uid})`);
+                        document.getElementById('status').textContent = 'Status: Authenticated';
+                    } else {
+                        log('User is Signed Out.');
+                    }
+                });
+
+            } catch (e) {
+                log('Initialization Error: ' + e.message);
+            }
+        };
+
+        function startLogin() {
+            log('Attempting SignInWithPopup...');
+            if (!auth) { log('Error: Auth not initialized'); return; }
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    log('Login Success! Token: ' + result.credential.accessToken);
+                    log('User: ' + result.user.displayName);
+                })
+                .catch(error => {
+                    log('LOGIN FAILED: ' + error.code + ' - ' + error.message);
+                    if (error.code === 'auth/unauthorized-domain') {
+                        log('HINT: Add this domain (localhost?) to Firebase Console > Authentication > Settings > Authorized Domains');
+                    }
+                });
+        }
+
+        function checkAuth() {
+            log('Current User: ' + (auth?.currentUser?.email || 'None'));
+        }
+    </script>
+</body>
+
+</html>

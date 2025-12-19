@@ -30,23 +30,24 @@
                 <h1>Diary</h1>
             </div>
             <nav class="nav-menu">
-                <button id="btn-view-list" class="nav-item active">
+                <button id="btn-view-list" class="nav-item active" onclick="navigateTo('list')">
                     <i class="fa-solid fa-search"></i>
                     <span>検索</span>
                 </button>
-                <button id="btn-view-calendar" class="nav-item">
+                <button id="btn-view-calendar" class="nav-item" onclick="navigateTo('calendar')">
                     <i class="fa-regular fa-calendar-alt"></i>
                     <span>カレンダー</span>
                 </button>
-                <button id="btn-settings" class="nav-item">
+                <button id="btn-settings" class="nav-item"
+                    onclick="document.getElementById('modal-settings').classList.remove('hidden'); document.getElementById('modal-settings').classList.add('active');">
                     <i class="fa-solid fa-cog"></i>
                     <span>設定</span>
                 </button>
-                <button id="btn-new-entry" class="nav-item">
+                <button id="btn-new-entry" class="nav-item" onclick="openEntry()">
                     <i class="fa-solid fa-pen-nib"></i>
                     <span>書く</span>
                 </button>
-                <button id="btn-mypage" class="nav-item">
+                <button id="btn-mypage" class="nav-item" onclick="navigateTo('mypage')">
                     <i class="fa-solid fa-user-circle"></i>
                     <span>マイページ</span>
                 </button>
@@ -60,12 +61,14 @@
                         <button id="btn-logout" class="btn-text-sm">ログアウト</button>
                     </div>
                 </div>
-                <button id="btn-login" class="nav-item full-width" style="justify-content:center; margin-bottom:1rem;">
+                <button id="btn-login" class="nav-item full-width" style="justify-content:center; margin-bottom:1rem;"
+                    onclick="googleLogin()">
                     <i class="fa-brands fa-google"></i>
                     <span>ログイン</span>
                 </button>
 
-                <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme">
+                <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme"
+                    onclick="appState.theme = appState.theme === 'dark' ? 'light' : 'dark'; applyTheme(appState.theme); localStorage.setItem('theme', appState.theme);">
                     <i class="fa-solid fa-moon"></i>
                 </button>
             </div>
