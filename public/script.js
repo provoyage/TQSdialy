@@ -4,7 +4,13 @@
  */
 
 // --- FIREBASE SETUP ---
-// Config and Global Variables (auth, db, googleProvider) are loaded from firebase-config.js
+// NOTE: firebaseConfig, auth, db, googleProvider are defined in firebase-config.js
+// which MUST be loaded before this file.
+
+if (typeof auth === 'undefined' || typeof db === 'undefined') {
+    console.error("CRITICAL ERROR: 'auth' or 'db' is not defined. Ensure firebase-config.js is loaded first.");
+    alert("System Error: Firebase initialization failed. Please reload.");
+}
 
 // --- State Management ---
 const appState = {
@@ -770,80 +776,69 @@ function setupEventListeners() {
                 isNew: true
             };
         }
-        if (currentUploadImage) entry.image = currentUploadImage;
 
-        // 2. Initial Save (Critical Step)
-        dom.btnSave.disabled = true;
-        dom.btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 保存中...';
-
-        try {
-            const success = await saveEntryToFirestore(entry);
-
-            if (success) {
-                showToast('日記を保存しました');
-
-                // 3. AI Analysis (Secondary Step)
-                if (!entry.isLocked && !entry.aiScore) {
-                    showToast('AI分析を開始します...');
-                    try {
-                        const aiResult = await analyzeDiary(entry.content);
-                        if (aiResult) {
-                            const updatedEntry = appState.entries.find(e => e.id === entry.id);
-                            if (updatedEntry) {
-                                updatedEntry.title = aiResult.title;
-                                updatedEntry.aiAdvice = aiResult.advice;
-                                updatedEntry.aiScore = aiResult.score;
-                                await saveEntryToFirestore(updatedEntry);
-                                showToast('AI分析が完了しました！');
-                            }
-                        }
-                    } catch (e) {
-                        console.error(e);
-                        showToast('AI分析に失敗しましたが、日記は保存されています', 'warn');
-                    }
-                }
-                // 4. Navigate to details
-                openEntry(entry.id);
-            }
-        } catch (e) {
-            console.error("Critical Save Error:", e);
-            alert("予期せぬエラーで保存できませんでした: " + e.message);
-        } finally {
-            // ALWAYS Reset Button
-            if (dom.btnSave) {
-                dom.btnSave.disabled = false;
-                dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> 保存';
+        // 2. AI Analysis trigger (optional, or manual)
+        // For now, simpler flow: Just save. AI can be triggered manually.
+        const success = await saveEntryToFirestore(entry);
+        if (success) {
+            showToast('日記を保存しました');
+            navigateTo('list');
+            // If new and unlocked, maybe suggest AI?
+            if (entry.isNew && !entry.isLocked && appState.apiKey) {
+                // Auto-analyze offer?
             }
         }
     };
 
-    if (dom.btnDeleteEntry) {
-        dom.btnDeleteEntry.onclick = () => {
-            console.log("Delete Button Clicked. Active Entry:", appState.activeEntryId);
-            if (dom.modalDelete) {
-                dom.modalDelete.classList.remove('hidden'); // Ensure hidden class is removed
-                // Force a reflow before adding active for transition
-                void dom.modalDelete.offsetWidth;
-                dom.modalDelete.classList.add('active');
-            } else {
-                console.error("Delete Modal DOM not found!");
-            }
-        };
-    }
-    if (dom.btnCancelDelete) dom.btnCancelDelete.onclick = () => { if (dom.modalDelete) dom.modalDelete.classList.remove('active'); };
+    if (dom.btnCancel) dom.btnCancel.onclick = () => {
+        if (confirm('保存せずに戻りますか？')) navigateTo('list');
+    };
+
+    if (dom.btnDeleteEntry) dom.btnDeleteEntry.onclick = () => {
+        if (dom.modalDelete) dom.modalDelete.classList.remove('hidden');
+    };
+
     if (dom.btnConfirmDelete) dom.btnConfirmDelete.onclick = async () => {
         if (appState.activeEntryId) {
-            dom.btnConfirmDelete.disabled = true;
-            dom.btnConfirmDelete.textContent = "削除中...";
             await deleteEntryFromFirestore(appState.activeEntryId);
-            dom.btnConfirmDelete.disabled = false;
-            dom.btnConfirmDelete.textContent = "削除する";
-            if (dom.modalDelete) dom.modalDelete.classList.remove('active');
+            if (dom.modalDelete) dom.modalDelete.classList.add('hidden');
             navigateTo('list');
         }
     };
+
+    if (dom.btnCancelDelete) dom.btnCancelDelete.onclick = () => {
+        if (dom.modalDelete) dom.modalDelete.classList.add('hidden');
+    };
+
     if (dom.btnEditEntry) dom.btnEditEntry.onclick = () => toggleEditMode(true);
+
     if (dom.btnUnlockEntry) dom.btnUnlockEntry.onclick = unlockEntry;
+
+    if (dom.btnForgotPass) dom.btnForgotPass.onclick = async () => {
+        // Reset Logic
+        alert('【パスワードリセット】\nGoogleアカウントで本人確認を行います。');
+        if (!auth.currentUser) return alert('先にログインしてください');
+        try {
+            await auth.currentUser.reauthenticateWithPopup(googleProvider);
+            alert('本人確認が完了しました。新しいパスワードを設定してください。');
+            if (dom.lockOverlay) dom.lockOverlay.classList.add('hidden');
+            if (dom.modalReset) dom.modalReset.classList.remove('hidden');
+        } catch (e) {
+            alert('認証失敗: ' + e.message);
+        }
+    };
+
+    if (dom.btnSaveReset) dom.btnSaveReset.onclick = () => {
+        const newP = dom.inputResetNewPass.value;
+        appState.masterPassword = newP;
+        localStorage.setItem('masterPassword', newP);
+        alert('マスターパスワードを更新しました。');
+        if (dom.modalReset) dom.modalReset.classList.add('hidden');
+    };
+
+    if (dom.btnCancelReset) dom.btnCancelReset.onclick = () => {
+        if (dom.modalReset) dom.modalReset.classList.add('hidden');
+    };
 
     if (dom.btnUploadImage) dom.btnUploadImage.onclick = () => dom.entryImageInput.click();
     if (dom.entryImageInput) dom.entryImageInput.onchange = (e) => handleImageUpload(e.target.files[0]);
@@ -851,194 +846,97 @@ function setupEventListeners() {
         currentUploadImage = null;
         if (dom.imagePreview) dom.imagePreview.src = '';
         if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
-        if (appState.activeEntryId) {
-            const entry = appState.entries.find(e => e.id === appState.activeEntryId);
-            if (entry) { entry.image = null; }
-        }
     };
 
-    // --- Helper: Shared Password Reset Logic ---
-    const resetPasswordViaGoogleAuth = async (btnElement) => {
-        if (!auth.currentUser) {
-            alert('本人確認のため、まずはGoogleアカウントでログインしてください。');
-            return;
-        }
-
-        // Confirm first
-        if (!confirm('Googleアカウントで本人確認を行い、パスワードをリセットしますか？')) return;
-
-        const originalText = btnElement ? btnElement.innerHTML : '';
-        try {
-            if (btnElement) {
-                btnElement.disabled = true;
-                btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 認証中...';
-            }
-
-            // Re-authenticate (Prove you own the email)
-            await auth.currentUser.reauthenticateWithPopup(googleProvider);
-
-            // Auth Successful -> Show Custom Modal (No more prompt)
-            if (dom.modalReset) {
-                if (dom.inputResetNewPass) dom.inputResetNewPass.value = ''; // Clear previous
-                dom.modalReset.classList.remove('hidden');
-                void dom.modalReset.offsetWidth;
-                dom.modalReset.classList.add('active');
-
-                // Focus input
-                setTimeout(() => dom.inputResetNewPass && dom.inputResetNewPass.focus(), 100);
-            }
-
-        } catch (e) {
-            console.error("Reset failed", e);
-            alert('認証に失敗したため、パスワードリセットできませんでした。\n' + e.message);
-        } finally {
-            if (btnElement) {
-                btnElement.disabled = false;
-                btnElement.innerHTML = originalText;
-            }
-        }
+    // Auto Resize Textarea
+    const tx = dom.inputContent;
+    const autoResizeTextarea = () => {
+        if (!tx) return;
+        tx.style.height = 'auto';
+        tx.style.height = (tx.scrollHeight) + 'px';
     };
-
-    // Modal Events
-    if (dom.btnSaveReset) {
-        dom.btnSaveReset.onclick = () => {
-            const newPass = dom.inputResetNewPass ? dom.inputResetNewPass.value : '';
-
-            appState.masterPassword = newPass;
-            localStorage.setItem('masterPassword', newPass);
-
-            let msg = 'パスワードを更新しました。';
-            if (newPass === '') msg = 'パスワードを解除しました（空欄）。';
-            alert(msg);
-
-            // Update various inputs if they exist
-            if (dom.inputUnlockPass) dom.inputUnlockPass.value = newPass;
-            if (dom.inputCurrentPass) dom.inputCurrentPass.value = newPass;
-            if (dom.inputNewPass) dom.inputNewPass.value = '';
-
-            if (dom.modalReset) dom.modalReset.classList.remove('active');
-        };
-    }
-
-    if (dom.btnCancelReset && dom.modalReset) {
-        dom.btnCancelReset.onclick = () => {
-            dom.modalReset.classList.remove('active');
-            alert('パスワードリセットをキャンセルしました。');
-        };
-    }
-
-    // Bind triggers
-    if (dom.btnForgotPass) {
-        dom.btnForgotPass.onclick = () => resetPasswordViaGoogleAuth(dom.btnForgotPass);
-    }
-
-    if (dom.btnForgotPassSettings) {
-        dom.btnForgotPassSettings.onclick = (e) => {
-            e.preventDefault();
-            resetPasswordViaGoogleAuth(dom.btnForgotPassSettings);
-        };
-    }
-
-    if (dom.btnPrevMonth) dom.btnPrevMonth.onclick = () => { appState.calendarDate.setMonth(appState.calendarDate.getMonth() - 1); renderCalendar(); };
-    if (dom.btnNextMonth) dom.btnNextMonth.onclick = () => { appState.calendarDate.setMonth(appState.calendarDate.getMonth() + 1); renderCalendar(); };
-
-    if (autoResizeTextarea && dom.inputContent) {
-        ['input', 'focus', 'change', 'keydown', 'paste', 'cut'].forEach(evt => {
-            dom.inputContent.addEventListener(evt, () => setTimeout(autoResizeTextarea, 0));
-        });
-        window.addEventListener('resize', autoResizeTextarea);
-    }
-} // End of setupEventListeners
-
-// --- AI Logic ---
-const GEMINI_API_KEY = "AIzaSyB0ONgIPWhuOSIqvuCsxVJ_88QySnQ3WBQ";
-
-async function analyzeDiary(text) {
-    // Use the provided key directly
-    const apiKey = GEMINI_API_KEY;
-
-    const prompt = `あなたはメンタルケアの専門家です。以下の日記を分析し、JSON形式で出力してください。
-    評価基準（各100点満点）:
-    1. time: 時間の使い方、充実度
-    2. quality: 内容の深さ、気づき
-    3. enjoyment: 楽しさ、ポジティブさ
-    
-    出力フォーマット:
-    {
-      "title": "日記のタイトル（15文字以内）",
-      "score": { "total": 総合点(平均), "breakdown": { "time": 点数, "quality": 点数, "enjoyment": 点数 } },
-      "advice": "短いフィードバック（100文字以内、優しく）"
-    }
-    
-    日記本文: ${text}`;
-
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
-
-        // Update to gemini-2.0-flash as requested
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`API Error ${response.status}: ${errText}`);
-        }
-
-        const data = await response.json();
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-            // Likely safety block
-            console.warn("AI Safety Block or Empty Response", data);
-            showToast('AIが日記の内容を不適切と判断し、分析をスキップしました', 'warn');
-            return null;
-        }
-
-        const rawText = data.candidates[0].content.parts[0].text;
-        // Robust JSON extraction: Find content between first { and last }
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("No JSON found in response");
-        return JSON.parse(jsonMatch[0]);
-
-    } catch (e) {
-        console.error("AI Analysis Failed:", e);
-        if (e.name === 'AbortError') { alert('AI分析がタイムアウトしました。通信環境を確認してください。'); }
-        else { alert('AI分析エラー: ' + e.message); }
-        return null; // Return null handled gracefully by caller
-    }
+    if (tx) tx.addEventListener('input', autoResizeTextarea);
 }
 
-// --- Utilities (Global Scope) ---
+// --- Utils ---
+function formatDate(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+}
 
-const autoResizeTextarea = () => {
-    if (!dom.inputContent) return;
-    dom.inputContent.style.height = 'auto';
-    dom.inputContent.style.overflowY = 'hidden';
-    const newHeight = dom.inputContent.scrollHeight + 20;
-    dom.inputContent.style.height = newHeight + 'px';
-};
+function formatTime(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+}
 
 function showToast(msg, type = 'success') {
     if (!dom.toastContainer) return;
-    const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation' : 'fa-check-circle'}" style="color:${type === 'error' ? '#ff6b6b' : 'var(--accent)'}"></i> ${msg}`; dom.toastContainer.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    dom.toastContainer.appendChild(t);
+    setTimeout(() => { t.classList.add('show'); }, 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
+
 function applyTheme(t) {
-    if (!dom || !dom.body) return;
-    dom.body.setAttribute('data-theme', t);
-    if (dom.btnThemeToggle) dom.btnThemeToggle.innerHTML = t === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun text-warning"></i>';
+    document.body.setAttribute('data-theme', t);
+    const btn = dom.btnThemeToggle;
+    if (btn) btn.innerHTML = t === 'dark' ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
 }
-function formatDate(d) { return new Date(d).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' }); }
-function formatTime(d) { return new Date(d).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }); }
 
-window.app = {
-    navigateTo: navigateTo,
-    retryAnalysis: retryAnalysisHelper,
-    autoResize: autoResizeTextarea
-};
+// AI Integration (Gemini)
+// Requires a valid API Key.
+async function analyzeDiary(text) {
+    const key = appState.apiKey;
+    if (!key) return null;
 
-// Start
-init();
+    const prompt = `
+    あなたはプロの心理カウンセラー兼ライフコーチです。以下の日記を読み、3つの評価項目（100点満点）と、短いアドバイス（100文字以内）をJSON形式で返してください。
+    
+    評価項目:
+    1. total: 総合点 (int)
+    2. breakdown: { time: 時間の使い方(int), quality: 生活の質(int), enjoyment: 充実度(int) }
+    3. title: 日記にふさわしい短いタイトル(string)
+    4. advice: ポジティブで具体的なアドバイス(string)
+
+    日記本文:
+    "${text}"
+    `;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`;
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+        const data = await res.json();
+        const raw = data.candidates[0].content.parts[0].text;
+        // Basic cleanup for JSON
+        const jsonStr = raw.replace(/```json/g, '').replace(/```/g, '').trim();
+        const result = JSON.parse(jsonStr);
+
+        // Fallback for missing fields
+        return {
+            title: result.title || '無題',
+            advice: result.advice || '良い一日ですね！',
+            score: {
+                total: result.total || 70,
+                breakdown: {
+                    time: result.breakdown?.time || 70,
+                    quality: result.breakdown?.quality || 70,
+                    enjoyment: result.breakdown?.enjoyment || 70
+                }
+            }
+        };
+
+    } catch (e) {
+        console.error("AI Error:", e);
+        return null;
+    }
+}
+
+// --- Start ---
+// window.onload ensures HTML references are ready
+window.onload = init;

@@ -1,4 +1,6 @@
-// Firebase Configuration & Initialization (Compat)
+// Firebase Configuration & Initialization
+// This file is loaded BEFORE script.js
+
 const firebaseConfig = {
     apiKey: "AIzaSyB9niJY05o052OIdFl8ynkAaU7Tkmoaets",
     authDomain: "tqsdiary-c640a.firebaseapp.com",
@@ -9,28 +11,27 @@ const firebaseConfig = {
     measurementId: "G-9M5CRKPD5V"
 };
 
-// Global Variables for App Logic
-// These are declared here so script.js can use them without redeclaring.
-let auth = null;
-let db = null;
-let googleProvider = null;
-
-// Initialize Firebase (Compat)
-// This file must be loaded AFTER firebase-app-compat.js
+// Initialize Firebase
 if (typeof firebase !== 'undefined') {
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
-        console.log('[FireBase Config] Initialized successfully.');
+        console.log('[Firebase Config] Initialized.');
     } else {
-        console.log('[FireBase Config] Already initialized.');
+        console.log('[Firebase Config] Already initialized.');
     }
-
-    // Assign instances to global variables
-    auth = firebase.auth();
-    db = firebase.firestore();
-    googleProvider = new firebase.auth.GoogleAuthProvider();
-    console.log('[FireBase Config] Services exposed globally.');
-
 } else {
-    console.error('[FireBase Config] Firebase SDK (compat) not found. Check script loading order.');
+    console.error('[Firebase Config] Firebase SDK (compat) not found!');
 }
+
+// Define Global Variables for script.js to use
+// Using 'var' or 'window.x' is safer for globals to avoid "Identifier already declared" if script is re-run, 
+// but User asked for "const auth = ...". 
+// However, since this file is loaded once, 'const' at top level is fine in a non-module script.
+// BUT, if script.js ALSO has 'let auth', that's the conflict. 
+// script.js will have NO declaration.
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+console.log('[Firebase Config] Global variables (auth, db) ready.');
