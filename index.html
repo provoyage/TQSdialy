@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -30,22 +30,22 @@
                 <h1>Diary</h1>
             </div>
             <nav class="nav-menu">
-                <button id="btn-view-list" class="nav-item active" onclick="navigateTo('list')">
-                    <i class="fa-solid fa-search"></i>
-                    <span>検索</span>
-                </button>
                 <button id="btn-view-calendar" class="nav-item" onclick="navigateTo('calendar')">
                     <i class="fa-regular fa-calendar-alt"></i>
                     <span>カレンダー</span>
+                </button>
+                <button id="btn-view-list" class="nav-item active" onclick="navigateTo('list')">
+                    <i class="fa-solid fa-search"></i>
+                    <span>読む</span>
+                </button>
+                <button id="btn-new-entry" class="nav-item" onclick="openEntry()">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    <span>書く</span>
                 </button>
                 <button id="btn-settings" class="nav-item"
                     onclick="document.getElementById('modal-settings').classList.remove('hidden'); document.getElementById('modal-settings').classList.add('active');">
                     <i class="fa-solid fa-cog"></i>
                     <span>設定</span>
-                </button>
-                <button id="btn-new-entry" class="nav-item" onclick="openEntry()">
-                    <i class="fa-solid fa-pen-nib"></i>
-                    <span>書く</span>
                 </button>
                 <button id="btn-mypage" class="nav-item" onclick="navigateTo('mypage')">
                     <i class="fa-solid fa-user-circle"></i>
@@ -90,10 +90,19 @@
             <!-- View: Entry List -->
             <section id="view-list" class="view-section active">
                 <header class="section-header">
-                    <h2>検索</h2>
+                    <h2>読む</h2>
                     <div class="search-bar">
                         <i class="fa-solid fa-search"></i>
-                        <input type="text" id="search-input" placeholder="日記を検索...">
+                        <input type="text" id="search-input" placeholder="日記を検索する...">
+                    </div>
+                    <div id="list-filters" class="list-filters">
+                        <input type="date" id="filter-date-from" class="filter-input" aria-label="from">
+                        <input type="date" id="filter-date-to" class="filter-input" aria-label="to">
+                        <select id="filter-emotion" class="filter-input" aria-label="emotion"></select>
+                        <select id="filter-pattern" class="filter-input" aria-label="pattern"></select>
+                        <input type="text" id="filter-trigger" class="filter-input" placeholder="トリガー語">
+                        <button id="btn-apply-filters" class="btn-secondary">適用</button>
+                        <button id="btn-reset-filters" class="btn-text">リセット</button>
                     </div>
                 </header>
                 <div id="entry-list-container" class="entry-grid">
@@ -113,6 +122,8 @@
                 <div class="calendar-container">
                     <div class="calendar-controls">
                         <button id="btn-prev-month" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <select id="select-calendar-year" class="btn-secondary calendar-select" aria-label="年"></select>
+                        <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="月"></select>
                         <h3 id="calendar-month-year">2025年 12月</h3>
                         <button id="btn-next-month" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
@@ -136,22 +147,21 @@
                 <header class="section-header">
                     <h2 id="editor-title-label">新しい日記</h2>
                     <div class="editor-actions">
-                        <!-- <button id="btn-analyze" class="btn-text" style="color:var(--accent); display:none;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI採点
-                        </button> -->
                         <select id="select-lock-status" class="btn-secondary"
                             style="margin-right:auto; border-color:transparent; background:transparent;">
                             <option value="unlocked">🔓 公開</option>
                             <option value="locked">🔒 ロック</option>
                         </select>
-                        <button id="btn-delete-entry" class="btn-text" style="color:#ff6b6b; display:none;">
+                        <button id="btn-delete-entry" class="btn-text" style="color:#ff6b6b; display:none;"
+                            onclick="requestDeleteEntry()">
                             <i class="fa-solid fa-trash"></i> 削除
                         </button>
-                        <button id="btn-edit-entry" class="btn-primary" style="display:none;">
+                        <button id="btn-edit-entry" class="btn-primary" style="display:none;"
+                            onclick="toggleEditMode(true)">
                             <i class="fa-solid fa-pen"></i> 編集
                         </button>
-                        <button id="btn-cancel" class="btn-text">キャンセル</button>
-                        <button id="btn-save" class="btn-primary">
+                        <button id="btn-cancel" class="btn-text" onclick="cancelEdit()">キャンセル</button>
+                        <button id="btn-save" class="btn-primary" onclick="saveEntryHelper()">
                             <i class="fa-solid fa-save"></i> 保存
                         </button>
                     </div>
@@ -179,6 +189,7 @@
                     <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
                     <!-- Text Display Div for View Mode (Auto-expand) -->
                     <div id="entry-content-display-text" class="entry-content-text hidden"></div>
+                    <div id="analysis-panel" class="analysis-panel"></div>
 
                     <!-- Unlock Overlay -->
                     <div id="lock-overlay" class="lock-overlay hidden">
@@ -193,7 +204,7 @@
                         </div>
                         <button id="btn-forgot-pass" class="btn-text-sm"
                             style="margin-top: 1rem; color: var(--text-muted); width: auto; display: inline-block;">
-                            <i class="fa-solid fa-key"></i> パスワードを忘れた場合 (Google認証)
+                            <i class="fa-solid fa-key"></i> パスワードを忘れた場合（Google認証）
                         </button>
                     </div>
                 </div>
@@ -210,10 +221,9 @@
             <h3>設定</h3>
 
             <div class="input-group">
-                <label for="input-api-key">Gemini API Key</label>
-                <input type="password" id="input-api-key" placeholder="APIキーを入力 (AI分析用)">
-                <small><a href="https://aistudio.google.com/app/apikey" target="_blank"
-                        style="color:var(--accent);">APIキーを取得する</a></small>
+                <label for="input-api-base">API Base URL</label>
+                <input type="text" id="input-api-base" placeholder="http://localhost:8787">
+                <small style="color:var(--text-muted);">Self-observation API endpoint</small>
             </div>
             <hr style="border:0; border-top:1px solid var(--glass-border); margin: 1.5rem 0;">
 
@@ -226,7 +236,7 @@
                         (忘れた場合)
                     </button>
                 </div>
-                <input type="password" id="input-current-pass" placeholder="現在のパスワード (未設定なら空欄)">
+                <input type="password" id="input-current-pass" placeholder="現在のパスワード（未設定なら空欄）">
             </div>
             <div class="input-group">
                 <label for="input-new-pass">新しいパスワード</label>
@@ -251,9 +261,10 @@
             <h3>日記を削除しますか？</h3>
             <p style="opacity: 0.8; margin-bottom: 2rem;">この操作は取り消せません。本当に削除してもよろしいですか？</p>
             <div class="modal-actions" style="justify-content: center; gap: 1rem;">
-                <button id="btn-cancel-delete" class="btn-text" style="color: var(--text-primary);">キャンセル</button>
-                <button id="btn-confirm-delete" class="btn-primary"
-                    style="background: #ff6b6b; border: none;">削除する</button>
+                <button id="btn-cancel-delete" class="btn-text" style="color: var(--text-primary);"
+                    onclick="cancelDeleteHelper()">キャンセル</button>
+                <button id="btn-confirm-delete" class="btn-primary" style="background: #ff6b6b; border: none;"
+                    onclick="confirmDeleteHelper()">削除する</button>
             </div>
         </div>
     </div>
@@ -264,7 +275,7 @@
             <h3>新しいパスワード</h3>
             <p style="margin-bottom:1rem; color:var(--text-muted);">認証に成功しました。<br>新しいロック用パスワードを入力してください。</p>
             <div class="input-group">
-                <input type="password" id="input-reset-new-pass" placeholder="新しいパスワード (空欄でロック解除)"
+                <input type="password" id="input-reset-new-pass" placeholder="新しいパスワード（空欄はロック解除）"
                     style="width:100%; padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--accent); background:var(--bg-input); color:var(--text-main);">
             </div>
             <div class="modal-actions">
@@ -284,7 +295,7 @@
     <script src="firebase-config.js"></script>
 
     <!-- App Logic (No Module) -->
-    <script src="script.js?v=77"></script>
+    <script src="script.js?v=78"></script>
 
     <!-- Global Error Handler -->
     <script>

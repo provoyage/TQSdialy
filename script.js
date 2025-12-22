@@ -12,7 +12,7 @@ if (typeof auth === 'undefined' && typeof window.auth === 'undefined') {
     // Fallback check
     window.addEventListener('load', () => {
         if (!window.auth) {
-            alert("【システムエラー】\nFirebaseの読み込みに失敗しました。\n\n1. インターネット接続を確認してください。\n2. ブラウザの広告ブロック機能をOFFにしてみてください。\n3. debug_auth.html を開いて詳細を確認してください。");
+            alert('System error: Firebase failed to initialize. Please reload and check network settings.');
         }
     });
 }
@@ -21,15 +21,33 @@ if (typeof auth === 'undefined' && typeof window.auth === 'undefined') {
 const appState = {
     user: null,
     entries: [],
+    analysisById: {},
+    analysisStatusById: {},
+    similarById: {},
+    filters: {
+        dateFrom: '',
+        dateTo: '',
+        emotion: 'all',
+        pattern: 'all',
+        trigger: '',
+        query: ''
+    },
+    period: '7d',
+    summaryText: '',
+    summaryPeriod: '',
+    summaryUpdatedAt: null,
+    summaryUpdating: false,
+    themes: [],
     currentView: 'list',
     activeEntryId: null,
     writingDate: null,
     theme: localStorage.getItem('theme') || 'dark',
     calendarDate: new Date(),
-    apiKey: localStorage.getItem('gemini_api_key') || '',
+    apiBase: localStorage.getItem('self_os_api_base') || '',
     filterByDate: null,
-    masterPassword: localStorage.getItem('diary_master_pass') || ''
+    masterPassword: localStorage.getItem('masterPassword') || ''
 };
+
 
 // --- DOM References ---
 const getEl = (id) => document.getElementById(id);
@@ -48,7 +66,7 @@ const dom = {
     btnThemeToggle: getEl('btn-theme-toggle'),
 
     modalSettings: getEl('modal-settings'),
-    inputApiKey: getEl('input-api-key'),
+    inputApiBase: getEl('input-api-base'),
     inputCurrentPass: getEl('input-current-pass'),
     inputNewPass: getEl('input-new-pass'),
     btnUpdatePass: getEl('btn-update-pass'),
@@ -90,7 +108,16 @@ const dom = {
     calendarDaysGrid: getEl('calendar-days-grid'),
     btnPrevMonth: getEl('btn-prev-month'),
     btnNextMonth: getEl('btn-next-month'),
+    selectCalendarYear: getEl('select-calendar-year'),
+    selectCalendarMonth: getEl('select-calendar-month'),
     searchInput: getEl('search-input'),
+    filterDateFrom: getEl('filter-date-from'),
+    filterDateTo: getEl('filter-date-to'),
+    filterEmotion: getEl('filter-emotion'),
+    filterPattern: getEl('filter-pattern'),
+    filterTrigger: getEl('filter-trigger'),
+    btnApplyFilters: getEl('btn-apply-filters'),
+    btnResetFilters: getEl('btn-reset-filters'),
 
     // MyPage
     btnMyPage: getEl('btn-mypage'),
@@ -102,10 +129,51 @@ const dom = {
     btnLogout: getEl('btn-logout'),
     userProfileSection: getEl('user-profile-section'),
     userAvatar: getEl('user-avatar'),
-    userName: getEl('user-name')
+    userName: getEl('user-name'),
+    analysisPanel: getEl('analysis-panel')
 };
 
 let currentUploadImage = null;
+
+const EMOTION_ORDER = ['joy', 'trust', 'fear', 'surprise', 'sadness', 'disgust', 'anger', 'anticipation'];
+const EMOTION_LABELS = {
+    joy: '\u559c\u3073',
+    trust: '\u4fe1\u983c',
+    fear: '\u6050\u308c',
+    surprise: '\u9a5a\u304d',
+    sadness: '\u60b2\u3057\u307f',
+    disgust: '\u5acc\u60aa',
+    anger: '\u6012\u308a',
+    anticipation: '\u671f\u5f85'
+};
+
+const EMOTION_COLORS = {
+    joy: '#F6C343',
+    trust: '#6FCF97',
+    fear: '#56A3D9',
+    surprise: '#F2994A',
+    sadness: '#4A6FA5',
+    disgust: '#27AE60',
+    anger: '#EB5757',
+    anticipation: '#9B51E0'
+};
+const EMOTION_IMAGE_PATH = 'image/kanjouchart.png';
+const EMOTION_KEY_ALIASES = {
+    joy: 'joy',
+    trust: 'trust',
+    fear: 'fear',
+    surprise: 'surprise',
+    sadness: 'sadness',
+    disgust: 'disgust',
+    anger: 'anger',
+    anticipation: 'anticipation'
+};
+
+function normalizeEmotionKey(key) {
+    if (!key) return null;
+    const raw = String(key).trim().toLowerCase();
+    return EMOTION_KEY_ALIASES[raw] || EMOTION_KEY_ALIASES[key] || null;
+}
 
 // --- Init & Load ---
 function init() {
@@ -150,6 +218,327 @@ function updateAuthUI(isLoggedIn) {
             dom.userProfileSection.classList.add('hidden');
         }
     }
+    if (dom.btnSave) {
+        dom.btnSave.disabled = !isLoggedIn;
+        dom.btnSave.title = isLoggedIn ? '' : '\u30ed\u30b0\u30a4\u30f3\u3057\u3066\u304f\u3060\u3055\u3044';
+    }
+}
+
+function setupEventListeners() {
+    if (dom.inputApiBase) {
+        dom.inputApiBase.value = appState.apiBase || '';
+        dom.inputApiBase.addEventListener('change', () => {
+            appState.apiBase = dom.inputApiBase.value.trim();
+            localStorage.setItem('self_os_api_base', appState.apiBase);
+        });
+    }
+    if (dom.btnCloseSettings) {
+        dom.btnCloseSettings.addEventListener('click', closeSettingsModal);
+    }
+    if (dom.btnUpdatePass) {
+        dom.btnUpdatePass.addEventListener('click', handleUpdatePassword);
+    }
+    if (dom.btnForgotPassSettings) {
+        dom.btnForgotPassSettings.addEventListener('click', handleForgotPassword);
+    }
+    if (dom.btnForgotPass) {
+        dom.btnForgotPass.addEventListener('click', handleForgotPassword);
+    }
+    if (dom.btnCancelReset) {
+        dom.btnCancelReset.addEventListener('click', closeResetModal);
+    }
+    if (dom.btnSaveReset) {
+        dom.btnSaveReset.addEventListener('click', saveResetPassword);
+    }
+    if (dom.btnUnlockEntry) {
+        dom.btnUnlockEntry.addEventListener('click', unlockEntry);
+    }
+    if (dom.btnUploadImage && dom.entryImageInput) {
+        dom.btnUploadImage.addEventListener('click', () => dom.entryImageInput.click());
+    }
+    if (dom.entryImageInput) {
+        dom.entryImageInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            handleImageUpload(file);
+        });
+    }
+    if (dom.btnRemoveImage) {
+        dom.btnRemoveImage.addEventListener('click', () => {
+            currentUploadImage = null;
+            if (dom.imagePreview) dom.imagePreview.src = '';
+            if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
+            if (dom.entryImageInput) dom.entryImageInput.value = '';
+        });
+    }
+    if (dom.btnPrevMonth) {
+        dom.btnPrevMonth.addEventListener('click', () => {
+            appState.calendarDate = new Date(appState.calendarDate.getFullYear(), appState.calendarDate.getMonth() - 1, 1);
+            renderCalendar();
+        });
+    }
+    if (dom.btnNextMonth) {
+        dom.btnNextMonth.addEventListener('click', () => {
+            appState.calendarDate = new Date(appState.calendarDate.getFullYear(), appState.calendarDate.getMonth() + 1, 1);
+            renderCalendar();
+        });
+    }
+    if (dom.selectCalendarYear) {
+        dom.selectCalendarYear.addEventListener('change', syncCalendarFromSelectors);
+    }
+    if (dom.selectCalendarMonth) {
+        dom.selectCalendarMonth.addEventListener('change', syncCalendarFromSelectors);
+    }
+    if (dom.searchInput) {
+        dom.searchInput.value = appState.filters.query || '';
+        dom.searchInput.addEventListener('input', () => {
+            appState.filters.query = dom.searchInput.value.trim();
+            renderEntryList();
+        });
+    }
+    if (dom.filterDateFrom) dom.filterDateFrom.value = appState.filters.dateFrom || '';
+    if (dom.filterDateTo) dom.filterDateTo.value = appState.filters.dateTo || '';
+    if (dom.filterTrigger) dom.filterTrigger.value = appState.filters.trigger || '';
+    if (dom.btnApplyFilters) {
+        dom.btnApplyFilters.addEventListener('click', applyFiltersFromUI);
+    }
+    if (dom.btnResetFilters) {
+        dom.btnResetFilters.addEventListener('click', resetFilters);
+    }
+    if (dom.inputContent) {
+        dom.inputContent.addEventListener('input', autoResizeTextarea);
+    }
+    if (dom.btnLogout) {
+        dom.btnLogout.addEventListener('click', handleLogout);
+    }
+
+    window.googleLogin = googleLogin;
+    window.saveEntryHelper = saveEntryHelper;
+    window.cancelEdit = cancelEdit;
+    window.requestDeleteEntry = requestDeleteEntry;
+    window.confirmDeleteHelper = confirmDeleteHelper;
+    window.cancelDeleteHelper = cancelDeleteHelper;
+
+    refreshFilterOptions();
+}
+
+function autoResizeTextarea() {
+    if (!dom.inputContent) return;
+    dom.inputContent.style.height = 'auto';
+    dom.inputContent.style.height = `${dom.inputContent.scrollHeight}px`;
+}
+
+function syncCalendarFromSelectors() {
+    if (!dom.selectCalendarYear || !dom.selectCalendarMonth) return;
+    const year = Number(dom.selectCalendarYear.value);
+    const month = Number(dom.selectCalendarMonth.value);
+    if (!Number.isNaN(year) && !Number.isNaN(month)) {
+        appState.calendarDate = new Date(year, month - 1, 1);
+        renderCalendar();
+    }
+}
+
+function applyFiltersFromUI() {
+    if (dom.filterDateFrom) appState.filters.dateFrom = dom.filterDateFrom.value;
+    if (dom.filterDateTo) appState.filters.dateTo = dom.filterDateTo.value;
+    if (dom.filterEmotion) appState.filters.emotion = dom.filterEmotion.value || 'all';
+    if (dom.filterPattern) appState.filters.pattern = dom.filterPattern.value || 'all';
+    if (dom.filterTrigger) appState.filters.trigger = dom.filterTrigger.value.trim();
+    if (dom.searchInput) appState.filters.query = dom.searchInput.value.trim();
+    renderEntryList();
+}
+
+function resetFilters() {
+    appState.filters = {
+        dateFrom: '',
+        dateTo: '',
+        emotion: 'all',
+        pattern: 'all',
+        trigger: '',
+        query: ''
+    };
+    if (dom.filterDateFrom) dom.filterDateFrom.value = '';
+    if (dom.filterDateTo) dom.filterDateTo.value = '';
+    if (dom.filterEmotion) dom.filterEmotion.value = 'all';
+    if (dom.filterPattern) dom.filterPattern.value = 'all';
+    if (dom.filterTrigger) dom.filterTrigger.value = '';
+    if (dom.searchInput) dom.searchInput.value = '';
+    appState.filterByDate = null;
+    renderEntryList();
+}
+
+async function googleLogin() {
+    if (!window.auth || !window.googleProvider) {
+        showToast('Firebaseが初期化されていません', 'error');
+        return;
+    }
+    try {
+        await window.auth.signInWithPopup(window.googleProvider);
+    } catch (e) {
+        console.error('[auth] login failed', { code: e.code, message: e.message });
+        showToast('ログインに失敗しました', 'error');
+    }
+}
+
+async function handleLogout() {
+    if (!window.auth) return;
+    try {
+        await window.auth.signOut();
+        showToast('ログアウトしました');
+    } catch (e) {
+        console.error('[auth] logout failed', { code: e.code, message: e.message });
+        showToast('ログアウトに失敗しました', 'error');
+    }
+}
+
+async function handleUpdatePassword() {
+    if (!appState.user || !window.auth || !window.googleProvider) {
+        showToast('ログインしてください', 'error');
+        return;
+    }
+    const currentPass = dom.inputCurrentPass ? dom.inputCurrentPass.value : '';
+    const nextPass = dom.inputNewPass ? dom.inputNewPass.value : '';
+    if (appState.masterPassword && currentPass !== appState.masterPassword) {
+        showToast('現在のパスワードが違います', 'error');
+        return;
+    }
+    try {
+        await window.auth.currentUser.reauthenticateWithPopup(window.googleProvider);
+        appState.masterPassword = nextPass || '';
+        if (appState.masterPassword) {
+            localStorage.setItem('masterPassword', appState.masterPassword);
+        } else {
+            localStorage.removeItem('masterPassword');
+        }
+        if (dom.inputCurrentPass) dom.inputCurrentPass.value = '';
+        if (dom.inputNewPass) dom.inputNewPass.value = '';
+        showToast('パスワードを更新しました');
+    } catch (e) {
+        console.error('[auth] reauth failed', { code: e.code, message: e.message });
+        showToast('認証に失敗しました', 'error');
+    }
+}
+
+async function handleForgotPassword() {
+    if (!appState.user || !window.auth || !window.googleProvider) {
+        showToast('ログインしてください', 'error');
+        return;
+    }
+    try {
+        await window.auth.currentUser.reauthenticateWithPopup(window.googleProvider);
+        openResetModal();
+    } catch (e) {
+        console.error('[auth] reset reauth failed', { code: e.code, message: e.message });
+        showToast('認証に失敗しました', 'error');
+    }
+}
+
+function openResetModal() {
+    if (!dom.modalReset) return;
+    dom.modalReset.classList.remove('hidden');
+    dom.modalReset.classList.add('active');
+    if (dom.inputResetNewPass) dom.inputResetNewPass.value = '';
+}
+
+function closeResetModal() {
+    if (!dom.modalReset) return;
+    dom.modalReset.classList.add('hidden');
+    dom.modalReset.classList.remove('active');
+}
+
+function saveResetPassword() {
+    const nextPass = dom.inputResetNewPass ? dom.inputResetNewPass.value : '';
+    appState.masterPassword = nextPass || '';
+    if (appState.masterPassword) {
+        localStorage.setItem('masterPassword', appState.masterPassword);
+    } else {
+        localStorage.removeItem('masterPassword');
+    }
+    closeResetModal();
+    showToast('パスワードを更新しました');
+}
+
+function closeSettingsModal() {
+    if (!dom.modalSettings) return;
+    dom.modalSettings.classList.add('hidden');
+    dom.modalSettings.classList.remove('active');
+}
+
+async function saveEntryHelper() {
+    if (!appState.user) {
+        showToast('ログインしてください', 'error');
+        return;
+    }
+
+    const content = dom.inputContent ? dom.inputContent.value.trim() : '';
+    if (!content && !currentUploadImage) {
+        showToast('本文を入力してください', 'error');
+        return;
+    }
+
+    const isLocked = dom.selectLockStatus ? dom.selectLockStatus.value === 'locked' : false;
+    const existing = appState.activeEntryId
+        ? appState.entries.find(e => e.id === appState.activeEntryId)
+        : null;
+
+    const baseDate = existing ? getEntryDate(existing) : (appState.writingDate || new Date());
+    const entry = existing ? { ...existing } : { created_at: baseDate };
+    entry.content = content;
+    entry.text = content;
+    entry.image = currentUploadImage || null;
+    entry.isLocked = isLocked;
+    entry.locked = isLocked;
+    entry.created_at = entry.created_at || baseDate;
+
+    const isNew = !entry.id;
+    const entryId = await saveEntryToFirestore(entry);
+    if (!entryId) return;
+
+    entry.id = entryId;
+    const index = appState.entries.findIndex(e => e.id === entryId);
+    if (index >= 0) {
+        appState.entries[index] = entry;
+    } else {
+        appState.entries.unshift(entry);
+    }
+    appState.activeEntryId = entryId;
+    appState.writingDate = baseDate;
+
+    showToast('保存しました');
+    openEntry(entryId);
+    renderEntryList();
+    if (appState.currentView === 'calendar') renderCalendar();
+    if (appState.currentView === 'mypage') renderMyPage();
+
+    await runAnalysisForEntry(entry, !isNew);
+}
+
+function cancelEdit() {
+    if (appState.activeEntryId) {
+        openEntry(appState.activeEntryId);
+    } else {
+        navigateTo('list');
+    }
+}
+
+function requestDeleteEntry() {
+    if (!appState.activeEntryId || !dom.modalDelete) return;
+    dom.modalDelete.classList.remove('hidden');
+    dom.modalDelete.classList.add('active');
+}
+
+function cancelDeleteHelper() {
+    if (!dom.modalDelete) return;
+    dom.modalDelete.classList.add('hidden');
+    dom.modalDelete.classList.remove('active');
+}
+
+async function confirmDeleteHelper() {
+    const entryId = appState.activeEntryId;
+    if (!entryId) return;
+    cancelDeleteHelper();
+    await deleteEntryFromFirestore(entryId);
+    appState.activeEntryId = null;
+    navigateTo('list');
 }
 
 // --- Firestore Data Operations ---
@@ -158,20 +547,102 @@ async function loadEntries() {
     const db = window.db;
     if (!appState.user || !db) return;
     try {
-        const snapshot = await db.collection('users')
-            .doc(appState.user.uid)
-            .collection('entries')
-            .orderBy('date', 'desc')
-            .get();
+        const userId = appState.user.uid;
+        const entriesMap = new Map();
 
-        appState.entries = [];
-        snapshot.forEach((doc) => {
-            appState.entries.push({ id: doc.id, ...doc.data() });
+        const queries = [
+            db.collection('diary_entries').where('userId', '==', userId).orderBy('createdAt', 'desc').get(),
+            db.collection('diary_entries').where('user_id', '==', userId).orderBy('created_at', 'desc').get()
+        ];
+
+        const results = await Promise.allSettled(queries);
+        results.forEach((result) => {
+            if (result.status !== 'fulfilled') return;
+            result.value.forEach((doc) => {
+                const data = doc.data() || {};
+                entriesMap.set(doc.id, {
+                    id: doc.id,
+                    userId: data.userId || data.user_id || null,
+                    user_id: data.user_id || data.userId || null,
+                    createdAt: data.createdAt || null,
+                    created_at: data.created_at || data.date || null,
+                    text: data.text || '',
+                    content: data.text || data.content || '',
+                    image: data.image || null,
+                    locked: data.locked || data.isLocked || false,
+                    isLocked: data.locked || data.isLocked || false,
+                    meta: data.meta || {}
+                });
+            });
         });
+
+        appState.entries = Array.from(entriesMap.values())
+            .sort((a, b) => getEntryDate(b) - getEntryDate(a));
+
+        await loadAnalysesForEntries(appState.entries.map(e => e.id));
+        refreshFilterOptions();
         renderEntryList();
+        if (appState.currentView === 'mypage') renderMyPage();
     } catch (e) {
-        console.error("Error loading entries: ", e);
-        showToast('データの読み込みに失敗しました', 'error');
+        console.error('Error loading entries:', e);
+        showToast('日記の読み込みに失敗しました', 'error');
+    }
+}
+
+async function loadAnalysesForEntries(entryIds) {
+    const db = window.db;
+    if (!appState.user || !db) return;
+    appState.analysisById = {};
+    for (const entryId of entryIds) {
+        if (!entryId) continue;
+        try {
+            const doc = await db.collection('diary_analysis').doc(entryId).get();
+            if (doc.exists) {
+                appState.analysisById[entryId] = doc.data();
+            }
+        } catch (e) {
+            console.error('Error loading analysis:', e);
+        }
+    }
+}
+
+function refreshFilterOptions() {
+    if (dom.filterEmotion) {
+        dom.filterEmotion.innerHTML = '';
+        const optAll = document.createElement('option');
+        optAll.value = 'all';
+        optAll.textContent = '\u611f\u60c5: \u3059\u3079\u3066';
+        dom.filterEmotion.appendChild(optAll);
+        EMOTION_ORDER.forEach((k) => {
+            const opt = document.createElement('option');
+            opt.value = k;
+            opt.textContent = EMOTION_LABELS[k];
+            dom.filterEmotion.appendChild(opt);
+        });
+        dom.filterEmotion.value = appState.filters.emotion || 'all';
+    }
+
+    if (dom.filterPattern) {
+        const patternSet = new Set();
+        Object.values(appState.analysisById).forEach((a) => {
+            (a.patterns || []).forEach((p) => {
+                const label = p.label || p.pattern_id || '';
+                if (label) patternSet.add(label);
+            });
+        });
+        const patterns = Array.from(patternSet).sort();
+        dom.filterPattern.innerHTML = '';
+        const optAll = document.createElement('option');
+        optAll.value = 'all';
+        optAll.textContent = '\u8a8d\u77e5\u30d1\u30bf\u30fc\u30f3: \u3059\u3079\u3066';
+        dom.filterPattern.appendChild(optAll);
+        patterns.forEach((p) => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            dom.filterPattern.appendChild(opt);
+        });
+        dom.filterPattern.value = appState.filters.pattern || 'all';
     }
 }
 
@@ -179,45 +650,36 @@ async function saveEntryToFirestore(entry) {
     const auth = window.auth;
     const db = window.db;
 
-    if (!auth || !auth.currentUser || !db) { // Check auth AND auth.currentUser to prevent crash
-        alert('エラー: ログイン状態が確認できません。ページをリロードして再ログインしてください。');
+    if (!auth || !auth.currentUser || !db) {
+        alert('ログイン状態を確認できません。再読み込みしてください。');
         return false;
     }
 
-    // Deep copy and sanitize to remove any 'undefined' values which Firestore hates
-    const entryData = JSON.parse(JSON.stringify(entry));
-    delete entryData.id;
-
-    console.log('[DEBUG] Attempting to save:', entryData);
+    const serverTimestamp = getServerTimestamp();
+    const entryData = {
+        userId: auth.currentUser.uid,
+        createdAt: serverTimestamp,
+        created_at: getEntryDate(entry).toISOString(),
+        text: entry.content || entry.text || '',
+        image: entry.image || null,
+        locked: entry.isLocked || entry.locked || false,
+        meta: entry.meta || {}
+    };
 
     try {
-        const userId = auth.currentUser.uid;
-        console.log('[DEBUG] Saving to: users/' + userId + '/entries');
-        const entriesRef = db.collection('users').doc(userId).collection('entries');
-
-        if (entry.id && !entry.isNew) {
+        console.info('[save] diary_entries start', { entryId: entry.id || null, userId: auth.currentUser.uid });
+        const entriesRef = db.collection('diary_entries');
+        if (entry.id) {
             await entriesRef.doc(entry.id).set(entryData, { merge: true });
         } else {
-            if (entry.id) {
-                await entriesRef.doc(entry.id).set(entryData);
-            } else {
-                await entriesRef.add(entryData);
-            }
+            const docRef = await entriesRef.add(entryData);
+            entry.id = docRef.id;
         }
-        await loadEntries();
-        return true;
+        console.info('[save] diary_entries ok', { entryId: entry.id });
+        return entry.id;
     } catch (e) {
-        console.error("Save Error Details: ", e);
-        let msg = '保存に失敗しました: ' + e.message;
-
-        // Handle common Firestore errors clearly
-        if (e.code === 'permission-denied') {
-            msg = '【保存エラー: 権限不足】\nFirebaseのセキュリティルールにより書き込みがブロックされています。\n\nFirebaseコンソールの「Firestore Database」＞「ルール」を開き、\nallow read, write: if request.auth != null; \nに変更してください。';
-        } else if (e.code === 'unavailable') {
-            msg = '【保存エラー: 通信オフライン】\nインターネット接続を確認してください。';
-        }
-
-        alert(msg); // Force alert for visibility
+        console.error('[save] diary_entries failed', { stage: 'entry', code: e.code, message: e.message });
+        alert('保存に失敗しました: ' + e.message);
         return false;
     }
 }
@@ -226,11 +688,13 @@ async function deleteEntryFromFirestore(entryId) {
     const db = window.db;
     if (!appState.user || !db) return;
     try {
-        await db.collection('users').doc(appState.user.uid).collection('entries').doc(entryId).delete();
+        await db.collection('diary_entries').doc(entryId).delete();
+        await db.collection('diary_analysis').doc(entryId).delete();
+        await db.collection('diary_embeddings').doc(entryId).delete();
         await loadEntries();
         showToast('日記を削除しました');
     } catch (e) {
-        console.error("Delete Error: ", e);
+        console.error('Delete Error:', e);
         showToast('削除に失敗しました', 'error');
     }
 }
@@ -270,88 +734,318 @@ function navigateTo(viewName) {
     }
 }
 
-function renderMyPage() {
-    if (!dom.mypageContainer) return;
-    const list = appState.entries || [];
-    const totalCount = list.length;
+function getPeriodConfig(periodKey) {
+    const now = new Date();
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    if (periodKey === '30d') {
+        const from = new Date(end);
+        from.setDate(from.getDate() - 29);
+        from.setHours(0, 0, 0, 0);
+        return { label: '\u0033\u0030\u65e5', from, to: end };
+    }
+    if (periodKey === '90d') {
+        const from = new Date(end);
+        from.setDate(from.getDate() - 89);
+        from.setHours(0, 0, 0, 0);
+        return { label: '\u0039\u0030\u65e5', from, to: end };
+    }
+    if (periodKey === 'all') {
+        return { label: '\u5168\u671f\u9593', from: null, to: end };
+    }
+    const from = new Date(end);
+    from.setDate(from.getDate() - 6);
+    from.setHours(0, 0, 0, 0);
+    return { label: '\u0037\u65e5', from, to: end };
+}
 
-    let totalSum = 0, timeSum = 0, qualitySum = 0, enjoySum = 0;
-    let scoreCount = 0;
-
-    list.forEach(e => {
-        if (e.aiScore && typeof e.aiScore.total === 'number') {
-            totalSum += e.aiScore.total;
-            timeSum += (e.aiScore.breakdown?.time || 0);
-            qualitySum += (e.aiScore.breakdown?.quality || 0);
-            enjoySum += (e.aiScore.breakdown?.enjoyment || 0);
-            scoreCount++;
-        }
+function filterEntriesByPeriod(entries, from) {
+    if (!from) return [...entries];
+    return entries.filter((e) => {
+        const date = getEntryDate(e);
+        return date >= from;
     });
+}
 
-    const avgTotal = scoreCount > 0 ? Math.round(totalSum / scoreCount) : 0;
-    const avgTime = scoreCount > 0 ? Math.round(timeSum / scoreCount) : 0;
-    const avgQuality = scoreCount > 0 ? Math.round(qualitySum / scoreCount) : 0;
-    const avgEnjoy = scoreCount > 0 ? Math.round(enjoySum / scoreCount) : 0;
-
-    const g = (lbl, val, sz, iconClass) => {
-        const p = Math.min(100, Math.max(0, val || 0));
-        const c = p >= 80 ? 'score-high' : p >= 50 ? 'score-mid' : 'score-low';
-        return `<div class="score-gauge ${c}" style="width:${sz}px; height:${sz}px; margin: 0 auto;">
-            <svg viewBox="0 0 36 36" class="circular-chart">
-                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="circle" stroke-dasharray="${p}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <div class="gauge-content">
-                ${iconClass ? `<i class="${iconClass}" style="font-size:${sz * 0.2}px; opacity:0.7; margin-bottom:4px;"></i>` : ''}
-                <div class="gauge-value" style="font-size:${sz * 0.25}px;">${val}</div>
-                <div class="gauge-label" style="font-size:${sz * 0.1}px;">${lbl}</div>
-            </div>
-        </div>`;
-    };
-
+function computeStreakStats(entries) {
+    if (!entries.length) return { streak: 0, longestStreak: 0 };
+    const dateSet = new Set(entries.map((e) => getEntryDate(e).toDateString()));
     let streak = 0;
-    if (list.length > 0) {
-        const sorted = [...list].sort((a, b) => new Date(b.date) - new Date(a.date));
-        const dateSet = new Set(sorted.map(e => new Date(e.date).toDateString()));
-        let current = new Date();
-        while (true) {
-            if (dateSet.has(current.toDateString())) { streak++; current.setDate(current.getDate() - 1); }
-            else {
-                if (current.toDateString() === new Date().toDateString() && !dateSet.has(current.toDateString())) {
-                    current.setDate(current.getDate() - 1); continue;
-                }
-                break;
-            }
+    const cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+    while (true) {
+        if (dateSet.has(cursor.toDateString())) {
+            streak += 1;
+            cursor.setDate(cursor.getDate() - 1);
+            continue;
         }
+        break;
     }
 
+    const uniqueDates = Array.from(dateSet).map((d) => {
+        const dt = new Date(d);
+        return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    }).sort((a, b) => a - b);
+    let longestStreak = 0;
+    let run = 0;
+    let prev = null;
+    uniqueDates.forEach((d) => {
+        if (prev && (d - prev) === 86400000) {
+            run += 1;
+        } else {
+            run = 1;
+        }
+        if (run > longestStreak) longestStreak = run;
+        prev = d;
+    });
+
+    return { streak, longestStreak };
+}
+
+function aggregateStats(entries) {
+    const totalCount = entries.length;
+    const totalChars = entries.reduce((sum, e) => sum + ((e.content || '').length), 0);
+    const streakStats = computeStreakStats(entries);
+
+    const emotionCounts = {};
+    const patternCounts = {};
+    const triggerCounts = {};
+    let analyzedCount = 0;
+
+    entries.forEach((entry) => {
+        const analysis = appState.analysisById[entry.id];
+        if (!analysis) return;
+        analyzedCount += 1;
+
+        const topEmotion = getTopEmotion(analysis);
+        if (topEmotion) {
+            emotionCounts[topEmotion.key] = (emotionCounts[topEmotion.key] || 0) + 1;
+        }
+
+        (analysis.patterns || []).forEach((p) => {
+            const label = p.label || p.pattern_id || '';
+            if (!label) return;
+            patternCounts[label] = (patternCounts[label] || 0) + 1;
+        });
+
+        (analysis.triggers || []).forEach((t) => {
+            const label = String(t || '').trim();
+            if (!label) return;
+            triggerCounts[label] = (triggerCounts[label] || 0) + 1;
+        });
+    });
+
+    const emotionsSorted = Object.keys(emotionCounts)
+        .map((key) => ({ key, count: emotionCounts[key] }))
+        .sort((a, b) => b.count - a.count);
+
+    const patternsSorted = Object.keys(patternCounts)
+        .map((label) => ({ label, count: patternCounts[label] }))
+        .sort((a, b) => b.count - a.count);
+
+    const triggersSorted = Object.keys(triggerCounts)
+        .map((label) => ({ label, count: triggerCounts[label] }))
+        .sort((a, b) => b.count - a.count);
+
+    return {
+        totalCount,
+        totalChars,
+        streak: streakStats.streak,
+        longestStreak: streakStats.longestStreak,
+        analyzedCount,
+        emotionCounts,
+        emotionsSorted,
+        patternsSorted,
+        triggersSorted
+    };
+}
+
+function renderRankList(items, unit) {
+    if (!items.length) {
+        return `<div class="rank-empty">未集計</div>`;
+    }
+    return `<div class="rank-list">${items.map((item, idx) => {
+        const value = unit ? `${item.value}${unit}` : String(item.value);
+        return `
+            <div class="rank-row">
+                <span class="rank-index">${idx + 1}</span>
+                <span class="rank-label">${escapeHtml(item.label)}</span>
+                <span class="rank-value">${value}</span>
+            </div>
+        `;
+    }).join('')}</div>`;
+}
+
+async function requestSummaryUpdate(periodKey, periodLabel, stats) {
+    if (appState.summaryUpdating) return;
+    appState.summaryUpdating = true;
+    renderMyPage();
+    try {
+        const topEmotion = stats.emotionsSorted[0] ? EMOTION_LABELS[stats.emotionsSorted[0].key] : '';
+        const topPattern = stats.patternsSorted[0] ? stats.patternsSorted[0].label : '';
+        const emotionTop5 = stats.emotionsSorted.slice(0, 5).map((e) => ({
+            label: EMOTION_LABELS[e.key] || e.key,
+            value: e.count
+        }));
+        const patternTop5 = stats.patternsSorted.slice(0, 5).map((p) => ({
+            label: p.label,
+            value: p.count
+        }));
+
+        const result = await apiPost('/api/summary', {
+            period_label: periodLabel,
+            top_emotion: topEmotion,
+            top_pattern: topPattern,
+            emotion_top5: emotionTop5,
+            pattern_top5: patternTop5
+        });
+
+        appState.summaryText = result.summary || '';
+        appState.themes = Array.isArray(result.themes) ? result.themes : [];
+        appState.summaryPeriod = periodKey;
+        appState.summaryUpdatedAt = new Date().toISOString();
+    } catch (e) {
+        showToast('要約の更新に失敗しました', 'error');
+    } finally {
+        appState.summaryUpdating = false;
+        renderMyPage();
+    }
+}
+
+function renderMyPage() {
+    if (!dom.mypageContainer) return;
+    const periodKey = appState.period || '7d';
+    const periodConfig = getPeriodConfig(periodKey);
+    const filtered = filterEntriesByPeriod(appState.entries || [], periodConfig.from)
+        .sort((a, b) => getEntryDate(b) - getEntryDate(a));
+    const stats = aggregateStats(filtered);
+
+    const topEmotion = stats.emotionsSorted[0];
+    const topEmotionLabel = topEmotion ? (EMOTION_LABELS[topEmotion.key] || topEmotion.key) : '未集計';
+    const emotionTotal = stats.analyzedCount || 0;
+    const topEmotionPct = emotionTotal ? Math.round((topEmotion.count / emotionTotal) * 100) : 0;
+    const topEmotionValue = emotionTotal ? `${topEmotionLabel} ${topEmotionPct}%` : '未集計';
+
+    const topPattern = stats.patternsSorted[0];
+    const topPatternValue = topPattern ? `${topPattern.label} (${topPattern.count})` : '未集計';
+
+    const summaryAvailable = appState.summaryPeriod === periodKey && appState.summaryText;
+    const summaryText = summaryAvailable ? appState.summaryText : '要約は未更新です。';
+    const themes = summaryAvailable ? appState.themes : [];
+
+    const emotionTop5 = stats.emotionsSorted.slice(0, 5).map((e) => ({
+        label: EMOTION_LABELS[e.key] || e.key,
+        value: emotionTotal ? Math.round((e.count / emotionTotal) * 100) + '%' : '0%'
+    }));
+    const patternTop5 = stats.patternsSorted.slice(0, 5).map((p) => ({
+        label: p.label,
+        value: p.count
+    }));
+    const triggerTop10 = stats.triggersSorted.slice(0, 10).map((t) => ({
+        label: t.label,
+        value: t.count
+    }));
+
+    const periodButtons = [
+        { key: '7d', label: '7日' },
+        { key: '30d', label: '30日' },
+        { key: '90d', label: '90日' },
+        { key: 'all', label: '全期間' }
+    ];
+
+    const latestEntry = filtered[0];
+    const similar = latestEntry ? (appState.similarById[latestEntry.id] || []) : [];
+    const similarItems = similar.map((s) => {
+        const ref = appState.entries.find(e => e.id === s.entry_id);
+        return {
+            id: s.entry_id,
+            label: ref ? escapeHtml(ref.content || '').slice(0, 40) : s.entry_id
+        };
+    });
+
+    const similarHtml = latestEntry
+        ? (similarItems.length
+            ? `<div class="similar-list">${similarItems.map((s) => `<button class="btn-text-sm" onclick="openEntry('${s.id}')">${s.label}</button>`).join('')}</div>`
+            : `<button id="btn-similar-refresh" class="btn-text-sm">類似日記を検索</button>`)
+        : `<div class="rank-empty">該当期間の日記がありません</div>`;
+
     dom.mypageContainer.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; gap:3rem;">
-            <div style="text-align:center;">
-                <h3 style="margin-bottom:1rem; font-family:var(--font-heading); color:var(--text-muted);">全期間の平均スコア</h3>
-                ${g('総合平均', avgTotal, 160, 'fa-solid fa-crown')}
+        <div class="mypage-stack">
+            <div class="period-selector">
+                <div class="period-buttons">
+                    ${periodButtons.map((btn) => `
+                        <button class="period-btn ${btn.key === periodKey ? 'active' : ''}" data-period="${btn.key}">${btn.label}</button>
+                    `).join('')}
+                </div>
+                <button id="btn-summary-refresh" class="btn-secondary" ${appState.summaryUpdating ? 'disabled' : ''}>${appState.summaryUpdating ? '更新中...' : '要約を更新'}</button>
             </div>
-            <div style="display:flex; gap:2rem; justify-content:center; flex-wrap:wrap; width:100%;">
-                <div style="display:flex; flex-direction:column; align-items:center; gap:1rem;"> ${g('時間の使い方', avgTime, 100, 'fa-regular fa-clock')} </div>
-                <div style="display:flex; flex-direction:column; align-items:center; gap:1rem;"> ${g('生活の質', avgQuality, 100, 'fa-solid fa-gem')} </div>
-                <div style="display:flex; flex-direction:column; align-items:center; gap:1rem;"> ${g('充実度', avgEnjoy, 100, 'fa-regular fa-face-smile-wink')} </div>
+
+            <div class="stat-card summary-card">
+                <div class="summary-header">
+                    <h3>今の要約</h3>
+                    <span class="summary-period">${periodConfig.label}</span>
+                </div>
+                <p class="summary-text">${escapeHtml(summaryText)}</p>
             </div>
-            <div class="stats-grid" style="width:100%; margin-top:1rem;">
-                <div class="stat-card"> <i class="fa-solid fa-book stat-icon"></i> <div class="stat-value">${totalCount}</div> <div class="stat-label">日記の総数</div> </div>
-                 <div class="stat-card"> <i class="fa-solid fa-fire stat-icon"></i> <div class="stat-value">${streak}</div> <div class="stat-label">連続日数</div> </div>
+
+            <div class="stats-grid" style="width:100%;">
+                <div class="stat-card"> <i class="fa-solid fa-book stat-icon"></i> <div class="stat-value">${stats.totalCount}</div> <div class="stat-label">日記の総数</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-fire stat-icon"></i> <div class="stat-value">${stats.streak}</div> <div class="stat-label">連続投稿日数</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-trophy stat-icon"></i> <div class="stat-value">${stats.longestStreak}</div> <div class="stat-label">最長連続投稿日数</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-keyboard stat-icon"></i> <div class="stat-value">${stats.totalChars.toLocaleString('ja-JP')}</div> <div class="stat-label">投稿の総文字数</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-heart stat-icon"></i> <div class="stat-value">${escapeHtml(topEmotionValue)}</div> <div class="stat-label">感情Top1</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-brain stat-icon"></i> <div class="stat-value">${escapeHtml(topPatternValue)}</div> <div class="stat-label">認知パターンTop1</div> </div>
             </div>
-            <div class="stat-card" style="width:100%;">
-                <h3 style="margin-bottom:1rem; color:var(--text-main);">TQS分析レポート</h3>
-                <p style="color:var(--text-muted); line-height:1.6;">
-                    現在の総合平均は <strong>${avgTotal}点</strong> です。<br>
-                    ${avgTotal >= 80 ? '素晴らしい状態をキープできています！' : avgTotal >= 50 ? '安定したバランスの良い日々です。' : '少し疲れが見えるかもしれません。休息を大切に。'}
-                </p>
+
+            <div class="ranking-grid">
+                <div class="stat-card">
+                    <h4>感情Top5</h4>
+                    ${renderRankList(emotionTop5, '')}
+                </div>
+                <div class="stat-card">
+                    <h4>認知パターンTop5</h4>
+                    ${renderRankList(patternTop5, '')}
+                </div>
+                <div class="stat-card">
+                    <h4>トリガー語Top10</h4>
+                    ${renderRankList(triggerTop10, '')}
+                </div>
+            </div>
+
+            <div class="stat-card themes-card">
+                <h4>繰り返しテーマTop3</h4>
+                <div class="themes-list">
+                    ${themes.length ? themes.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('') : '<span class="rank-empty">未更新</span>'}
+                </div>
+            </div>
+
+            <div class="stat-card similar-card">
+                <h4>最近の似ている日</h4>
+                ${similarHtml}
             </div>
         </div>
     `;
+
+    const periodBtns = dom.mypageContainer.querySelectorAll('.period-btn');
+    periodBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            appState.period = btn.dataset.period || '7d';
+            renderMyPage();
+        });
+    });
+
+    const summaryBtn = dom.mypageContainer.querySelector('#btn-summary-refresh');
+    if (summaryBtn) {
+        summaryBtn.addEventListener('click', () => requestSummaryUpdate(periodKey, periodConfig.label, stats));
+    }
+
+    const similarBtn = dom.mypageContainer.querySelector('#btn-similar-refresh');
+    if (similarBtn && latestEntry) {
+        similarBtn.addEventListener('click', () => fetchSimilarForEntryById(latestEntry.id));
+    }
 }
 
 // --- Editor Logic ---
+
 function openEntry(entryId = null, targetDate = null) {
     appState.activeEntryId = entryId;
     currentUploadImage = null;
@@ -361,13 +1055,15 @@ function openEntry(entryId = null, targetDate = null) {
     if (dom.inputUnlockPass) dom.inputUnlockPass.value = '';
 
     if (entryId) {
-        // --- VIEW MODE ---
         const entry = appState.entries.find(e => e.id === entryId);
         if (!entry) return navigateTo('list');
 
-        appState.writingDate = new Date(entry.date);
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '日記の詳細';
-        if (dom.displayDate) dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-check"></i> ${formatDate(entry.date)} <span style="font-size:0.8em; margin-left:10px;">${formatTime(entry.date)}</span>`;
+        currentUploadImage = entry.image || null;
+        appState.writingDate = getEntryDate(entry);
+        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '\u65e5\u8a18\u306e\u8a73\u7d30';
+        if (dom.displayDate) {
+            dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-check"></i> ${formatDate(getEntryDate(entry))} <span style="font-size:0.8em; margin-left:10px;">${formatTime(getEntryDate(entry))}</span>`;
+        }
         if (dom.selectLockStatus) dom.selectLockStatus.value = entry.isLocked ? 'locked' : 'unlocked';
 
         if (entry.isLocked) {
@@ -379,32 +1075,34 @@ function openEntry(entryId = null, targetDate = null) {
             if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'none';
         } else {
             if (dom.contentDisplayText) dom.contentDisplayText.textContent = entry.content;
-            toggleEditMode(false); // Default to Read Mode
+            toggleEditMode(false);
             if (entry.image) {
                 if (dom.imagePreview) dom.imagePreview.src = entry.image;
                 if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.remove('hidden');
-            } else { if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden'); }
+            } else if (dom.imagePreviewContainer) {
+                dom.imagePreviewContainer.classList.add('hidden');
+            }
         }
 
         if (dom.displayScore) dom.displayScore.innerHTML = '';
-        if (entry.aiScore && entry.aiScore.total) {
-            if (entry.isLocked) { renderAiResult(null, null, entry.aiScore); }
-            else { renderAiResult(entry.title, entry.aiAdvice, entry.aiScore); }
-        } else if (!entry.isLocked) {
-            if (dom.displayScore) dom.displayScore.innerHTML = `<button id="btn-retry-ai" class="btn-primary" style="margin:0 auto;" onclick="app.retryAnalysis('${entry.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI分析を実行</button>`;
-        }
-
+        renderAnalysisPanel(entry);
     } else {
-        // --- WRITE MODE ---
         appState.writingDate = targetDate || new Date();
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '新しい日記';
+        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65b0\u3057\u3044\u65e5\u8a18';
         if (dom.displayDate) dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-plus"></i> ${formatDate(appState.writingDate)}`;
         if (dom.selectLockStatus) dom.selectLockStatus.value = 'unlocked';
         if (dom.inputContent) dom.inputContent.value = '';
         if (dom.displayScore) dom.displayScore.innerHTML = '';
         if (dom.entryImageInput) dom.entryImageInput.value = '';
+        if (dom.imagePreview) dom.imagePreview.src = '';
+        if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
         toggleEditMode(true);
-        setTimeout(() => { if (dom.inputContent) { dom.inputContent.focus(); if (autoResizeTextarea) autoResizeTextarea(); } }, 100);
+        setTimeout(() => {
+            if (dom.inputContent) {
+                dom.inputContent.focus();
+                if (autoResizeTextarea) autoResizeTextarea();
+            }
+        }, 100);
     }
 }
 
@@ -421,12 +1119,13 @@ function toggleEditMode(isEdit) {
             const entry = appState.entries.find(e => e.id === appState.activeEntryId);
             if (entry) {
                 if (dom.inputContent) dom.inputContent.value = entry.content;
-                if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> 更新';
-                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '日記を編集';
+                if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
+                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65e5\u8a18\u3092\u7de8\u96c6';
             }
             if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'inline-flex';
         } else {
-            if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> 保存';
+            if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
+            if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65e5\u8a18\u3092\u66f8\u304f';
         }
         setTimeout(() => { if (autoResizeTextarea) autoResizeTextarea(); }, 10);
     } else {
@@ -457,37 +1156,17 @@ function unlockEntry() {
                 if (dom.imagePreview) dom.imagePreview.src = entry.image;
                 if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.remove('hidden');
             }
-            if (entry.aiScore && entry.aiScore.total) { renderAiResult(entry.title, entry.aiAdvice, entry.aiScore); }
-            else {
-                if (dom.displayScore) dom.displayScore.innerHTML = `<button id="btn-retry-ai" class="btn-primary" style="margin:0 auto;" onclick="retryAnalysisHelper('${entry.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI分析を実行</button>`;
-            }
+            renderAnalysisPanel(entry);
         }
     } else {
-        showToast('パスワードが違います', 'error');
+        showToast('\u30d1\u30b9\u30ef\u30fc\u30c9\u304c\u9055\u3044\u307e\u3059', 'error');
     }
 }
 
 async function retryAnalysisHelper(entryId) {
-    if (!appState.apiKey) { showToast('設定からAIキーを入力してください', 'error'); dom.modalSettings.classList.remove('hidden'); return; }
     const entry = appState.entries.find(e => e.id === entryId);
     if (!entry) return;
-    const btn = document.getElementById('btn-retry-ai'); if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 分析中...'; }
-    try {
-        const aiResult = await analyzeDiary(entry.content);
-        if (aiResult) {
-            entry.title = aiResult.title || entry.title;
-            entry.aiAdvice = aiResult.advice || '';
-            entry.aiScore = aiResult.score || null;
-            // SAVE TO FIRESTORE
-            await saveEntryToFirestore(entry);
-
-            showToast('AI分析が完了しました！');
-            renderAiResult(entry.title, entry.aiAdvice, entry.aiScore);
-        } else {
-            showToast('分析に失敗しました。', 'error');
-            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> 再試行'; }
-        }
-    } catch (e) { showToast('エラーが発生しました', 'error'); if (btn) { btn.disabled = false; btn.innerHTML = 'エラー'; } }
+    await runAnalysisForEntry(entry, true);
 }
 
 async function handleImageUpload(file) {
@@ -497,7 +1176,9 @@ async function handleImageUpload(file) {
         currentUploadImage = compressed;
         if (dom.imagePreview) dom.imagePreview.src = compressed;
         if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.remove('hidden');
-    } catch (e) { showToast('画像エラー', 'error'); }
+    } catch (e) {
+        showToast('\u753b\u50cf\u306e\u8aad\u307f\u8fbc\u307f\u306b\u5931\u6557\u3057\u307e\u3057\u305f', 'error');
+    }
 }
 
 function compressImage(file, maxWidth, quality) {
@@ -520,72 +1201,412 @@ function compressImage(file, maxWidth, quality) {
     });
 }
 
-function renderAiResult(title, advice, scoreData) {
-    let html = '';
-    if (title) html += `<div class="view-entry-title">${title}</div>`;
+function renderAnalysisPanel(entry) {
+    if (!dom.analysisPanel) return;
+    if (!entry) {
+        dom.analysisPanel.innerHTML = '';
+        return;
+    }
+    if (entry.isLocked) {
+        dom.analysisPanel.innerHTML = '<div class="analysis-status">ロック中</div>';
+        return;
+    }
 
-    if (scoreData && scoreData.total) {
-        const { total, breakdown } = scoreData;
-        const g = (lbl, val, sz) => {
-            const p = Math.min(100, Math.max(0, val || 0));
-            const c = p >= 80 ? 'score-high' : p >= 50 ? 'score-mid' : 'score-low';
-            return `<div class="score-gauge ${c}" style="width:${sz}px; height:${sz}px;">
-                <svg viewBox="0 0 36 36" class="circular-chart">
-                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    <path class="circle" stroke-dasharray="${p}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="gauge-content">
-                    <div class="gauge-value" style="font-size:${sz * 0.28}px;">${val}</div>
-                    <div class="gauge-label" style="font-size:${sz * 0.12}px;">${lbl}</div>
-                </div>
-            </div>`;
-        };
-        // Use inline string building for simplicity
-        html += `<div class="score-display-wrapper" style="display:flex; flex-direction:column; align-items:center; gap:20px; width:100%; margin-bottom:1.5rem;">${g('総合点', total, 100)}<div class="score-row-sub" style="display:flex; gap:25px; justify-content:center; flex-wrap:wrap;">${g('時間', breakdown?.time, 70)}${g('質', breakdown?.quality, 70)}${g('楽しさ', breakdown?.enjoyment, 70)}</div></div>`;
+    const analysis = appState.analysisById[entry.id];
+    const status = appState.analysisStatusById[entry.id] || (analysis ? 'done' : 'none');
+
+    if (status === 'processing') {
+        dom.analysisPanel.innerHTML = '<div class="analysis-status">解析中...</div>';
+        return;
     }
-    if (advice) html += `<div class="ai-advice-box"><p class="ai-advice-text">${advice}</p></div>`;
-    if (dom.displayScore) {
-        dom.displayScore.style.opacity = '0'; dom.displayScore.innerHTML = html;
-        requestAnimationFrame(() => { dom.displayScore.style.transition = 'opacity 0.5s'; dom.displayScore.style.opacity = '1'; });
+
+    if (status === 'failed') {
+        dom.analysisPanel.innerHTML = `
+            <div class="analysis-status">\u89e3\u6790\u306b\u5931\u6557\u3057\u307e\u3057\u305f</div>
+            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">\u89e3\u6790\u3092\u518d\u8a66\u884c</button>
+        `;
+        return;
     }
+
+    if (!analysis) {
+        dom.analysisPanel.innerHTML = `
+            <div class="analysis-status">解析がまだありません</div>
+            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">解析を実行</button>
+        `;
+        return;
+    }
+
+    const topEmotion = getTopEmotion(analysis);
+    const emotionLabel = topEmotion ? EMOTION_LABELS[topEmotion.key] : '不明';
+    const emotionChart = topEmotion
+        ? renderEmotionWheel({ primary: topEmotion.key })
+        : '<div class="analysis-empty">感情がありません</div>';
+
+    const facts = (analysis.facts || []).map(escapeHtml);
+    const story = (analysis.story || []).map(escapeHtml);
+    const emotions = (analysis.emotions || []).map((e) => {
+        const key = normalizeEmotionKey(e.label || e.primary || e.emotion);
+        const name = key ? EMOTION_LABELS[key] : (e.label || '不明');
+        return `${escapeHtml(name)} (${Math.round(e.intensity_0_100 || 0)} / ${(e.certainty_0_1 || 0).toFixed(2)})`;
+    });
+    const patterns = (analysis.patterns || []).map((p) => {
+        const label = escapeHtml(p.label || p.pattern_id || '不明');
+        const conf = (p.confidence_0_1 || 0).toFixed(2);
+        const evidence = (p.evidence_quotes || []).map(escapeHtml).join(' / ');
+        return `${label} (${conf})${evidence ? ` - ${evidence}` : ''}`;
+    });
+    const triggers = (analysis.triggers || []).map(escapeHtml);
+
+    const similar = appState.similarById[entry.id] || [];
+    const similarHtml = similar.length
+        ? similar.map((s) => {
+            const ref = appState.entries.find(e => e.id === s.entry_id);
+            const label = ref ? escapeHtml(ref.content || '').slice(0, 40) : s.entry_id;
+            return `<button class="btn-text-sm" onclick="openEntry('${s.entry_id}')">${label}</button>`;
+        }).join('')
+        : `<button class="btn-text-sm" onclick="fetchSimilarForEntryById('${entry.id}')">類似を検索</button>`;
+
+    dom.analysisPanel.innerHTML = `
+        <div class="analysis-block">
+            <div class="analysis-title">感情</div>
+            <div class="analysis-row">
+                ${emotionChart}
+                <div class="analysis-kv">トップ: ${emotionLabel}</div>
+            </div>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">Fact</div>
+            <ul class="analysis-list">${facts.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">Story</div>
+            <ul class="analysis-list">${story.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">Emotion</div>
+            <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">Patterns</div>
+            <ul class="analysis-list">${patterns.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">トリガー語</div>
+            <div class="analysis-tags">${triggers.map(t => `<span class="tag">${t}</span>`).join('') || '<span class="tag">なし</span>'}</div>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">観察コメント</div>
+            <p class="analysis-text">${escapeHtml(analysis.observation_comment || '') || 'なし'}</p>
+        </div>
+        <div class="analysis-block">
+            <div class="analysis-title">似ている日記</div>
+            <div class="analysis-similar">${similarHtml}</div>
+        </div>
+    `;
+}
+
+async function saveAnalysisResultToFirestore(entryId, analysis) {
+    const db = window.db;
+    if (!db || !appState.user || !analysis) return false;
+    const payload = {
+        ...analysis,
+        entry_id: entryId,
+        user_id: appState.user.uid,
+        analysis_version: analysis.analysis_version || 'soos-v1',
+        created_at: analysis.created_at || new Date().toISOString()
+    };
+    try {
+        await db.collection('diary_analysis').doc(entryId).set(payload, { merge: true });
+        return true;
+    } catch (e) {
+        console.error('[save] diary_analysis failed', { stage: 'analysis', code: e.code, message: e.message });
+        return false;
+    }
+}
+
+async function saveEmbeddingResultToFirestore(entryId, embedding) {
+    const db = window.db;
+    if (!db || !appState.user || !Array.isArray(embedding)) return false;
+    const payload = {
+        entry_id: entryId,
+        user_id: appState.user.uid,
+        embedding,
+        created_at: new Date().toISOString()
+    };
+    try {
+        await db.collection('diary_embeddings').doc(entryId).set(payload, { merge: true });
+        return true;
+    } catch (e) {
+        console.error('[save] diary_embeddings failed', { stage: 'embedding', code: e.code, message: e.message });
+        return false;
+    }
+}
+
+async function runFallbackAnalysis(entry) {
+    try {
+        const result = await apiPost('/api/analyze-lite', {
+            entry_id: entry.id,
+            user_id: appState.user.uid,
+            text: entry.content,
+            created_at: getEntryDate(entry).toISOString()
+        }, { timeoutMs: 8000 });
+
+        if (result.analysis) {
+            appState.analysisById[entry.id] = result.analysis;
+        }
+        if (result.similar) {
+            appState.similarById[entry.id] = result.similar;
+        }
+
+        let analysisSaved = true;
+        let embeddingSaved = true;
+        if (result.analysis) {
+            analysisSaved = await saveAnalysisResultToFirestore(entry.id, result.analysis);
+        }
+        if (result.embedding) {
+            embeddingSaved = await saveEmbeddingResultToFirestore(entry.id, result.embedding);
+        }
+
+        console.info('[save] analysis fallback result', { entryId: entry.id, analysisSaved, embeddingSaved });
+        appState.analysisStatusById[entry.id] = 'done';
+        renderAnalysisPanel(entry);
+
+        if (!analysisSaved || !embeddingSaved) {
+            showToast('解析の保存に失敗しました', 'error');
+        }
+        return true;
+    } catch (e) {
+        console.error('[save] analysis fallback failed', { entryId: entry.id, message: e.message });
+        return false;
+    }
+}
+
+async function runAnalysisForEntry(entry, force = false) {
+    if (!entry || !entry.content) return false;
+    if (!appState.user) return false;
+    if (!force && appState.analysisById[entry.id]) return true;
+    if (appState.analysisStatusById[entry.id] === 'processing') return false;
+
+    appState.analysisStatusById[entry.id] = 'processing';
+    renderAnalysisPanel(entry);
+
+    try {
+        console.info('[save] analysis start', { entryId: entry.id });
+        const result = await apiPost('/api/analyze', {
+            entry_id: entry.id,
+            user_id: appState.user.uid,
+            text: entry.content,
+            created_at: getEntryDate(entry).toISOString()
+        }, { timeoutMs: 20000 });
+        if (result.analysis) {
+            appState.analysisById[entry.id] = result.analysis;
+        }
+        if (result.similar) {
+            appState.similarById[entry.id] = result.similar;
+        }
+        let analysisSaved = result.analysis_saved !== false;
+        let embeddingSaved = result.embedding_saved !== false;
+        if (!analysisSaved && result.analysis) {
+            analysisSaved = await saveAnalysisResultToFirestore(entry.id, result.analysis);
+        }
+        if (!embeddingSaved && result.embedding) {
+            embeddingSaved = await saveEmbeddingResultToFirestore(entry.id, result.embedding);
+        }
+        console.info('[save] analysis result', { entryId: entry.id, analysisSaved, embeddingSaved });
+        if (!analysisSaved || !embeddingSaved) {
+            appState.analysisStatusById[entry.id] = 'failed';
+            renderAnalysisPanel(entry);
+            showToast('日記は保存済みです。解析のみ失敗しました。再試行できます。', 'error');
+            return false;
+        }
+        appState.analysisStatusById[entry.id] = 'done';
+        refreshFilterOptions();
+        renderAnalysisPanel(entry);
+        return true;
+    } catch (e) {
+        appState.analysisStatusById[entry.id] = 'failed';
+        renderAnalysisPanel(entry);
+        let msg = '\u89e3\u6790\u306b\u5931\u6557\u3057\u307e\u3057\u305f';
+        if (e.message === 'api_base_missing') {
+            msg = 'API Base URL\u304c\u672a\u8a2d\u5b9a\u3067\u3059';
+        } else if (e.message === 'api_timeout') {
+            const ok = await runFallbackAnalysis(entry);
+            if (ok) return true;
+            msg = '\u89e3\u6790\u304c\u30bf\u30a4\u30e0\u30a2\u30a6\u30c8\u3057\u307e\u3057\u305f';
+        }
+        let errInfo = {};
+        try { errInfo = JSON.parse(e.message); } catch (_) { errInfo = {}; }
+        console.error('[save] analysis failed', { entryId: entry.id, code: errInfo.error || e.code, stage: errInfo.stage || 'analysis', message: e.message });
+        showToast(msg, 'error');
+        return false;
+    }
+}
+
+async function fetchSimilarForEntryById(entryId) {
+    const entry = appState.entries.find(e => e.id === entryId);
+    if (!entry || !appState.user) return;
+    try {
+        const result = await apiPost('/api/similar', {
+            entry_id: entry.id,
+            user_id: appState.user.uid,
+            limit: 3
+        });
+        appState.similarById[entry.id] = result.similar || [];
+        renderAnalysisPanel(entry);
+    } catch (e) {
+        showToast('\u985e\u4f3c\u691c\u7d22\u306b\u5931\u6557\u3057\u307e\u3057\u305f', 'error');
+    }
+}
+
+function renderEmotionWheel(emotionData) {
+    const key = normalizeEmotionKey(emotionData.primary);
+    const label = key ? EMOTION_LABELS[key] : '不明';
+    const markers = key ? [{ key, size: 14, opacity: 1 }] : [];
+    const chart = renderEmotionImage(markers);
+
+    return `
+        <div class="emotion-wheel-wrap">
+            ${chart}
+            <div class="emotion-caption">感情: <strong>${label}</strong></div>
+        </div>
+    `;
+}
+
+function getEmotionPlotPosition(key) {
+    const idx = EMOTION_ORDER.indexOf(key);
+    if (idx < 0) return { x: 50, y: 50 };
+    const angleDeg = -90 + (idx * 45);
+    const rad = angleDeg * Math.PI / 180;
+    const r = 38;
+    return {
+        x: 50 + (Math.cos(rad) * r),
+        y: 50 + (Math.sin(rad) * r)
+    };
+}
+
+function renderEmotionImage(markers) {
+    const markerHtml = markers.map((m) => {
+        const pos = getEmotionPlotPosition(m.key);
+        const size = m.size || 10;
+        const color = EMOTION_COLORS[m.key] || '#999999';
+        const opacity = m.opacity == null ? 1 : m.opacity;
+        return `<span class="emotion-marker" style="left:${pos.x.toFixed(2)}%; top:${pos.y.toFixed(2)}%; width:${size}px; height:${size}px; background:${color}; opacity:${opacity};"></span>`;
+    }).join('');
+
+    return `
+        <div class="emotion-image-wrap">
+            <img src="${EMOTION_IMAGE_PATH}" alt="プルチックの感情の輪" class="emotion-image">
+            <div class="emotion-marker-layer">${markerHtml}</div>
+        </div>
+    `;
+}
+
+function getTopEmotion(analysis) {
+    if (!analysis || !Array.isArray(analysis.emotions) || analysis.emotions.length === 0) return null;
+    const sorted = [...analysis.emotions].sort((a, b) => (b.intensity_0_100 || 0) - (a.intensity_0_100 || 0));
+    const top = sorted[0];
+    const key = normalizeEmotionKey(top.label || top.emotion || top.primary);
+    return key ? { key, intensity: top.intensity_0_100 || 0 } : null;
+}
+
+function getTopPattern(analysis) {
+    if (!analysis || !Array.isArray(analysis.patterns) || analysis.patterns.length === 0) return null;
+    const sorted = [...analysis.patterns].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
+    const top = sorted[0];
+    return top.label || top.pattern_id || null;
+}
+
+function getFilteredEntries() {
+    let list = appState.entries || [];
+
+    if (appState.filterByDate) {
+        const target = appState.filterByDate.toDateString();
+        list = list.filter(e => getEntryDate(e).toDateString() === target);
+    }
+
+    if (appState.filters.dateFrom) {
+        const from = new Date(appState.filters.dateFrom);
+        list = list.filter(e => getEntryDate(e) >= from);
+    }
+    if (appState.filters.dateTo) {
+        const to = new Date(appState.filters.dateTo);
+        to.setHours(23, 59, 59, 999);
+        list = list.filter(e => getEntryDate(e) <= to);
+    }
+
+    if (appState.filters.emotion && appState.filters.emotion !== 'all') {
+        list = list.filter(e => {
+            const analysis = appState.analysisById[e.id];
+            const top = getTopEmotion(analysis);
+            return top && top.key === appState.filters.emotion;
+        });
+    }
+
+    if (appState.filters.pattern && appState.filters.pattern !== 'all') {
+        list = list.filter(e => {
+            const analysis = appState.analysisById[e.id];
+            if (!analysis) return false;
+            return (analysis.patterns || []).some(p => (p.label || p.pattern_id) === appState.filters.pattern);
+        });
+    }
+
+    if (appState.filters.trigger) {
+        const q = appState.filters.trigger.toLowerCase();
+        list = list.filter(e => {
+            const analysis = appState.analysisById[e.id];
+            if (!analysis) return false;
+            return (analysis.triggers || []).some(t => String(t).toLowerCase().includes(q));
+        });
+    }
+
+    if (appState.filters.query) {
+        const q = appState.filters.query.toLowerCase();
+        list = list.filter(e => (e.content || '').toLowerCase().includes(q));
+    }
+
+    return list;
 }
 
 function renderEntryList() {
     if (!dom.entryListContainer) return;
     dom.entryListContainer.innerHTML = '';
-    const filtered = appState.entries.filter(e => appState.filterByDate ? new Date(e.date).toDateString() === appState.filterByDate.toDateString() : true);
+    const filtered = getFilteredEntries();
 
     if (filtered.length === 0) {
-        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>日記はまだありません</p><button class="btn-primary" onclick="openEntry()">最初の日記を書く</button></div>';
+        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>まだ日記がありません</p><button class="btn-primary" onclick="openEntry()">最初の日記を書く</button></div>';
         return;
     }
 
     filtered.forEach(entry => {
-        const card = document.createElement('div'); card.className = `entry-card ${entry.isLocked ? 'locked' : ''}`;
+        const card = document.createElement('div');
+        card.className = `entry-card ${entry.isLocked ? 'locked' : ''}`;
         card.onclick = () => openEntry(entry.id);
-        const day = new Date(entry.date);
+        const day = getEntryDate(entry);
 
-        let scoreBadge = '';
-        if (entry.aiScore && entry.aiScore.total) { // Show score even if locked
-            const s = entry.aiScore.total;
-            const c = s >= 80 ? 'score-high' : s >= 50 ? 'score-mid' : 'score-low';
-            scoreBadge = `<span class="score-badge ${c}">${s}点</span>`;
-        }
+        const analysis = appState.analysisById[entry.id];
+        const topEmotion = getTopEmotion(analysis);
+        const topPattern = getTopPattern(analysis);
+        const miniSummary = entry.isLocked
+            ? '\u30ed\u30c3\u30af\u4e2d'
+            : (analysis
+                ? `${topEmotion ? EMOTION_LABELS[topEmotion.key] : '\u4e0d\u660e'} / ${topPattern || '\u4e0d\u660e'}`
+                : '\u89e3\u6790\u306a\u3057');
 
         let contentPrev = entry.content || '...';
-        let cardTitle = entry.title || '無題の日記';
+        let cardTitle = entry.title || '\u65e5\u8a18';
 
         if (entry.isLocked) {
-            contentPrev = '<i class="fa-solid fa-lock" style="margin-right:5px;"></i> 秘密の日記';
-            cardTitle = 'Locked Entry';
+            contentPrev = '<i class="fa-solid fa-lock" style="margin-right:5px;"></i> \u30ed\u30c3\u30af\u4e2d';
+            cardTitle = '\u30ed\u30c3\u30af\u3055\u308c\u305f\u65e5\u8a18';
         }
 
         card.innerHTML = `
             <div class="entry-header-row">
-                <div class="entry-date">${day.getDate()} <span class="entry-day-sm">${day.toLocaleDateString('ja-JP', { weekday: 'short' })}</span> <span style="font-size:0.8em; color:var(--text-muted); font-weight:normal; margin-left:5px;">${formatTime(entry.date)}</span>${scoreBadge}</div>
+                <div class="entry-date">${day.getDate()} <span class="entry-day-sm">${day.toLocaleDateString('ja-JP', { weekday: 'short' })}</span> <span style="font-size:0.8em; color:var(--text-muted); font-weight:normal; margin-left:5px;">${formatTime(day)}</span></div>
             </div>
             ${!entry.isLocked ? `<div class="entry-title">${cardTitle}</div>` : ''}
             <div class="entry-preview">${contentPrev}</div>
+            <div class="entry-mini">${miniSummary}</div>
         `;
         dom.entryListContainer.appendChild(card);
     });
@@ -593,7 +1614,8 @@ function renderEntryList() {
 
 function renderCalendar() {
     if (!dom.calendarMonthYear || !dom.calendarDaysGrid) return;
-    dom.calendarMonthYear.textContent = appState.calendarDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    syncCalendarSelectors();
+    dom.calendarMonthYear.textContent = appState.calendarDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' });
     dom.calendarDaysGrid.innerHTML = '';
     const y = appState.calendarDate.getFullYear(), m = appState.calendarDate.getMonth();
     const firstDay = new Date(y, m, 1).getDay();
@@ -603,25 +1625,18 @@ function renderCalendar() {
 
     for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = new Date(y, m, d).toDateString();
-        const entriesOnDay = appState.entries.filter(e => new Date(e.date).toDateString() === dateStr);
-        let avg = null;
-        if (entriesOnDay.length > 0) {
-            const scored = entriesOnDay.filter(e => e.aiScore && e.aiScore.total);
-            if (scored.length > 0) {
-                avg = Math.round(scored.reduce((a, b) => a + b.aiScore.total, 0) / scored.length);
-            }
-        }
+        const entriesOnDay = appState.entries.filter(e => getEntryDate(e).toDateString() === dateStr);
+        const avg = null;
 
         const el = document.createElement('div');
         el.className = `calendar-day ${dateStr === new Date().toDateString() ? 'today' : ''} ${entriesOnDay.length ? 'has-entry' : ''}`;
-        const hasImg = entriesOnDay.some(e => e.image);
-        if (hasImg) el.classList.add('has-image');
+        const imageEntry = entriesOnDay.find(e => e.image && !e.isLocked);
+        if (imageEntry) {
+            el.classList.add('has-image');
+            el.style.backgroundImage = `url("${imageEntry.image}")`;
+        }
 
         let inner = `<span class="day-number">${d}</span>`;
-        if (avg !== null) {
-            const c = avg >= 80 ? 'score-high-cal' : avg >= 50 ? 'score-mid-cal' : 'score-low-cal';
-            inner += `<div class="day-score ${c}">${avg}</div>`;
-        }
 
         el.innerHTML = inner;
         el.onclick = () => {
@@ -637,275 +1652,64 @@ function renderCalendar() {
     }
 }
 
-// --- Utils ---
-window.autoResizeTextarea = function () {
-    const tx = document.getElementById('entry-content');
-    if (!tx) return;
-    tx.style.height = 'auto';
-    tx.style.height = (tx.scrollHeight) + 'px';
-};
+function syncCalendarSelectors() {
+    if (!dom.selectCalendarYear || !dom.selectCalendarMonth) return;
+    const currentYear = appState.calendarDate.getFullYear();
+    const currentMonth = appState.calendarDate.getMonth() + 1;
 
-function setupEventListeners() {
-    if (dom.btnViewList) dom.btnViewList.onclick = () => navigateTo('list');
-    if (dom.btnViewCalendar) dom.btnViewCalendar.onclick = () => navigateTo('calendar');
-    if (dom.btnNewEntry) dom.btnNewEntry.onclick = () => openEntry();
-    // --- Settings ---
-    if (dom.btnSettings) {
-        dom.btnSettings.addEventListener('click', () => {
-            // Load API Key
-            if (dom.inputApiKey) dom.inputApiKey.value = appState.apiKey || '';
-
-            // Clear password fields on open
-            if (dom.inputCurrentPass) dom.inputCurrentPass.value = '';
-            if (dom.inputNewPass) dom.inputNewPass.value = '';
-
-            if (dom.modalSettings) {
-                dom.modalSettings.classList.remove('hidden');
-                void dom.modalSettings.offsetWidth;
-                dom.modalSettings.classList.add('active');
-            }
-        });
+    const hasYearOption = Array.from(dom.selectCalendarYear.options).some(opt => Number(opt.value) === currentYear);
+    if (!hasYearOption) {
+        dom.selectCalendarYear.innerHTML = '';
+        const start = currentYear - 5;
+        const end = currentYear + 5;
+        for (let y = start; y <= end; y++) {
+            const opt = document.createElement('option');
+            opt.value = String(y);
+            opt.textContent = `${y}年`;
+            dom.selectCalendarYear.appendChild(opt);
+        }
+    }
+    if (dom.selectCalendarMonth.options.length === 0) {
+        for (let m = 1; m <= 12; m++) {
+            const opt = document.createElement('option');
+            opt.value = String(m);
+            opt.textContent = `${m}\u6708`;
+            dom.selectCalendarMonth.appendChild(opt);
+        }
     }
 
-    if (dom.btnCloseSettings) {
-        dom.btnCloseSettings.addEventListener('click', () => {
-            // Save API Key
-            if (dom.inputApiKey) {
-                const key = dom.inputApiKey.value.trim();
-                appState.apiKey = key;
-                localStorage.setItem('gemini_api_key', key);
-            }
-
-            if (dom.modalSettings) dom.modalSettings.classList.remove('active');
-            showToast('設定を保存しました');
-        });
-    }
-
-    // Secure Password Change
-    if (dom.btnUpdatePass) {
-        dom.btnUpdatePass.addEventListener('click', async () => {
-            const currentPassInput = dom.inputCurrentPass ? dom.inputCurrentPass.value : '';
-            const newPassInput = dom.inputNewPass ? dom.inputNewPass.value : '';
-            const storedPass = localStorage.getItem('masterPassword') || '';
-
-            // 1. Verify Current Password (if one exists)
-            if (storedPass && currentPassInput !== storedPass) {
-                alert('現在のパスワードが間違っています。');
-                return;
-            }
-
-            if (!newPassInput) {
-                alert('新しいパスワードを入力してください。');
-                return;
-            }
-
-            // 2. Google Re-authentication
-            if (!auth.currentUser) {
-                alert('ログインしていません。');
-                return;
-            }
-
-            try {
-                dom.btnUpdatePass.disabled = true;
-                dom.btnUpdatePass.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 認証中...';
-
-                await auth.currentUser.reauthenticateWithPopup(googleProvider);
-
-                // 3. Update Password
-                localStorage.setItem('masterPassword', newPassInput);
-                appState.masterPassword = newPassInput;
-                alert('本人確認が完了しました。\nパスワードを変更しました。');
-
-                // Clear fields
-                dom.inputCurrentPass.value = '';
-                dom.inputNewPass.value = '';
-            } catch (e) {
-                console.error("Re-auth failed", e);
-                alert('認証に失敗しました。パスワードは変更されませんでした。\n' + e.message);
-            } finally {
-                dom.btnUpdatePass.disabled = false;
-                dom.btnUpdatePass.innerHTML = '<i class="fa-brands fa-google"></i> Google認証して変更';
-            }
-        });
-    }
-    if (dom.btnThemeToggle) dom.btnThemeToggle.onclick = () => {
-        appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
-        applyTheme(appState.theme);
-        localStorage.setItem('theme', appState.theme);
-    };
-
-    if (dom.btnMyPage) dom.btnMyPage.onclick = () => navigateTo('mypage');
-
-    // Auth
-    // --- Auth Functions ---
-    window.googleLogin = async function () {
-        console.log('[DEBUG] Google Login Triggered');
-
-        // Protocol Check
-        if (window.location.protocol === 'file:') {
-            alert("【重要】\nこのアプリをフォルダから直接開いています（file://）。\nGoogleログインは「ローカルサーバー」経由でないと動作しません。\n\nVS Codeの「Live Server」機能を使って開いてください。");
-            return;
-        }
-
-        // Config Check
-        if (!window.auth || !window.googleProvider) {
-            console.error('Auth/Provider missing:', window.auth, window.googleProvider);
-            alert('システムエラー: Firebase Authの初期化が完了していません。\nページをリロードしてください。');
-            return;
-        }
-
-        try {
-            console.log('[DEBUG] Calling signInWithPopup...');
-            await window.auth.signInWithPopup(window.googleProvider);
-            console.log('[DEBUG] signInWithPopup completed');
-        } catch (e) {
-            console.error('Login Error:', e);
-            let msg = 'ログイン失敗: ' + e.message;
-            if (e.code === 'auth/operation-not-allowed-in-this-environment' || e.message.includes('file://')) {
-                msg = '【エラー】\nブラウザのセキュリティ制限により、ファイルから直接開くとGoogleログインは使えません。\n\n必ず「Live Server」などのローカルサーバーを使用してください。';
-            } else if (e.code === 'auth/popup-blocked') {
-                msg = '【エラー】\nポップアップがブロックされました。ブラウザの設定で許可してください。';
-            } else if (e.code === 'auth/unauthorized-domain') {
-                msg = '【エラー】\nこのドメインは許可されていません。Firebaseコンソールで認証済みドメインに追加してください。';
-            }
-            alert(msg);
-        }
-    };
-
-    // Auth Listeners
-    if (dom.btnLogin) {
-        dom.btnLogin.onclick = window.googleLogin; // Direct assignment for reliability
-        dom.btnLogin.addEventListener('click', (e) => {
-            // Backup listener
-            e.preventDefault();
-            window.googleLogin();
-        });
-    }
-
-    if (dom.btnLogout) {
-        dom.btnLogout.onclick = async () => {
-            if (!window.auth) return;
-            try { await window.auth.signOut(); showToast('ログアウトしました'); }
-            catch (e) { showToast('ログアウト失敗', 'error'); }
-        };
-    }
-
-    // Search
-    if (dom.searchInput) dom.searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        Array.from(dom.entryListContainer.children).forEach(card => {
-            if (card.classList.contains('empty-state')) return;
-            const text = card.textContent.toLowerCase();
-            card.style.display = text.includes(term) ? 'flex' : 'none';
-        });
-    });
-
-    // Editor Actions
-    if (dom.btnSave) dom.btnSave.onclick = async () => {
-        if (!dom.inputContent.value.trim() && !currentUploadImage) return showToast('内容を入力してください', 'error');
-
-        // 1. Prepare Entry Object
-        let entry;
-        if (appState.activeEntryId) {
-            entry = appState.entries.find(e => e.id === appState.activeEntryId);
-            if (!entry) return showToast('エラー: 編集中の日記が見つかりません', 'error');
-            entry.content = dom.inputContent.value;
-            if (dom.selectLockStatus) entry.isLocked = dom.selectLockStatus.value === 'locked';
-        } else {
-            entry = {
-                id: Date.now().toString(),
-                content: dom.inputContent.value,
-                date: appState.writingDate.toISOString(),
-                isLocked: dom.selectLockStatus ? dom.selectLockStatus.value === 'locked' : false,
-                isNew: true
-            };
-        }
-
-        // 2. AI Analysis trigger (optional, or manual)
-        // For now, simpler flow: Just save. AI can be triggered manually.
-        const success = await saveEntryToFirestore(entry);
-        if (success) {
-            showToast('日記を保存しました');
-            navigateTo('list');
-            // If new and unlocked, maybe suggest AI?
-            if (entry.isNew && !entry.isLocked && appState.apiKey) {
-                // Auto-analyze offer?
-            }
-        }
-    };
-
-    if (dom.btnCancel) dom.btnCancel.onclick = () => {
-        if (confirm('保存せずに戻りますか？')) navigateTo('list');
-    };
-
-    if (dom.btnDeleteEntry) dom.btnDeleteEntry.onclick = () => {
-        if (dom.modalDelete) dom.modalDelete.classList.remove('hidden');
-    };
-
-    if (dom.btnConfirmDelete) dom.btnConfirmDelete.onclick = async () => {
-        if (appState.activeEntryId) {
-            await deleteEntryFromFirestore(appState.activeEntryId);
-            if (dom.modalDelete) dom.modalDelete.classList.add('hidden');
-            navigateTo('list');
-        }
-    };
-
-    if (dom.btnCancelDelete) dom.btnCancelDelete.onclick = () => {
-        if (dom.modalDelete) dom.modalDelete.classList.add('hidden');
-    };
-
-    if (dom.btnEditEntry) dom.btnEditEntry.onclick = () => toggleEditMode(true);
-
-    if (dom.btnUnlockEntry) dom.btnUnlockEntry.onclick = unlockEntry;
-
-    if (dom.btnForgotPass) dom.btnForgotPass.onclick = async () => {
-        // Reset Logic
-        alert('【パスワードリセット】\nGoogleアカウントで本人確認を行います。');
-        if (!auth.currentUser) return alert('先にログインしてください');
-        try {
-            await auth.currentUser.reauthenticateWithPopup(googleProvider);
-            alert('本人確認が完了しました。新しいパスワードを設定してください。');
-            if (dom.lockOverlay) dom.lockOverlay.classList.add('hidden');
-            if (dom.modalReset) dom.modalReset.classList.remove('hidden');
-        } catch (e) {
-            alert('認証失敗: ' + e.message);
-        }
-    };
-
-    if (dom.btnSaveReset) dom.btnSaveReset.onclick = () => {
-        const newP = dom.inputResetNewPass.value;
-        appState.masterPassword = newP;
-        localStorage.setItem('masterPassword', newP);
-        alert('マスターパスワードを更新しました。');
-        if (dom.modalReset) dom.modalReset.classList.add('hidden');
-    };
-
-    if (dom.btnCancelReset) dom.btnCancelReset.onclick = () => {
-        if (dom.modalReset) dom.modalReset.classList.add('hidden');
-    };
-
-    if (dom.btnUploadImage) dom.btnUploadImage.onclick = () => dom.entryImageInput.click();
-    if (dom.entryImageInput) dom.entryImageInput.onchange = (e) => handleImageUpload(e.target.files[0]);
-    if (dom.btnRemoveImage) dom.btnRemoveImage.onclick = () => {
-        currentUploadImage = null;
-        if (dom.imagePreview) dom.imagePreview.src = '';
-        if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
-    };
-
-    // Auto Resize Textarea
-    if (dom.inputContent) {
-        dom.inputContent.addEventListener('input', window.autoResizeTextarea);
-    }
+    dom.selectCalendarYear.value = String(currentYear);
+    dom.selectCalendarMonth.value = String(currentMonth);
 }
 
 // --- Utils ---
+function toDateValue(value) {
+    if (!value) return null;
+    if (typeof value.toDate === 'function') return value.toDate();
+    if (typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function getEntryDate(entry) {
+    const raw = entry ? (entry.createdAt || entry.created_at || entry.date) : null;
+    return toDateValue(raw) || new Date();
+}
+
+function getServerTimestamp() {
+    if (window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue) {
+        return window.firebase.firestore.FieldValue.serverTimestamp();
+    }
+    return new Date();
+}
+
 function formatDate(isoStr) {
-    const d = new Date(isoStr);
+    const d = toDateValue(isoStr) || new Date();
     return d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
 }
 
 function formatTime(isoStr) {
-    const d = new Date(isoStr);
+    const d = toDateValue(isoStr) || new Date();
     return d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -919,6 +1723,54 @@ function showToast(msg, type = 'success') {
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
 }
 
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getApiBase() {
+    if (appState.apiBase) return appState.apiBase.replace(/\/$/, '');
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8787';
+    return '';
+}
+
+async function apiPost(path, body, options = {}) {
+    const base = getApiBase();
+    if (!base) throw new Error('api_base_missing');
+    const controller = new AbortController();
+    const timeoutMs = Number(options.timeoutMs || 0);
+    let timeoutId;
+    if (timeoutMs > 0) {
+        timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    }
+    let res;
+    try {
+        res = await fetch(`${base}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {}),
+            signal: controller.signal
+        });
+    } catch (err) {
+        if (err && err.name === 'AbortError') {
+            throw new Error('api_timeout');
+        }
+        throw err;
+    } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+    }
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `http_${res.status}`);
+    }
+    return res.json();
+}
+
 // --- Theme ---
 window.applyTheme = function (theme) {
     if (theme === 'light') {
@@ -930,72 +1782,6 @@ window.applyTheme = function (theme) {
     }
 }
 const applyTheme = window.applyTheme; // local alias logic
-
-// AI Integration (Gemini)
-// Requires a valid API Key.
-// AI Integration (Gemini)
-// Requires a valid API Key.
-async function analyzeDiary(text) {
-    const key = appState.apiKey;
-    if (!key) return null;
-
-    const prompt = `
-    あなたはプロの心理カウンセラー兼ライフコーチです。以下の日記を読み、3つの評価項目（100点満点）と、短いアドバイス（100文字以内）をJSON形式で返してください。
-    
-    評価項目:
-    1. total: 総合点 (int)
-    2. breakdown: { time: 時間の使い方(int), quality: 生活の質(int), enjoyment: 充実度(int) }
-    3. title: 日記にふさわしい短いタイトル(string)
-    4. advice: ポジティブで具体的なアドバイス(string)
-
-    日記本文:
-    "${text}"
-    `;
-
-    // Use gemini-2.0-flash with v1beta API as requested
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
-    try {
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
-        });
-
-        if (!res.ok) {
-            const errData = await res.json();
-            console.error('AI API Error:', errData);
-            throw new Error(`API Error: ${res.status} - ${errData.error?.message || res.statusText}`);
-        }
-
-        const data = await res.json();
-        const raw = data.candidates[0].content.parts[0].text;
-
-        // Basic cleanup for JSON (since we are not using response_mime_type)
-        const jsonStr = raw.replace(/```json/g, '').replace(/```/g, '').trim();
-        const result = JSON.parse(jsonStr);
-
-        // Fallback for missing fields
-        return {
-            title: result.title || '無題',
-            advice: result.advice || '良い一日ですね！',
-            score: {
-                total: result.total || 70,
-                breakdown: {
-                    time: result.breakdown?.time || 70,
-                    quality: result.breakdown?.quality || 70,
-                    enjoyment: result.breakdown?.enjoyment || 70
-                }
-            }
-        };
-
-    } catch (e) {
-        console.error("AI Analysis Failed:", e);
-        alert(`AI分析に失敗しました。\n詳細: ${e.message}`);
-        return null;
-    }
-}
 
 // --- Global Exports (for HTML onclick handlers) ---
 window.openEntry = openEntry;
