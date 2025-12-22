@@ -226,7 +226,7 @@ function updateAuthUI(isLoggedIn) {
 
 function setupEventListeners() {
     if (dom.inputApiBase) {
-        dom.inputApiBase.value = appState.apiBase || '';
+        dom.inputApiBase.value = appState.apiBase || DEFAULT_API_BASE;
         dom.inputApiBase.addEventListener('change', () => {
             appState.apiBase = dom.inputApiBase.value.trim();
             localStorage.setItem('self_os_api_base', appState.apiBase);
@@ -1732,11 +1732,13 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+const DEFAULT_API_BASE = 'https://diary-analysis-api-108616601222.asia-northeast1.run.app';
+
 function getApiBase() {
     if (appState.apiBase) return appState.apiBase.replace(/\/$/, '');
     const host = window.location.hostname;
     if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8787';
-    return '';
+    return DEFAULT_API_BASE;
 }
 
 async function apiPost(path, body, options = {}) {
