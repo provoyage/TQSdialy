@@ -267,7 +267,6 @@ function setupEventListeners() {
             currentUploadImage = null;
             if (dom.imagePreview) dom.imagePreview.src = '';
             if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
-        if (dom.analysisPanel) dom.analysisPanel.innerHTML = '';
             if (dom.entryImageInput) dom.entryImageInput.value = '';
         });
     }
@@ -706,9 +705,17 @@ async function deleteEntryFromFirestore(entryId) {
     const db = window.db;
     if (!appState.user || !db) return;
     try {
+        const relatedDeletes = await Promise.allSettled([
+            db.collection('diary_analysis').doc(entryId).delete(),
+            db.collection('diary_embeddings').doc(entryId).delete()
+        ]);
+        relatedDeletes.forEach((result) => {
+            if (result.status === 'rejected') {
+                console.warn('[delete] related delete failed', { entryId, message: result.reason?.message });
+            }
+        });
+
         await db.collection('diary_entries').doc(entryId).delete();
-        await db.collection('diary_analysis').doc(entryId).delete();
-        await db.collection('diary_embeddings').doc(entryId).delete();
         await loadEntries();
         showToast('日記を削除しました');
     } catch (e) {
@@ -1114,6 +1121,7 @@ function openEntry(entryId = null, targetDate = null) {
         if (dom.entryImageInput) dom.entryImageInput.value = '';
         if (dom.imagePreview) dom.imagePreview.src = '';
         if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
+        if (dom.analysisPanel) dom.analysisPanel.innerHTML = '';
         toggleEditMode(true);
         setTimeout(() => {
             if (dom.inputContent) {
