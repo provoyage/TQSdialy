@@ -267,6 +267,7 @@ function setupEventListeners() {
             currentUploadImage = null;
             if (dom.imagePreview) dom.imagePreview.src = '';
             if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
+        if (dom.analysisPanel) dom.analysisPanel.innerHTML = '';
             if (dom.entryImageInput) dom.entryImageInput.value = '';
         });
     }
