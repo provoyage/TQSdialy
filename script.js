@@ -550,9 +550,26 @@ async function loadEntries() {
         const userId = appState.user.uid;
         const entriesMap = new Map();
 
+        const fetchEntries = async (userField, orderField) => {
+            try {
+                return await db.collection('diary_entries')
+                    .where(userField, '==', userId)
+                    .orderBy(orderField, 'desc')
+                    .get();
+            } catch (err) {
+                const message = String(err && err.message ? err.message : '');
+                if (err && (err.code === 'failed-precondition' || message.includes('index'))) {
+                    return await db.collection('diary_entries')
+                        .where(userField, '==', userId)
+                        .get();
+                }
+                throw err;
+            }
+        };
+
         const queries = [
-            db.collection('diary_entries').where('userId', '==', userId).orderBy('createdAt', 'desc').get(),
-            db.collection('diary_entries').where('user_id', '==', userId).orderBy('created_at', 'desc').get()
+            fetchEntries('userId', 'createdAt'),
+            fetchEntries('user_id', 'created_at')
         ];
 
         const results = await Promise.allSettled(queries);
@@ -585,7 +602,7 @@ async function loadEntries() {
         if (appState.currentView === 'mypage') renderMyPage();
     } catch (e) {
         console.error('Error loading entries:', e);
-        showToast('日記の読み込みに失敗しました', 'error');
+        showToast('\u65e5\u8a18\u306e\u8aad\u307f\u8fbc\u307f\u306b\u5931\u6557\u3057\u307e\u3057\u305f', 'error');
     }
 }
 
