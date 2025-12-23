@@ -1222,8 +1222,8 @@ function renderAnalysisPanel(entry) {
 
     if (status === 'failed') {
         dom.analysisPanel.innerHTML = `
-            <div class="analysis-status">\u89e3\u6790\u306b\u5931\u6557\u3057\u307e\u3057\u305f</div>
-            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">\u89e3\u6790\u3092\u518d\u8a66\u884c</button>
+            <div class="analysis-status">解析に失敗しました</div>
+            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">解析を再試行</button>
         `;
         return;
     }
@@ -1238,22 +1238,25 @@ function renderAnalysisPanel(entry) {
 
     const topEmotion = getTopEmotion(analysis);
     const emotionLabel = topEmotion ? EMOTION_LABELS[topEmotion.key] : '不明';
-    const emotionChart = topEmotion
-        ? renderEmotionWheel({ primary: topEmotion.key })
-        : '<div class="analysis-empty">感情がありません</div>';
+    const emotionScore = topEmotion ? Math.round(topEmotion.intensity || 0) : null;
+    const summaryText = (analysis.observation_comment || '').trim();
+    const summarySafe = summaryText
+        ? escapeHtml(summaryText)
+        : `「${emotionLabel}」が中心の記録です。`;
 
     const facts = (analysis.facts || []).map(escapeHtml);
     const story = (analysis.story || []).map(escapeHtml);
     const emotions = (analysis.emotions || []).map((e) => {
         const key = normalizeEmotionKey(e.label || e.primary || e.emotion);
         const name = key ? EMOTION_LABELS[key] : (e.label || '不明');
-        return `${escapeHtml(name)} (${Math.round(e.intensity_0_100 || 0)} / ${(e.certainty_0_1 || 0).toFixed(2)})`;
+        const intensity = Math.round(e.intensity_0_100 || 0);
+        const certainty = e.certainty_0_1 != null ? Number(e.certainty_0_1).toFixed(2) : null;
+        return `${escapeHtml(name)}${Number.isFinite(intensity) ? ` ${intensity}点` : ''}${certainty ? ` (確度 ${certainty})` : ''}`;
     });
     const patterns = (analysis.patterns || []).map((p) => {
         const label = escapeHtml(p.label || p.pattern_id || '不明');
-        const conf = (p.confidence_0_1 || 0).toFixed(2);
-        const evidence = (p.evidence_quotes || []).map(escapeHtml).join(' / ');
-        return `${label} (${conf})${evidence ? ` - ${evidence}` : ''}`;
+        const conf = p.confidence_0_1 != null ? Number(p.confidence_0_1).toFixed(2) : null;
+        return `${label}${conf ? ` (確度 ${conf})` : ''}`;
     });
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
@@ -1268,43 +1271,60 @@ function renderAnalysisPanel(entry) {
 
     dom.analysisPanel.innerHTML = `
         <div class="analysis-block">
-            <div class="analysis-title">感情</div>
-            <div class="analysis-row">
-                ${emotionChart}
-                <div class="analysis-kv">トップ: ${emotionLabel}</div>
+            <div class="analysis-summary">
+                <div class="analysis-summary-header">
+                    <div>
+                        <div class="analysis-title">今日の気分</div>
+                        <div class="analysis-emotion">${emotionLabel}${emotionScore != null ? ` <span class="analysis-emotion-score">${emotionScore}点</span>` : ''}</div>
+                    </div>
+                    <div class="analysis-actions">
+                        <button class="btn-secondary" data-analysis-toggle="${entry.id}" onclick="toggleAnalysisDetails('${entry.id}')">?????</button>
+                        <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">???</button>
+                    </div>
+                </div>
+                <div class="analysis-summary-text">${summarySafe}</div>
             </div>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">Fact</div>
-            <ul class="analysis-list">${facts.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">Story</div>
-            <ul class="analysis-list">${story.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">Emotion</div>
-            <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">Patterns</div>
-            <ul class="analysis-list">${patterns.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">トリガー語</div>
-            <div class="analysis-tags">${triggers.map(t => `<span class="tag">${t}</span>`).join('') || '<span class="tag">なし</span>'}</div>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">観察コメント</div>
-            <p class="analysis-text">${escapeHtml(analysis.observation_comment || '') || 'なし'}</p>
         </div>
         <div class="analysis-block">
             <div class="analysis-title">似ている日記</div>
             <div class="analysis-similar">${similarHtml}</div>
         </div>
+        <div class="analysis-block analysis-details" id="analysis-details-${entry.id}">
+            <div class="analysis-detail-grid">
+                <div class="analysis-detail">
+                    <h4>出来事（Fact）</h4>
+                    <ul class="analysis-list">${facts.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+                </div>
+                <div class="analysis-detail">
+                    <h4>気づき（Story）</h4>
+                    <ul class="analysis-list">${story.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+                </div>
+                <div class="analysis-detail">
+                    <h4>感情の内訳</h4>
+                    <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+                </div>
+                <div class="analysis-detail">
+                    <h4>考え方の癖</h4>
+                    <ul class="analysis-list">${patterns.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+                </div>
+                <div class="analysis-detail">
+                    <h4>トリガー語</h4>
+                    <div class="analysis-tags">${triggers.map(t => `<span class="tag">${t}</span>`).join('') || '<span class="tag">なし</span>'}</div>
+                </div>
+            </div>
+        </div>
     `;
 }
 
+function toggleAnalysisDetails(entryId) {
+    const details = document.getElementById(`analysis-details-${entryId}`);
+    if (!details) return;
+    details.classList.toggle('is-open');
+    const btn = dom.analysisPanel ? dom.analysisPanel.querySelector(`[data-analysis-toggle="${entryId}"]`) : null;
+    if (btn) {
+        btn.textContent = details.classList.contains('is-open') ? '詳細を閉じる' : '詳細を見る';
+    }
+}
 async function saveAnalysisResultToFirestore(entryId, analysis) {
     const db = window.db;
     if (!db || !appState.user || !analysis) return false;
@@ -1585,12 +1605,11 @@ function renderEntryList() {
 
         const analysis = appState.analysisById[entry.id];
         const topEmotion = getTopEmotion(analysis);
-        const topPattern = getTopPattern(analysis);
         const miniSummary = entry.isLocked
-            ? '\u30ed\u30c3\u30af\u4e2d'
+            ? 'ロック中'
             : (analysis
-                ? `${topEmotion ? EMOTION_LABELS[topEmotion.key] : '\u4e0d\u660e'} / ${topPattern || '\u4e0d\u660e'}`
-                : '\u89e3\u6790\u306a\u3057');
+                ? `感情: ${topEmotion ? EMOTION_LABELS[topEmotion.key] : '不明'}${topEmotion ? ` (${Math.round(topEmotion.intensity || 0)}点)` : ''}`
+                : '解析なし');
 
         let contentPrev = entry.content || '...';
         let cardTitle = entry.title || '\u65e5\u8a18';
@@ -1610,9 +1629,7 @@ function renderEntryList() {
         `;
         dom.entryListContainer.appendChild(card);
     });
-}
-
-function renderCalendar() {
+}function renderCalendar() {
     if (!dom.calendarMonthYear || !dom.calendarDaysGrid) return;
     syncCalendarSelectors();
     dom.calendarMonthYear.textContent = appState.calendarDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' });

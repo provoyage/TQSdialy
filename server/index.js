@@ -144,14 +144,16 @@ Return JSON only with this schema:
 }
 Constraints:
 - No medical diagnosis.
-- Avoid definitive language (use "可能性"-style).
+- Avoid definitive language.
 - Always include certainty/confidence fields.
+- Output facts/story/observation_comment/patterns.label/evidence_quotes/triggers in Japanese.
+- emotions.label must be one of: joy, trust, fear, surprise, sadness, disgust, anger, anticipation.
 
 Diary:
-"""
+<DIARY>
 ${text}
-"""
-  `;
+</DIARY>
+`;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ANALYSIS_TIMEOUT_MS);
@@ -355,7 +357,7 @@ app.post('/api/summary', async (req, res) => {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
       const prompt = `
-Generate a short summary (1-2 lines) and 3 short themes from the aggregated counts.
+Generate a short summary (1-2 lines) and 3 short themes in Japanese from the aggregated counts.
 Avoid definitive language. Use observational language.
 Return JSON only:
 {
@@ -368,7 +370,7 @@ Top emotion: ${top_emotion}
 Top pattern: ${top_pattern}
 Top emotions: ${JSON.stringify(emotion_top5 || [])}
 Top patterns: ${JSON.stringify(pattern_top5 || [])}
-      `;
+`;
       const resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
