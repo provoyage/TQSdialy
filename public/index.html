@@ -32,24 +32,24 @@
             <nav class="nav-menu">
                 <button id="btn-view-calendar" class="nav-item" onclick="navigateTo('calendar')">
                     <i class="fa-regular fa-calendar-alt"></i>
-                    <span>ƒJƒŒƒ“ƒ_[</span>
+                    <span>ã‚«ãƒ¬ãƒ³ãƒ€ãƒ¼</span>
                 </button>
                 <button id="btn-view-list" class="nav-item active" onclick="navigateTo('list')">
                     <i class="fa-solid fa-search"></i>
-                    <span>“Ç‚Þ</span>
+                    <span>èª­ã‚€</span>
                 </button>
                 <button id="btn-new-entry" class="nav-item" onclick="openEntry()">
                     <i class="fa-solid fa-pen-nib"></i>
-                    <span>‘‚­</span>
+                    <span>æ›¸ã</span>
                 </button>
                 <button id="btn-settings" class="nav-item"
                     onclick="document.getElementById('modal-settings').classList.remove('hidden'); document.getElementById('modal-settings').classList.add('active');">
                     <i class="fa-solid fa-cog"></i>
-                    <span>Ý’è</span>
+                    <span>è¨­å®š</span>
                 </button>
                 <button id="btn-mypage" class="nav-item" onclick="navigateTo('mypage')">
                     <i class="fa-solid fa-user-circle"></i>
-                    <span>ƒ}ƒCƒy[ƒW</span>
+                    <span>ãƒžã‚¤ãƒšãƒ¼ã‚¸</span>
                 </button>
             </nav>
             <div class="theme-toggle">
@@ -58,13 +58,13 @@
                     <img id="user-avatar" src="" alt="User" class="user-avatar">
                     <div class="user-info">
                         <span id="user-name" class="user-name">Guest</span>
-                        <button id="btn-logout" class="btn-text-sm">ƒƒOƒAƒEƒg</button>
+                        <button id="btn-logout" class="btn-text-sm">ãƒ­ã‚°ã‚¢ã‚¦ãƒˆ</button>
                     </div>
                 </div>
                 <button id="btn-login" class="nav-item full-width" style="justify-content:center; margin-bottom:1rem;"
                     onclick="googleLogin()">
                     <i class="fa-brands fa-google"></i>
-                    <span>ƒƒOƒCƒ“</span>
+                    <span>ãƒ­ã‚°ã‚¤ãƒ³</span>
                 </button>
 
                 <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme"
@@ -80,7 +80,7 @@
             <!-- View: My Page -->
             <section id="view-mypage" class="view-section hidden">
                 <header class="section-header">
-                    <h2>ƒ}ƒCƒy[ƒW</h2>
+                    <h2>ãƒžã‚¤ãƒšãƒ¼ã‚¸</h2>
                 </header>
                 <div class="mypage-container" id="mypage-container">
                     <!-- Stats injected by JS -->
@@ -90,26 +90,26 @@
             <!-- View: Entry List -->
             <section id="view-list" class="view-section active">
                 <header class="section-header">
-                    <h2>“Ç‚Þ</h2>
+                    <h2>èª­ã‚€</h2>
                     <div class="search-bar">
                         <i class="fa-solid fa-search"></i>
-                        <input type="text" id="search-input" placeholder="“ú‹L‚ðŒŸõ‚·‚é...">
+                        <input type="text" id="search-input" placeholder="æ—¥è¨˜ã‚’æ¤œç´¢ã™ã‚‹...">
                     </div>
                     <div id="list-filters" class="list-filters">
                         <input type="date" id="filter-date-from" class="filter-input" aria-label="from">
                         <input type="date" id="filter-date-to" class="filter-input" aria-label="to">
                         <select id="filter-emotion" class="filter-input" aria-label="emotion"></select>
                         <select id="filter-pattern" class="filter-input" aria-label="pattern"></select>
-                        <input type="text" id="filter-trigger" class="filter-input" placeholder="ƒgƒŠƒK[Œê">
-                        <button id="btn-apply-filters" class="btn-secondary">“K—p</button>
-                        <button id="btn-reset-filters" class="btn-text">ƒŠƒZƒbƒg</button>
+                        <input type="text" id="filter-trigger" class="filter-input" placeholder="ãƒˆãƒªã‚¬ãƒ¼èªž">
+                        <button id="btn-apply-filters" class="btn-secondary">é©ç”¨</button>
+                        <button id="btn-reset-filters" class="btn-text">ãƒªã‚»ãƒƒãƒˆ</button>
                     </div>
                 </header>
                 <div id="entry-list-container" class="entry-grid">
                     <!-- Entries will be injected here -->
                     <div class="empty-state">
-                        <p>‚Ü‚¾“ú‹L‚ª‚ ‚è‚Ü‚¹‚ñB</p>
-                        <button class="btn-primary" onclick="openEntry()">Å‰‚Ì“ú‹L‚ð‘‚­</button>
+                        <p>ã¾ã æ—¥è¨˜ãŒã‚ã‚Šã¾ã›ã‚“ã€‚</p>
+                        <button class="btn-primary" onclick="openEntry()">æœ€åˆã®æ—¥è¨˜ã‚’æ›¸ã</button>
                     </div>
                 </div>
             </section>
@@ -117,24 +117,24 @@
             <!-- View: Calendar -->
             <section id="view-calendar" class="view-section hidden">
                 <header class="section-header">
-                    <h2>ƒJƒŒƒ“ƒ_[</h2>
+                    <h2>ã‚«ãƒ¬ãƒ³ãƒ€ãƒ¼</h2>
                 </header>
                 <div class="calendar-container">
                     <div class="calendar-controls">
                         <button id="btn-prev-month" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                        <select id="select-calendar-year" class="btn-secondary calendar-select" aria-label="”N"></select>
-                        <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="ŒŽ"></select>
-                        <h3 id="calendar-month-year">2025”N 12ŒŽ</h3>
+                        <select id="select-calendar-year" class="btn-secondary calendar-select" aria-label="å¹´"></select>
+                        <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="æœˆ"></select>
+                        <h3 id="calendar-month-year">2025å¹´ 12æœˆ</h3>
                         <button id="btn-next-month" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     <div class="weekdays-grid">
-                        <div>“ú</div>
-                        <div>ŒŽ</div>
-                        <div>‰Î</div>
-                        <div>…</div>
-                        <div>–Ø</div>
-                        <div>‹à</div>
-                        <div>“y</div>
+                        <div>æ—¥</div>
+                        <div>æœˆ</div>
+                        <div>ç«</div>
+                        <div>æ°´</div>
+                        <div>æœ¨</div>
+                        <div>é‡‘</div>
+                        <div>åœŸ</div>
                     </div>
                     <div id="calendar-days-grid" class="days-grid">
                         <!-- Days injected by JS -->
@@ -145,30 +145,30 @@
             <!-- View: Editor -->
             <section id="view-editor" class="view-section hidden">
                 <header class="section-header">
-                    <h2 id="editor-title-label">V‚µ‚¢“ú‹L</h2>
+                    <h2 id="editor-title-label">æ–°ã—ã„æ—¥è¨˜</h2>
                     <div class="editor-actions">
                         <select id="select-lock-status" class="btn-secondary"
                             style="margin-right:auto; border-color:transparent; background:transparent;">
-                            <option value="unlocked">?? ŒöŠJ</option>
-                            <option value="locked">?? ƒƒbƒN</option>
+                            <option value="unlocked">?? å…¬é–‹</option>
+                            <option value="locked">?? ãƒ­ãƒƒã‚¯</option>
                         </select>
                         <button id="btn-delete-entry" class="btn-text" style="color:#ff6b6b; display:none;"
                             onclick="requestDeleteEntry()">
-                            <i class="fa-solid fa-trash"></i> íœ
+                            <i class="fa-solid fa-trash"></i> å‰Šé™¤
                         </button>
                         <button id="btn-edit-entry" class="btn-primary" style="display:none;"
                             onclick="toggleEditMode(true)">
-                            <i class="fa-solid fa-pen"></i> •ÒW
+                            <i class="fa-solid fa-pen"></i> ç·¨é›†
                         </button>
-                        <button id="btn-cancel" class="btn-text" onclick="cancelEdit()">ƒLƒƒƒ“ƒZƒ‹</button>
+                        <button id="btn-cancel" class="btn-text" onclick="cancelEdit()">ã‚­ãƒ£ãƒ³ã‚»ãƒ«</button>
                         <button id="btn-save" class="btn-primary" onclick="saveEntryHelper()">
-                            <i class="fa-solid fa-save"></i> •Û‘¶
+                            <i class="fa-solid fa-save"></i> ä¿å­˜
                         </button>
                     </div>
                 </header>
                 <div class="editor-container">
                     <div class="editor-meta">
-                        <span id="entry-date-display"><i class="fa-regular fa-calendar"></i> ¡“ú</span>
+                        <span id="entry-date-display"><i class="fa-regular fa-calendar"></i> ä»Šæ—¥</span>
                         <span id="entry-score-display" style="margin-left: 1rem;"></span>
                     </div>
 
@@ -176,17 +176,17 @@
                     <div class="photo-section">
                         <input type="file" id="entry-image-input" accept="image/*" style="display: none;">
                         <button id="btn-upload-image" class="btn-secondary">
-                            <i class="fa-regular fa-image"></i> –{“ú‚ÌƒnƒCƒ‰ƒCƒg‚ð’Ç‰Á
+                            <i class="fa-regular fa-image"></i> æœ¬æ—¥ã®ãƒã‚¤ãƒ©ã‚¤ãƒˆã‚’è¿½åŠ 
                         </button>
                         <div id="image-preview-container" class="hidden">
-                            <label class="highlight-label">–{“ú‚ÌƒnƒCƒ‰ƒCƒg</label>
+                            <label class="highlight-label">æœ¬æ—¥ã®ãƒã‚¤ãƒ©ã‚¤ãƒˆ</label>
                             <img id="image-preview" src="" alt="Highlight">
                             <button id="btn-remove-image" class="icon-btn-small"><i
                                     class="fa-solid fa-times"></i></button>
                         </div>
                     </div>
 
-                    <textarea id="entry-content" rows="1" placeholder="¡“ú‚Ìo—ˆŽ–..." class="editor-textarea"></textarea>
+                    <textarea id="entry-content" rows="1" placeholder="ä»Šæ—¥ã®å‡ºæ¥äº‹..." class="editor-textarea"></textarea>
                     <!-- Text Display Div for View Mode (Auto-expand) -->
                     <div id="entry-content-display-text" class="entry-content-text hidden"></div>
                     <div id="analysis-panel" class="analysis-panel"></div>
@@ -195,16 +195,16 @@
                     <div id="lock-overlay" class="lock-overlay hidden">
                         <i class="fa-solid fa-lock"
                             style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                        <h3>‚±‚Ì“ú‹L‚ÍƒƒbƒN‚³‚ê‚Ä‚¢‚Ü‚·</h3>
-                        <p style="color:var(--text-muted); margin-bottom:1.5rem;">‰{——‚·‚é‚É‚ÍƒpƒXƒ[ƒh‚ð“ü—Í‚µ‚Ä‚­‚¾‚³‚¢</p>
+                        <h3>ã“ã®æ—¥è¨˜ã¯ãƒ­ãƒƒã‚¯ã•ã‚Œã¦ã„ã¾ã™</h3>
+                        <p style="color:var(--text-muted); margin-bottom:1.5rem;">é–²è¦§ã™ã‚‹ã«ã¯ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„</p>
                         <div style="display:flex; gap:10px; justify-content:center; flex-wrap: wrap;">
-                            <input type="password" id="input-unlock-pass" placeholder="ƒpƒXƒ[ƒh"
+                            <input type="password" id="input-unlock-pass" placeholder="ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰"
                                 style="padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); background:var(--bg-input); color:var(--text-main);">
-                            <button id="btn-unlock-entry" class="btn-primary">‰ðœ</button>
+                            <button id="btn-unlock-entry" class="btn-primary">è§£é™¤</button>
                         </div>
                         <button id="btn-forgot-pass" class="btn-text-sm"
                             style="margin-top: 1rem; color: var(--text-muted); width: auto; display: inline-block;">
-                            <i class="fa-solid fa-key"></i> ƒpƒXƒ[ƒh‚ð–Y‚ê‚½ê‡iGoogle”FØj
+                            <i class="fa-solid fa-key"></i> ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å¿˜ã‚ŒãŸå ´åˆï¼ˆGoogleèªè¨¼ï¼‰
                         </button>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
     <!-- Settings Modal -->
     <div id="modal-settings" class="modal hidden">
         <div class="modal-content">
-            <h3>Ý’è</h3>
+            <h3>è¨­å®š</h3>
 
             <div class="input-group">
                 <label for="input-api-base">API Base URL</label>
@@ -227,27 +227,27 @@
             </div>
             <hr style="border:0; border-top:1px solid var(--glass-border); margin: 1.5rem 0;">
 
-            <h3>ƒpƒXƒ[ƒhÝ’è</h3>
+            <h3>ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰è¨­å®š</h3>
             <div class="input-group">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <label for="input-current-pass">Œ»Ý‚ÌƒpƒXƒ[ƒh</label>
+                    <label for="input-current-pass">ç¾åœ¨ã®ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰</label>
                     <button id="btn-forgot-pass-settings" class="btn-text-sm"
                         style="color:var(--accent); margin-bottom:0.5rem;">
-                        (–Y‚ê‚½ê‡)
+                        (å¿˜ã‚ŒãŸå ´åˆ)
                     </button>
                 </div>
-                <input type="password" id="input-current-pass" placeholder="Œ»Ý‚ÌƒpƒXƒ[ƒhi–¢Ý’è‚È‚ç‹ó—“j">
+                <input type="password" id="input-current-pass" placeholder="ç¾åœ¨ã®ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ï¼ˆæœªè¨­å®šãªã‚‰ç©ºæ¬„ï¼‰">
             </div>
             <div class="input-group">
-                <label for="input-new-pass">V‚µ‚¢ƒpƒXƒ[ƒh</label>
-                <input type="password" id="input-new-pass" placeholder="V‚µ‚¢ƒpƒXƒ[ƒh">
+                <label for="input-new-pass">æ–°ã—ã„ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰</label>
+                <input type="password" id="input-new-pass" placeholder="æ–°ã—ã„ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰">
             </div>
             <button id="btn-update-pass" class="btn-secondary" style="width:100%; margin-bottom:1rem;">
-                <i class="fa-brands fa-google"></i> Google”FØ‚µ‚Ä•ÏX
+                <i class="fa-brands fa-google"></i> Googleèªè¨¼ã—ã¦å¤‰æ›´
             </button>
 
             <div class="modal-actions">
-                <button id="btn-close-settings" class="btn-primary">•Â‚¶‚é</button>
+                <button id="btn-close-settings" class="btn-primary">é–‰ã˜ã‚‹</button>
             </div>
         </div>
     </div>
@@ -258,13 +258,13 @@
             <div style="font-size: 3rem; color: #ff6b6b; margin-bottom: 1rem;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3>“ú‹L‚ðíœ‚µ‚Ü‚·‚©H</h3>
-            <p style="opacity: 0.8; margin-bottom: 2rem;">‚±‚Ì‘€ì‚ÍŽæ‚èÁ‚¹‚Ü‚¹‚ñB–{“–‚Éíœ‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©H</p>
+            <h3>æ—¥è¨˜ã‚’å‰Šé™¤ã—ã¾ã™ã‹ï¼Ÿ</h3>
+            <p style="opacity: 0.8; margin-bottom: 2rem;">ã“ã®æ“ä½œã¯å–ã‚Šæ¶ˆã›ã¾ã›ã‚“ã€‚æœ¬å½“ã«å‰Šé™¤ã—ã¦ã‚‚ã‚ˆã‚ã—ã„ã§ã™ã‹ï¼Ÿ</p>
             <div class="modal-actions" style="justify-content: center; gap: 1rem;">
                 <button id="btn-cancel-delete" class="btn-text" style="color: var(--text-primary);"
-                    onclick="cancelDeleteHelper()">ƒLƒƒƒ“ƒZƒ‹</button>
+                    onclick="cancelDeleteHelper()">ã‚­ãƒ£ãƒ³ã‚»ãƒ«</button>
                 <button id="btn-confirm-delete" class="btn-primary" style="background: #ff6b6b; border: none;"
-                    onclick="confirmDeleteHelper()">íœ‚·‚é</button>
+                    onclick="confirmDeleteHelper()">å‰Šé™¤ã™ã‚‹</button>
             </div>
         </div>
     </div>
@@ -272,15 +272,15 @@
     <!-- Simple Password Input Modal (for Reset) -->
     <div id="modal-reset-input" class="modal hidden">
         <div class="modal-content" style="max-width: 400px;">
-            <h3>V‚µ‚¢ƒpƒXƒ[ƒh</h3>
-            <p style="margin-bottom:1rem; color:var(--text-muted);">”FØ‚É¬Œ÷‚µ‚Ü‚µ‚½B<br>V‚µ‚¢ƒƒbƒN—pƒpƒXƒ[ƒh‚ð“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B</p>
+            <h3>æ–°ã—ã„ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰</h3>
+            <p style="margin-bottom:1rem; color:var(--text-muted);">èªè¨¼ã«æˆåŠŸã—ã¾ã—ãŸã€‚<br>æ–°ã—ã„ãƒ­ãƒƒã‚¯ç”¨ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚</p>
             <div class="input-group">
-                <input type="password" id="input-reset-new-pass" placeholder="V‚µ‚¢ƒpƒXƒ[ƒhi‹ó—“‚ÍƒƒbƒN‰ðœj"
+                <input type="password" id="input-reset-new-pass" placeholder="æ–°ã—ã„ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ï¼ˆç©ºæ¬„ã¯ãƒ­ãƒƒã‚¯è§£é™¤ï¼‰"
                     style="width:100%; padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--accent); background:var(--bg-input); color:var(--text-main);">
             </div>
             <div class="modal-actions">
-                <button id="btn-cancel-reset" class="btn-text">ƒLƒƒƒ“ƒZƒ‹</button>
-                <button id="btn-save-reset" class="btn-primary">•ÏX‚ð•Û‘¶</button>
+                <button id="btn-cancel-reset" class="btn-text">ã‚­ãƒ£ãƒ³ã‚»ãƒ«</button>
+                <button id="btn-save-reset" class="btn-primary">å¤‰æ›´ã‚’ä¿å­˜</button>
             </div>
         </div>
     </div>
