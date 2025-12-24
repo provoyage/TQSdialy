@@ -169,6 +169,93 @@ const EMOTION_KEY_ALIASES = {
     anticipation: 'anticipation'
 };
 
+const PATTERN_CATALOG = [
+    { id: 'jump_to_conclusion', label: '結論の飛躍', desc: '根拠が少ないまま結論を出す' },
+    { id: 'overgeneralization', label: '過度の一般化', desc: '一度の出来事で全体を決めつける' },
+    { id: 'black_and_white', label: '白黒思考', desc: '極端に捉える' },
+    { id: 'emotional_reasoning', label: '感情で決めつけ', desc: '気分を事実だとみなす' },
+    { id: 'self_blame', label: '自己否定', desc: '自分のせいだと決めつける' },
+    { id: 'mind_reading', label: '他者の意図の読みすぎ', desc: '相手の意図を決めつける' },
+    { id: 'catastrophizing', label: '未来の悲観', desc: '悪い結果を決めつける' },
+    { id: 'magnification_minimization', label: '拡大・過小評価', desc: '悪い点は大きく、良い点は小さく見る' },
+    { id: 'should_statements', label: 'べき思考', desc: '〜すべきで縛る' },
+    { id: 'negative_filter', label: 'ネガティブ抽出', desc: '悪い点だけに注目する' },
+    { id: 'comparison_inferiority', label: '比較・劣等感', desc: '他人と比べて自分を下げる' },
+    { id: 'avoidance_procrastination', label: '回避・先延ばし', desc: '不安や負担から行動を避ける' }
+];
+
+const PATTERN_ALIASES = {
+    inference_jump: 'jump_to_conclusion',
+    jump_to_conclusion: 'jump_to_conclusion',
+    '結論飛躍': 'jump_to_conclusion',
+    '結論の飛躍': 'jump_to_conclusion',
+    overgeneralization: 'overgeneralization',
+    '過度の一般化': 'overgeneralization',
+    black_and_white: 'black_and_white',
+    all_or_nothing: 'black_and_white',
+    'all-or-nothing': 'black_and_white',
+    '白黒思考': 'black_and_white',
+    emotional_reasoning: 'emotional_reasoning',
+    '感情で決めつけ': 'emotional_reasoning',
+    '感情的決めつけ': 'emotional_reasoning',
+    self_blame: 'self_blame',
+    'self-blame': 'self_blame',
+    '自己否定': 'self_blame',
+    '自己責任化': 'self_blame',
+    mind_reading: 'mind_reading',
+    'mind-reading': 'mind_reading',
+    '他者の意図の読みすぎ': 'mind_reading',
+    '読心': 'mind_reading',
+    catastrophizing: 'catastrophizing',
+    '未来の悲観': 'catastrophizing',
+    '最悪予測': 'catastrophizing',
+    magnification_minimization: 'magnification_minimization',
+    '拡大・過小評価': 'magnification_minimization',
+    '拡大': 'magnification_minimization',
+    '過小評価': 'magnification_minimization',
+    should_statements: 'should_statements',
+    'べき思考': 'should_statements',
+    negative_filter: 'negative_filter',
+    'ネガティブ抽出': 'negative_filter',
+    'ネガティブフィルター': 'negative_filter',
+    '選択的注目': 'negative_filter',
+    comparison_inferiority: 'comparison_inferiority',
+    '比較・劣等感': 'comparison_inferiority',
+    '比較': 'comparison_inferiority',
+    '劣等感': 'comparison_inferiority',
+    avoidance_procrastination: 'avoidance_procrastination',
+    '回避・先延ばし': 'avoidance_procrastination',
+    '回避': 'avoidance_procrastination',
+    '先延ばし': 'avoidance_procrastination'
+};
+
+const PATTERN_MAP = PATTERN_CATALOG.reduce((acc, item) => {
+    acc[item.id] = item;
+    acc[item.label] = item;
+    return acc;
+}, {});
+
+function normalizePatternId(value) {
+    if (!value) return null;
+    const raw = String(value).trim();
+    if (!raw) return null;
+    const lower = raw.toLowerCase();
+    const alias = PATTERN_ALIASES[lower] || PATTERN_ALIASES[raw];
+    const key = alias || lower;
+    if (PATTERN_MAP[key]) return PATTERN_MAP[key].id;
+    if (PATTERN_MAP[raw]) return PATTERN_MAP[raw].id;
+    return null;
+}
+
+function getPatternEntry(pattern) {
+    if (!pattern) return null;
+    const raw = typeof pattern === 'string'
+        ? pattern
+        : (pattern.pattern_id || pattern.label || pattern.id || null);
+    const id = normalizePatternId(raw);
+    return id ? PATTERN_MAP[id] : null;
+}
+
 function normalizeEmotionKey(key) {
     if (!key) return null;
     const raw = String(key).trim().toLowerCase();
@@ -640,26 +727,20 @@ function refreshFilterOptions() {
     }
 
     if (dom.filterPattern) {
-        const patternSet = new Set();
-        Object.values(appState.analysisById).forEach((a) => {
-            (a.patterns || []).forEach((p) => {
-                const label = p.label || p.pattern_id || '';
-                if (label) patternSet.add(label);
-            });
-        });
-        const patterns = Array.from(patternSet).sort();
         dom.filterPattern.innerHTML = '';
         const optAll = document.createElement('option');
         optAll.value = 'all';
         optAll.textContent = '\u8a8d\u77e5\u30d1\u30bf\u30fc\u30f3: \u3059\u3079\u3066';
         dom.filterPattern.appendChild(optAll);
-        patterns.forEach((p) => {
+        PATTERN_CATALOG.forEach((p) => {
             const opt = document.createElement('option');
-            opt.value = p;
-            opt.textContent = p;
+            opt.value = p.id;
+            opt.textContent = p.label;
             dom.filterPattern.appendChild(opt);
         });
-        dom.filterPattern.value = appState.filters.pattern || 'all';
+        const selected = normalizePatternId(appState.filters.pattern);
+        dom.filterPattern.value = selected || 'all';
+        appState.filters.pattern = dom.filterPattern.value;
     }
 }
 
@@ -847,9 +928,9 @@ function aggregateStats(entries) {
         }
 
         (analysis.patterns || []).forEach((p) => {
-            const label = p.label || p.pattern_id || '';
-            if (!label) return;
-            patternCounts[label] = (patternCounts[label] || 0) + 1;
+            const entry = getPatternEntry(p);
+            if (!entry) return;
+            patternCounts[entry.id] = (patternCounts[entry.id] || 0) + 1;
         });
 
         (analysis.triggers || []).forEach((t) => {
@@ -864,7 +945,11 @@ function aggregateStats(entries) {
         .sort((a, b) => b.count - a.count);
 
     const patternsSorted = Object.keys(patternCounts)
-        .map((label) => ({ label, count: patternCounts[label] }))
+        .map((id) => ({
+            id,
+            label: PATTERN_MAP[id]?.label || id,
+            count: patternCounts[id]
+        }))
         .sort((a, b) => b.count - a.count);
 
     const triggersSorted = Object.keys(triggerCounts)
@@ -1280,9 +1365,17 @@ function renderAnalysisPanel(entry) {
         return `${escapeHtml(name)}${Number.isFinite(intensity) ? ` ${intensity}点` : ''}${certainty ? ` (確度 ${certainty})` : ''}`;
     });
     const patterns = (analysis.patterns || []).map((p) => {
-        const label = escapeHtml(p.label || p.pattern_id || '不明');
+        const entry = getPatternEntry(p);
+        const label = entry ? entry.label : (p.label || p.pattern_id || '不明');
+        const desc = entry ? entry.desc : '';
         const conf = p.confidence_0_1 != null ? Number(p.confidence_0_1).toFixed(2) : null;
-        return `${label}${conf ? ` (確度 ${conf})` : ''}`;
+        const meta = conf ? `確度 ${conf}` : '';
+        return `
+            <li class="pattern-item">
+                <div class="pattern-label">${escapeHtml(label)}${meta ? ` <span class="pattern-meta">${meta}</span>` : ''}</div>
+                ${desc ? `<div class="pattern-desc">${escapeHtml(desc)}</div>` : ''}
+            </li>
+        `;
     });
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
@@ -1304,8 +1397,8 @@ function renderAnalysisPanel(entry) {
                         <div class="analysis-emotion">${emotionLabel}${emotionScore != null ? ` <span class="analysis-emotion-score">${emotionScore}点</span>` : ''}</div>
                     </div>
                     <div class="analysis-actions">
-                        <button class="btn-secondary" data-analysis-toggle="${entry.id}" onclick="toggleAnalysisDetails('${entry.id}')">?????</button>
-                        <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">???</button>
+                        <button class="btn-secondary" data-analysis-toggle="${entry.id}" onclick="toggleAnalysisDetails('${entry.id}')">詳細を見る</button>
+                        <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">再解析</button>
                     </div>
                 </div>
                 <div class="analysis-summary-text">${summarySafe}</div>
@@ -1331,7 +1424,7 @@ function renderAnalysisPanel(entry) {
                 </div>
                 <div class="analysis-detail">
                     <h4>考え方の癖</h4>
-                    <ul class="analysis-list">${patterns.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+                    <ul class="analysis-list">${patterns.join('') || '<li>なし</li>'}</ul>
                 </div>
                 <div class="analysis-detail">
                     <h4>トリガー語</h4>
@@ -1341,7 +1434,6 @@ function renderAnalysisPanel(entry) {
         </div>
     `;
 }
-
 function toggleAnalysisDetails(entryId) {
     const details = document.getElementById(`analysis-details-${entryId}`);
     if (!details) return;
@@ -1559,7 +1651,8 @@ function getTopPattern(analysis) {
     if (!analysis || !Array.isArray(analysis.patterns) || analysis.patterns.length === 0) return null;
     const sorted = [...analysis.patterns].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
     const top = sorted[0];
-    return top.label || top.pattern_id || null;
+    const entry = getPatternEntry(top);
+    return entry ? entry.label : (top.label || top.pattern_id || null);
 }
 
 function getFilteredEntries() {
@@ -1592,7 +1685,10 @@ function getFilteredEntries() {
         list = list.filter(e => {
             const analysis = appState.analysisById[e.id];
             if (!analysis) return false;
-            return (analysis.patterns || []).some(p => (p.label || p.pattern_id) === appState.filters.pattern);
+            return (analysis.patterns || []).some((p) => {
+                const entry = getPatternEntry(p);
+                return entry && entry.id === appState.filters.pattern;
+            });
         });
     }
 

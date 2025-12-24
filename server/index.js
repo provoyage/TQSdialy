@@ -118,8 +118,8 @@ function basicAnalysis(text) {
       arousal: 'medium'
     }],
     patterns: [{
-      pattern_id: 'inference_jump',
-      label: '結論飛躍',
+      pattern_id: 'jump_to_conclusion',
+      label: '結論の飛躍',
       confidence_0_1: 0.25,
       evidence_quotes: sentences.slice(0, 1)
     }],
@@ -138,7 +138,7 @@ Return JSON only with this schema:
   "facts": ["..."],
   "story": ["..."],
   "emotions": [{"label":"joy","intensity_0_100":0,"certainty_0_1":0,"valence":"positive|negative|mixed","arousal":"low|medium|high"}],
-  "patterns": [{"pattern_id":"label","label":"label","confidence_0_1":0,"evidence_quotes":["..."]}],
+  "patterns": [{"pattern_id":"jump_to_conclusion","label":"結論の飛躍","confidence_0_1":0,"evidence_quotes":["..."]}],
   "triggers": ["..."],
   "observation_comment": "..."
 }
@@ -148,6 +148,20 @@ Constraints:
 - Always include certainty/confidence fields.
 - Output facts/story/observation_comment/patterns.label/evidence_quotes/triggers in Japanese.
 - emotions.label must be one of: joy, trust, fear, surprise, sadness, disgust, anger, anticipation.
+- patterns.pattern_id must be one of: jump_to_conclusion, overgeneralization, black_and_white, emotional_reasoning, self_blame, mind_reading, catastrophizing, magnification_minimization, should_statements, negative_filter, comparison_inferiority, avoidance_procrastination.
+- patterns.label must be the exact Japanese label for its pattern_id:
+  jump_to_conclusion: 結論の飛躍
+  overgeneralization: 過度の一般化
+  black_and_white: 白黒思考
+  emotional_reasoning: 感情で決めつけ
+  self_blame: 自己否定
+  mind_reading: 他者の意図の読みすぎ
+  catastrophizing: 未来の悲観
+  magnification_minimization: 拡大・過小評価
+  should_statements: べき思考
+  negative_filter: ネガティブ抽出
+  comparison_inferiority: 比較・劣等感
+  avoidance_procrastination: 回避・先延ばし
 
 Diary:
 <DIARY>

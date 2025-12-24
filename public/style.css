@@ -993,6 +993,27 @@ body {
     color: var(--text-muted);
 }
 
+.pattern-item {
+    margin-bottom: 0.6rem;
+}
+
+.pattern-label {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.pattern-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+}
+
+.pattern-meta {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-left: 0.4rem;
+}
+
 .analysis-tags {
     display: flex;
     flex-wrap: wrap;
