@@ -1081,6 +1081,11 @@ function renderRankList(items, unit) {
     }).join('')}</div>`;
 }
 
+function stripParenthetical(text) {
+    if (!text) return '';
+    return String(text).replace(/\s*[?(][^?)]+[?)]\s*$/, '').trim();
+}
+
 async function requestSummaryUpdate(periodKey, periodLabel, stats) {
     if (appState.summaryUpdating) return;
     appState.summaryUpdating = true;
@@ -1263,7 +1268,7 @@ function renderMyPage() {
             <div class="stat-card themes-card">
                 <h4>繰り返しテーマTop3</h4>
                 <div class="themes-list">
-                    ${themes.length ? themes.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join('') : '<span class="rank-empty">未更新</span>'}
+                    ${themes.length ? themes.map((t) => `<span class="tag">${escapeHtml(stripParenthetical(t))}</span>`).join('') : '<span class="rank-empty">未更新</span>'}
                 </div>
             </div>
 
