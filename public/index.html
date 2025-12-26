@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 
 <body>
@@ -189,6 +189,43 @@
                     <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
                     <!-- Text Display Div for View Mode (Auto-expand) -->
                     <div id="entry-content-display-text" class="entry-content-text hidden"></div>
+
+                    <div id="journal-sections" class="journal-sections">
+                        <div class="journal-card">
+                            <label for="entry-done">?????</label>
+                            <textarea id="entry-done" class="journal-input journal-textarea" rows="1" placeholder="???????"></textarea>
+                            <div id="entry-done-display" class="journal-display hidden"></div>
+                        </div>
+                        <div class="journal-card">
+                            <label for="entry-not-done">????????</label>
+                            <textarea id="entry-not-done" class="journal-input journal-textarea" rows="1" placeholder="????????"></textarea>
+                            <div id="entry-not-done-display" class="journal-display hidden"></div>
+                        </div>
+                        <div class="journal-card">
+                            <label for="entry-next-plan">????????</label>
+                            <textarea id="entry-next-plan" class="journal-input journal-textarea" rows="1" placeholder="????????"></textarea>
+                            <div id="entry-next-plan-display" class="journal-display hidden"></div>
+                        </div>
+                        <div class="journal-card">
+                            <label>?????</label>
+                            <div class="journal-row">
+                                <input id="entry-meal-breakfast" class="journal-input" type="text" placeholder="?">
+                                <input id="entry-meal-lunch" class="journal-input" type="text" placeholder="?">
+                                <input id="entry-meal-dinner" class="journal-input" type="text" placeholder="?">
+                            </div>
+                            <div id="entry-meals-display" class="journal-display hidden"></div>
+                        </div>
+                        <div class="journal-card">
+                            <label for="entry-weight">??</label>
+                            <input id="entry-weight" class="journal-input" type="number" step="0.1" placeholder="kg">
+                            <div id="entry-weight-display" class="journal-display hidden"></div>
+                        </div>
+                        <div class="journal-card">
+                            <label for="entry-sleep">????</label>
+                            <input id="entry-sleep" class="journal-input" type="number" step="0.1" placeholder="??">
+                            <div id="entry-sleep-display" class="journal-display hidden"></div>
+                        </div>
+                    </div>
                     <div id="analysis-panel" class="analysis-panel"></div>
 
                     <!-- Unlock Overlay -->
@@ -295,7 +332,7 @@
     <script src="firebase-config.js"></script>
 
     <!-- App Logic (No Module) -->
-    <script src="script.js?v=100"></script>
+    <script src="script.js?v=101"></script>
 
     <!-- Global Error Handler -->
     <script>

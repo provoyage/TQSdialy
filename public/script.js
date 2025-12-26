@@ -77,6 +77,21 @@ const dom = {
 
     inputContent: getEl('entry-content'),
     contentDisplayText: getEl('entry-content-display-text'),
+    journalSections: getEl('journal-sections'),
+    inputDone: getEl('entry-done'),
+    inputNotDone: getEl('entry-not-done'),
+    inputNextPlan: getEl('entry-next-plan'),
+    inputMealBreakfast: getEl('entry-meal-breakfast'),
+    inputMealLunch: getEl('entry-meal-lunch'),
+    inputMealDinner: getEl('entry-meal-dinner'),
+    inputWeight: getEl('entry-weight'),
+    inputSleep: getEl('entry-sleep'),
+    displayDone: getEl('entry-done-display'),
+    displayNotDone: getEl('entry-not-done-display'),
+    displayNextPlan: getEl('entry-next-plan-display'),
+    displayMeals: getEl('entry-meals-display'),
+    displayWeight: getEl('entry-weight-display'),
+    displaySleep: getEl('entry-sleep-display'),
     displayDate: getEl('entry-date-display'),
     displayScore: getEl('entry-score-display'),
     editorTitleLabel: getEl('editor-title-label'),
@@ -452,6 +467,9 @@ function setupEventListeners() {
     if (dom.inputContent) {
         dom.inputContent.addEventListener('input', autoResizeTextarea);
     }
+    document.querySelectorAll('.journal-textarea').forEach((el) => {
+        el.addEventListener('input', autoResizeTextarea);
+    });
     if (dom.btnLogout) {
         dom.btnLogout.addEventListener('click', handleLogout);
     }
@@ -466,10 +484,96 @@ function setupEventListeners() {
     refreshFilterOptions();
 }
 
-function autoResizeTextarea() {
-    if (!dom.inputContent) return;
-    dom.inputContent.style.height = 'auto';
-    dom.inputContent.style.height = `${dom.inputContent.scrollHeight}px`;
+function autoResizeTextarea(target) {
+    const el = target && target.target ? target.target : (target || dom.inputContent);
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+}
+
+function resizeAllJournalTextareas() {
+    document.querySelectorAll('.journal-textarea').forEach((el) => autoResizeTextarea(el));
+}
+
+function setJournalEditMode(isEdit) {
+    const inputs = document.querySelectorAll('.journal-input');
+    const displays = document.querySelectorAll('.journal-display');
+    inputs.forEach((el) => el.classList.toggle('hidden', !isEdit));
+    displays.forEach((el) => el.classList.toggle('hidden', isEdit));
+}
+
+function formatWithUnit(value, unit) {
+    const v = String(value || '').trim();
+    if (!v) return '未記入';
+    if (unit && !v.endsWith(unit)) return `${v}${unit}`;
+    return v;
+}
+
+function getJournalFromEntry(entry) {
+    const meta = entry && entry.meta && entry.meta.journal ? entry.meta.journal : {};
+    const journal = entry && entry.journal ? entry.journal : {};
+    const source = { ...meta, ...journal };
+    const meals = source.meals || {};
+    return {
+        done: source.done || '',
+        notDone: source.not_done || '',
+        nextPlan: source.next_plan || '',
+        meals: {
+            breakfast: meals.breakfast || '',
+            lunch: meals.lunch || '',
+            dinner: meals.dinner || ''
+        },
+        weight: source.weight || '',
+        sleepHours: source.sleep_hours || ''
+    };
+}
+
+function fillJournalInputs(journal) {
+    if (dom.inputDone) dom.inputDone.value = journal.done || '';
+    if (dom.inputNotDone) dom.inputNotDone.value = journal.notDone || '';
+    if (dom.inputNextPlan) dom.inputNextPlan.value = journal.nextPlan || '';
+    if (dom.inputMealBreakfast) dom.inputMealBreakfast.value = journal.meals.breakfast || '';
+    if (dom.inputMealLunch) dom.inputMealLunch.value = journal.meals.lunch || '';
+    if (dom.inputMealDinner) dom.inputMealDinner.value = journal.meals.dinner || '';
+    if (dom.inputWeight) dom.inputWeight.value = journal.weight || '';
+    if (dom.inputSleep) dom.inputSleep.value = journal.sleepHours || '';
+}
+
+function fillJournalDisplays(journal) {
+    if (dom.displayDone) dom.displayDone.textContent = journal.done || '未記入';
+    if (dom.displayNotDone) dom.displayNotDone.textContent = journal.notDone || '未記入';
+    if (dom.displayNextPlan) dom.displayNextPlan.textContent = journal.nextPlan || '未記入';
+    if (dom.displayMeals) {
+        const breakfast = journal.meals.breakfast || '未記入';
+        const lunch = journal.meals.lunch || '未記入';
+        const dinner = journal.meals.dinner || '未記入';
+        dom.displayMeals.innerHTML = `
+            <div>朝: ${escapeHtml(breakfast)}</div>
+            <div>昼: ${escapeHtml(lunch)}</div>
+            <div>晩: ${escapeHtml(dinner)}</div>
+        `;
+    }
+    if (dom.displayWeight) dom.displayWeight.textContent = formatWithUnit(journal.weight, 'kg');
+    if (dom.displaySleep) dom.displaySleep.textContent = formatWithUnit(journal.sleepHours, '時間');
+}
+
+function clearJournalFields() {
+    fillJournalInputs({
+        done: '',
+        notDone: '',
+        nextPlan: '',
+        meals: { breakfast: '', lunch: '', dinner: '' },
+        weight: '',
+        sleepHours: ''
+    });
+    fillJournalDisplays({
+        done: '',
+        notDone: '',
+        nextPlan: '',
+        meals: { breakfast: '', lunch: '', dinner: '' },
+        weight: '',
+        sleepHours: ''
+    });
 }
 
 function syncCalendarFromSelectors() {
@@ -633,6 +737,20 @@ async function saveEntryHelper() {
     entry.isLocked = isLocked;
     entry.locked = isLocked;
     entry.created_at = entry.created_at || baseDate;
+    const journal = {
+        done: dom.inputDone ? dom.inputDone.value.trim() : '',
+        not_done: dom.inputNotDone ? dom.inputNotDone.value.trim() : '',
+        next_plan: dom.inputNextPlan ? dom.inputNextPlan.value.trim() : '',
+        meals: {
+            breakfast: dom.inputMealBreakfast ? dom.inputMealBreakfast.value.trim() : '',
+            lunch: dom.inputMealLunch ? dom.inputMealLunch.value.trim() : '',
+            dinner: dom.inputMealDinner ? dom.inputMealDinner.value.trim() : ''
+        },
+        weight: dom.inputWeight ? dom.inputWeight.value.trim() : '',
+        sleep_hours: dom.inputSleep ? dom.inputSleep.value.trim() : ''
+    };
+    entry.meta = { ...(entry.meta || {}), journal };
+    entry.journal = journal;
 
     const isNew = !entry.id;
     const entryId = await saveEntryToFirestore(entry);
@@ -737,7 +855,8 @@ async function loadEntries() {
                     image: data.image || null,
                     locked: data.locked || data.isLocked || false,
                     isLocked: data.locked || data.isLocked || false,
-                    meta: data.meta || {}
+                    meta: data.meta || {},
+                    journal: (data.meta && data.meta.journal) ? data.meta.journal : (data.journal || {})
                 });
             });
         });
@@ -1346,6 +1465,10 @@ function openEntry(entryId = null, targetDate = null) {
             dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-check"></i> ${formatDate(getEntryDate(entry))} <span style="font-size:0.8em; margin-left:10px;">${formatTime(getEntryDate(entry))}</span>`;
         }
         if (dom.selectLockStatus) dom.selectLockStatus.value = entry.isLocked ? 'locked' : 'unlocked';
+        const journal = getJournalFromEntry(entry);
+        fillJournalInputs(journal);
+        fillJournalDisplays(journal);
+        if (dom.journalSections) dom.journalSections.classList.remove('hidden');
 
         if (entry.isLocked) {
             toggleEditMode(false);
@@ -1354,6 +1477,7 @@ function openEntry(entryId = null, targetDate = null) {
             if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
             if (dom.btnEditEntry) dom.btnEditEntry.style.display = 'none';
             if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'none';
+            if (dom.journalSections) dom.journalSections.classList.add('hidden');
         } else {
             if (dom.contentDisplayText) dom.contentDisplayText.textContent = entry.content;
             toggleEditMode(false);
@@ -1373,17 +1497,20 @@ function openEntry(entryId = null, targetDate = null) {
         if (dom.displayDate) dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-plus"></i> ${formatDate(appState.writingDate)}`;
         if (dom.selectLockStatus) dom.selectLockStatus.value = 'unlocked';
         if (dom.inputContent) dom.inputContent.value = '';
+        clearJournalFields();
         if (dom.displayScore) dom.displayScore.innerHTML = '';
         if (dom.entryImageInput) dom.entryImageInput.value = '';
         if (dom.imagePreview) dom.imagePreview.src = '';
         if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
         if (dom.analysisPanel) dom.analysisPanel.innerHTML = '';
+        if (dom.journalSections) dom.journalSections.classList.remove('hidden');
         toggleEditMode(true);
         setTimeout(() => {
             if (dom.inputContent) {
                 dom.inputContent.focus();
                 if (autoResizeTextarea) autoResizeTextarea();
             }
+            resizeAllJournalTextareas();
         }, 100);
     }
 }
@@ -1392,6 +1519,7 @@ function toggleEditMode(isEdit) {
     if (isEdit) {
         if (dom.inputContent) dom.inputContent.classList.remove('hidden');
         if (dom.contentDisplayText) dom.contentDisplayText.classList.add('hidden');
+        setJournalEditMode(true);
         if (dom.btnSave) dom.btnSave.classList.remove('hidden');
         if (dom.btnEditEntry) dom.btnEditEntry.style.display = 'none';
         if (dom.btnUploadImage) dom.btnUploadImage.classList.remove('hidden');
@@ -1401,6 +1529,8 @@ function toggleEditMode(isEdit) {
             const entry = appState.entries.find(e => e.id === appState.activeEntryId);
             if (entry) {
                 if (dom.inputContent) dom.inputContent.value = entry.content;
+                const journal = getJournalFromEntry(entry);
+                fillJournalInputs(journal);
                 if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
                 if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65e5\u8a18\u3092\u7de8\u96c6';
             }
@@ -1409,10 +1539,14 @@ function toggleEditMode(isEdit) {
             if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
             if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65e5\u8a18\u3092\u66f8\u304f';
         }
-        setTimeout(() => { if (autoResizeTextarea) autoResizeTextarea(); }, 10);
+        setTimeout(() => {
+            if (autoResizeTextarea) autoResizeTextarea();
+            resizeAllJournalTextareas();
+        }, 10);
     } else {
         if (dom.inputContent) dom.inputContent.classList.add('hidden');
         if (dom.contentDisplayText) dom.contentDisplayText.classList.remove('hidden');
+        setJournalEditMode(false);
         if (dom.btnSave) dom.btnSave.classList.add('hidden');
         if (dom.btnEditEntry) dom.btnEditEntry.style.display = 'inline-flex';
         if (dom.btnUploadImage) dom.btnUploadImage.classList.add('hidden');
@@ -1422,6 +1556,10 @@ function toggleEditMode(isEdit) {
         if (appState.activeEntryId) {
             const entry = appState.entries.find(e => e.id === appState.activeEntryId);
             if (entry && dom.contentDisplayText) dom.contentDisplayText.textContent = entry.content;
+            if (entry) {
+                const journal = getJournalFromEntry(entry);
+                fillJournalDisplays(journal);
+            }
         }
     }
 }

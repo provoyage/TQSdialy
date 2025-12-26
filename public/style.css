@@ -1890,3 +1890,56 @@ body .app-container .main-content .view-section .editor-container .editor-textar
 .score-low-cal {
     color: #f87171;
 }
+
+
+.journal-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 1.5rem;
+}
+
+.journal-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.journal-card label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.journal-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.journal-input,
+.journal-textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.8rem;
+}
+
+.journal-textarea {
+    resize: none;
+    min-height: 3rem;
+}
+
+.journal-display {
+    color: var(--text-main);
+    line-height: 1.5;
+}
+
+.journal-display div {
+    margin-top: 0.25rem;
+}
