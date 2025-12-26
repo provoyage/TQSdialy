@@ -1557,10 +1557,6 @@ function renderAnalysisPanel(entry) {
         <div class="analysis-block analysis-details is-open" id="analysis-details-${entry.id}">
             <div class="analysis-detail-grid">
                 <div class="analysis-detail">
-                    <h4>気づき</h4>
-                    <ul class="analysis-list">${story.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
-                </div>
-                <div class="analysis-detail">
                     <h4>感情の内訳</h4>
                     <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
                 </div>
