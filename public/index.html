@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 
 <body>
@@ -119,6 +119,13 @@
                 <header class="section-header">
                     <h2>カレンダー</h2>
                 </header>
+                <div class="monthly-goal-card">
+                    <div class="monthly-goal-header">
+                        <h3 id="monthly-goal-title">今月の目標</h3>
+                        <button id="btn-edit-monthly-goal" class="btn-secondary">編集</button>
+                    </div>
+                    <p id="monthly-goal-text" class="monthly-goal-text">未設定</p>
+                </div>
                 <div class="calendar-container">
                     <div class="calendar-controls">
                         <button id="btn-prev-month" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
@@ -332,7 +339,7 @@
     <script src="firebase-config.js"></script>
 
     <!-- App Logic (No Module) -->
-    <script src="script.js?v=101"></script>
+    <script src="script.js?v=102"></script>
 
     <!-- Global Error Handler -->
     <script>

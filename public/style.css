@@ -1943,3 +1943,31 @@ body .app-container .main-content .view-section .editor-container .editor-textar
 .journal-display div {
     margin-top: 0.25rem;
 }
+
+
+.monthly-goal-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.monthly-goal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.monthly-goal-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.monthly-goal-text {
+    margin-top: 0.6rem;
+    color: var(--text-main);
+    line-height: 1.5;
+}

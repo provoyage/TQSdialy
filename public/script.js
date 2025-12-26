@@ -127,6 +127,9 @@ const dom = {
     btnNextMonth: getEl('btn-next-month'),
     selectCalendarYear: getEl('select-calendar-year'),
     selectCalendarMonth: getEl('select-calendar-month'),
+    monthlyGoalTitle: getEl('monthly-goal-title'),
+    monthlyGoalText: getEl('monthly-goal-text'),
+    btnEditMonthlyGoal: getEl('btn-edit-monthly-goal'),
     searchInput: getEl('search-input'),
     filterDateFrom: getEl('filter-date-from'),
     filterDateTo: getEl('filter-date-to'),
@@ -382,6 +385,11 @@ function updateAuthUI(isLoggedIn) {
         dom.btnSave.disabled = !isLoggedIn;
         dom.btnSave.title = isLoggedIn ? '' : '\u30ed\u30b0\u30a4\u30f3\u3057\u3066\u304f\u3060\u3055\u3044';
     }
+    if (dom.btnEditMonthlyGoal) {
+        dom.btnEditMonthlyGoal.disabled = !isLoggedIn;
+        dom.btnEditMonthlyGoal.title = isLoggedIn ? '' : '\u30ed\u30b0\u30a4\u30f3\u3057\u3066\u7de8\u96c6';
+    }
+    renderMonthlyGoal();
 }
 
 function setupEventListeners() {
@@ -447,6 +455,9 @@ function setupEventListeners() {
     }
     if (dom.selectCalendarMonth) {
         dom.selectCalendarMonth.addEventListener('change', syncCalendarFromSelectors);
+    }
+    if (dom.btnEditMonthlyGoal) {
+        dom.btnEditMonthlyGoal.addEventListener('click', editMonthlyGoal);
     }
     if (dom.searchInput) {
         dom.searchInput.value = appState.filters.query || '';
@@ -932,10 +943,12 @@ async function loadUserProfile() {
         const doc = await db.collection('users').doc(appState.user.uid).get();
         appState.userProfile = doc.exists ? (doc.data() || { mbti: '' }) : { mbti: '' };
         appState.userProfileLoaded = true;
+        renderMonthlyGoal();
     } catch (e) {
         console.warn('Error loading user profile:', e);
         appState.userProfile = { mbti: '' };
         appState.userProfileLoaded = true;
+        renderMonthlyGoal();
     }
 }
 
@@ -2231,6 +2244,7 @@ function renderEntryList() {
         };
         dom.calendarDaysGrid.appendChild(el);
     }
+    renderMonthlyGoal();
 }
 
 function syncCalendarSelectors() {
@@ -2261,6 +2275,50 @@ function syncCalendarSelectors() {
 
     dom.selectCalendarYear.value = String(currentYear);
     dom.selectCalendarMonth.value = String(currentMonth);
+}
+
+function getMonthlyGoalKey(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+}
+
+function renderMonthlyGoal() {
+    if (!dom.monthlyGoalTitle || !dom.monthlyGoalText) return;
+    const date = appState.calendarDate || new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const key = getMonthlyGoalKey(date);
+    const goals = (appState.userProfile && appState.userProfile.monthlyGoals) ? appState.userProfile.monthlyGoals : {};
+    const text = goals[key] || '';
+    dom.monthlyGoalTitle.textContent = `${year}年${month}月の目標`;
+    if (!appState.user) {
+        dom.monthlyGoalText.textContent = 'ログインすると保存できます';
+    } else {
+        dom.monthlyGoalText.textContent = text ? text : '未設定';
+    }
+}
+
+async function editMonthlyGoal() {
+    if (!appState.user) {
+        showToast('ログインしてください', 'error');
+        return;
+    }
+    const date = appState.calendarDate || new Date();
+    const key = getMonthlyGoalKey(date);
+    const goals = { ...(appState.userProfile?.monthlyGoals || {}) };
+    const current = goals[key] || '';
+    const input = window.prompt('今月の目標を入力（空欄で削除）', current);
+    if (input === null) return;
+    const value = input.trim();
+    if (value) {
+        goals[key] = value;
+    } else {
+        delete goals[key];
+    }
+    await saveUserProfile({ monthlyGoals: goals });
+    renderMonthlyGoal();
+    showToast(value ? '目標を保存しました' : '目標を削除しました');
 }
 
 // --- Utils ---
