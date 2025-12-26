@@ -654,7 +654,11 @@ async function saveEntryHelper() {
     if (appState.currentView === 'calendar') renderCalendar();
     if (appState.currentView === 'mypage') renderMyPage();
 
-    await runAnalysisForEntry(entry, !isNew);
+    const analysisOk = await runAnalysisForEntry(entry, !isNew);
+    if (analysisOk) {
+        await updateSummaryForCurrentPeriod();
+        if (appState.currentView === 'mypage') renderMyPage();
+    }
 }
 
 function cancelEdit() {
@@ -1120,6 +1124,20 @@ async function requestSummaryUpdate(periodKey, periodLabel, stats) {
         appState.summaryUpdating = false;
         renderMyPage();
     }
+}
+
+function updateSummaryForCurrentPeriod() {
+    const periodKey = appState.period || '7d';
+    const periodConfig = getPeriodConfig(periodKey);
+    const filtered = filterEntriesByPeriod(appState.entries || [], periodConfig.from);
+    const stats = aggregateStats(filtered);
+    if (!stats.totalCount) {
+        appState.summaryText = '';
+        appState.summaryPeriod = '';
+        appState.summaryUpdatedAt = null;
+        return Promise.resolve();
+    }
+    return requestSummaryUpdate(periodKey, periodConfig.label, stats);
 }
 
 function renderMyPage() {
