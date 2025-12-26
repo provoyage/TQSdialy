@@ -1400,6 +1400,7 @@ function renderAnalysisPanel(entry) {
     const patternsHtml = patterns.length
         ? patterns.join('')
         : '<li class="pattern-empty">該当なし</li>';
+    const habitInsight = buildHabitInsight(patternsList);
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
     const similar = appState.similarById[entry.id] || [];
@@ -1450,8 +1451,8 @@ function renderAnalysisPanel(entry) {
                     <ul class="analysis-list">${patternsHtml}</ul>
                 </div>
                 <div class="analysis-detail">
-                    <h4>考え方の癖とは</h4>
-                    <p class="analysis-text">考え方の癖は、物事の受け取り方や反応の傾向を指します。認知パターンはその一部を12カテゴリで整理したものです。</p>
+                    <h4>考え方の癖</h4>
+                    <p class="analysis-text">${escapeHtml(habitInsight)}</p>
                 </div>
                 <div class="analysis-detail">
                     <h4>トリガー語</h4>
@@ -1684,6 +1685,24 @@ function getTopPattern(analysis) {
     const top = sorted[0];
     const entry = getPatternEntry(top);
     return entry ? entry.label : (top.label || top.pattern_id || null);
+}
+
+function buildHabitInsight(patternsList) {
+    if (!patternsList || !patternsList.length) return '該当なし';
+    const sorted = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
+    const labels = [];
+    for (const p of sorted) {
+        const entry = getPatternEntry(p);
+        const rawLabel = typeof p === 'string' ? p : (p.label || p.pattern_id || '');
+        const label = entry ? entry.label : rawLabel;
+        if (label && !labels.includes(label)) labels.push(label);
+        if (labels.length >= 2) break;
+    }
+    if (!labels.length) return '該当なし';
+    if (labels.length === 1) {
+        return `日記からは「${labels[0]}」に近い考え方の癖が見られる可能性があります。`;
+    }
+    return `日記からは「${labels[0]}」「${labels[1]}」に近い考え方の癖が見られる可能性があります。`;
 }
 
 function getFilteredEntries() {
