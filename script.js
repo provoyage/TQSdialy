@@ -1138,7 +1138,13 @@ function renderMyPage() {
         label: t.label,
         value: t.count
     }));
-    const triggerTop10 = stats.triggersSorted.slice(0, 10).map((t) => ({
+    const shortTriggers = stats.triggersSorted.filter((t) => {
+        const label = String(t.label || '').trim();
+        if (!label) return false;
+        if (label.length > 10) return false;
+        return !/\s/.test(label);
+    });
+    const triggerTop10 = shortTriggers.slice(0, 10).map((t) => ({
         label: t.label,
         value: t.count
     }));
