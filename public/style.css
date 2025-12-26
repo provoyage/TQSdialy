@@ -1041,6 +1041,22 @@ body {
     margin: 0.2rem 0 0.75rem;
 }
 
+.mbti-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mbti-note {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.mbti-current {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
 .analysis-tags {
     display: flex;
     flex-wrap: wrap;

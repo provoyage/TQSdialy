@@ -45,7 +45,9 @@ const appState = {
     calendarDate: new Date(),
     apiBase: localStorage.getItem('self_os_api_base') || '',
     filterByDate: null,
-    masterPassword: localStorage.getItem('masterPassword') || ''
+    masterPassword: localStorage.getItem('masterPassword') || '',
+    userProfile: { mbti: '' },
+    userProfileLoaded: false
 };
 
 
@@ -158,6 +160,12 @@ const EMOTION_COLORS = {
     anticipation: '#9B51E0'
 };
 const EMOTION_IMAGE_PATH = 'image/kanjouchart.png';
+const MBTI_TYPES = [
+    'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
+    'ISTP', 'ISFP', 'INFP', 'INTP',
+    'ESTP', 'ESFP', 'ENFP', 'ENTP',
+    'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
+];
 const EMOTION_KEY_ALIASES = {
     joy: 'joy',
     trust: 'trust',
@@ -274,10 +282,15 @@ function init() {
                 appState.user = user;
                 updateAuthUI(true);
                 loadEntries();
+                loadUserProfile().then(() => {
+                    if (appState.currentView === 'mypage') renderMyPage();
+                });
                 showToast(`ようこそ、${user.displayName}さん`);
             } else {
                 appState.user = null;
                 appState.entries = [];
+                appState.userProfile = { mbti: '' };
+                appState.userProfileLoaded = false;
                 updateAuthUI(false);
                 renderEntryList();
                 navigateTo('list');
@@ -744,6 +757,31 @@ function refreshFilterOptions() {
     }
 }
 
+async function loadUserProfile() {
+    const db = window.db;
+    if (!db || !appState.user) return;
+    try {
+        const doc = await db.collection('users').doc(appState.user.uid).get();
+        appState.userProfile = doc.exists ? (doc.data() || { mbti: '' }) : { mbti: '' };
+        appState.userProfileLoaded = true;
+    } catch (e) {
+        console.warn('Error loading user profile:', e);
+        appState.userProfile = { mbti: '' };
+        appState.userProfileLoaded = true;
+    }
+}
+
+async function saveUserProfile(update) {
+    const db = window.db;
+    if (!db || !appState.user) return;
+    appState.userProfile = { ...(appState.userProfile || {}), ...update };
+    try {
+        await db.collection('users').doc(appState.user.uid).set(appState.userProfile, { merge: true });
+    } catch (e) {
+        console.warn('Error saving user profile:', e);
+    }
+}
+
 async function saveEntryToFirestore(entry) {
     const auth = window.auth;
     const db = window.db;
@@ -1063,6 +1101,9 @@ function renderMyPage() {
             <div class="pattern-desc">${escapeHtml(p.desc)}</div>
         </li>
     `).join('');
+    const mbtiValue = appState.userProfile?.mbti || '';
+    const mbtiDisplay = mbtiValue ? mbtiValue : '未設定';
+    const personalityInsight = buildDiaryPersonalityInsight(stats);
 
     const periodButtons = [
         { key: '7d', label: '7日' },
@@ -1130,6 +1171,24 @@ function renderMyPage() {
                 </div>
             </div>
 
+            <div class="stats-grid" style="width:100%;">
+                <div class="stat-card">
+                    <h4>MBTI</h4>
+                    <div class="mbti-row">
+                        <select id="mbti-select" class="filter-input">
+                            <option value="">未設定</option>
+                            ${MBTI_TYPES.map((type) => `<option value="${type}">${type}</option>`).join('')}
+                        </select>
+                        <div class="mbti-note">任意。自己申告の補助情報として使用します。</div>
+                        <div class="mbti-current">現在: ${escapeHtml(mbtiDisplay)}</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h4>日記から読み取れる性格診断（推定）</h4>
+                    <p class="analysis-text">${escapeHtml(personalityInsight)}</p>
+                </div>
+            </div>
+
             <div class="stat-card pattern-catalog-card">
                 <h4>認知パターン一覧</h4>
                 <p class="pattern-catalog-note">固定12種類の説明です。</p>
@@ -1161,6 +1220,15 @@ function renderMyPage() {
     const summaryBtn = dom.mypageContainer.querySelector('#btn-summary-refresh');
     if (summaryBtn) {
         summaryBtn.addEventListener('click', () => requestSummaryUpdate(periodKey, periodConfig.label, stats));
+    }
+
+    const mbtiSelect = dom.mypageContainer.querySelector('#mbti-select');
+    if (mbtiSelect) {
+        mbtiSelect.value = mbtiValue;
+        mbtiSelect.addEventListener('change', async () => {
+            await saveUserProfile({ mbti: mbtiSelect.value });
+            renderMyPage();
+        });
     }
 
     const similarBtn = dom.mypageContainer.querySelector('#btn-similar-refresh');
@@ -1684,6 +1752,31 @@ function getTopPattern(analysis) {
     const top = sorted[0];
     const entry = getPatternEntry(top);
     return entry ? entry.label : (top.label || top.pattern_id || null);
+}
+
+function buildDiaryPersonalityInsight(stats) {
+    if (!stats || !stats.analyzedCount) {
+        return '分析データがまだありません。日記が増えるほど傾向が見えてきます。';
+    }
+    const parts = [];
+    const topEmotion = stats.emotionsSorted[0];
+    const topPattern = stats.patternsSorted[0];
+    const topTrigger = stats.triggersSorted[0];
+
+    if (topEmotion) {
+        const label = EMOTION_LABELS[topEmotion.key] || topEmotion.key;
+        parts.push(`感情は「${label}」が多め`);
+    }
+    if (topPattern) {
+        parts.push(`認知パターンは「${topPattern.label}」が目立つ`);
+    }
+    if (topTrigger) {
+        parts.push(`「${topTrigger.label}」に反応しやすい`);
+    }
+
+    return parts.length
+        ? `${parts.join('、')}傾向があります。`
+        : '分析結果はありますが、傾向がまだ安定していません。';
 }
 
 function buildHabitInsight(patternsList) {
