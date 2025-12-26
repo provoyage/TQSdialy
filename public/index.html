@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 
 <body>
@@ -193,11 +193,16 @@
                         </div>
                     </div>
 
-                    <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
-                    <!-- Text Display Div for View Mode (Auto-expand) -->
-                    <div id="entry-content-display-text" class="entry-content-text hidden"></div>
+                    <div class="journal-frame">
+                        <div class="journal-frame-header">
+                            <h3>日記</h3>
+                            <span class="journal-frame-note">今日の記録</span>
+                        </div>
+                        <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
+                        <!-- Text Display Div for View Mode (Auto-expand) -->
+                        <div id="entry-content-display-text" class="entry-content-text hidden"></div>
 
-                                        <div id="journal-sections" class="journal-sections">
+                        <div id="journal-sections" class="journal-sections">
                         <div class="journal-card">
                             <label for="entry-done">できたこと</label>
                             <textarea id="entry-done" class="journal-input journal-textarea" rows="1" placeholder="今日できたこと"></textarea>
@@ -231,6 +236,7 @@
                             <label for="entry-sleep">睡眠時間</label>
                             <input id="entry-sleep" class="journal-input" type="number" step="0.1" placeholder="時間">
                             <div id="entry-sleep-display" class="journal-display hidden"></div>
+                        </div>
                         </div>
                     </div>
                     <div id="analysis-panel" class="analysis-panel"></div>
