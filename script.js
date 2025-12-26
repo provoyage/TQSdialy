@@ -927,7 +927,10 @@ function aggregateStats(entries) {
             emotionCounts[topEmotion.key] = (emotionCounts[topEmotion.key] || 0) + 1;
         }
 
-        (analysis.patterns || []).forEach((p) => {
+        const patternsList = Array.isArray(analysis.patterns)
+            ? analysis.patterns
+            : (analysis.patterns ? Object.values(analysis.patterns) : []);
+        patternsList.forEach((p) => {
             const entry = getPatternEntry(p);
             if (!entry) return;
             patternCounts[entry.id] = (patternCounts[entry.id] || 0) + 1;
@@ -1376,11 +1379,14 @@ function renderAnalysisPanel(entry) {
         const certainty = e.certainty_0_1 != null ? Number(e.certainty_0_1).toFixed(2) : null;
         return `${escapeHtml(name)}${Number.isFinite(intensity) ? ` ${intensity}点` : ''}${certainty ? ` (確度 ${certainty})` : ''}`;
     });
-    const patterns = (analysis.patterns || []).map((p) => {
+    const patternsList = Array.isArray(analysis.patterns)
+        ? analysis.patterns
+        : (analysis.patterns ? Object.values(analysis.patterns) : []);
+    const patterns = patternsList.map((p) => {
         const entry = getPatternEntry(p);
         const rawLabel = typeof p === 'string' ? p : (p.label || p.pattern_id || '');
-        const label = entry ? entry.label : (rawLabel || '無し');
-        const desc = entry ? entry.desc : '';
+        const label = entry ? entry.label : (rawLabel ? '未分類' : '無し');
+        const desc = entry ? entry.desc : (rawLabel || '');
         const conf = typeof p === 'object' && p !== null && p.confidence_0_1 != null
             ? Number(p.confidence_0_1).toFixed(2)
             : null;
@@ -1666,8 +1672,12 @@ function getTopEmotion(analysis) {
 }
 
 function getTopPattern(analysis) {
-    if (!analysis || !Array.isArray(analysis.patterns) || analysis.patterns.length === 0) return null;
-    const sorted = [...analysis.patterns].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
+    if (!analysis || !analysis.patterns) return null;
+    const patternsList = Array.isArray(analysis.patterns)
+        ? analysis.patterns
+        : Object.values(analysis.patterns);
+    if (!patternsList.length) return null;
+    const sorted = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
     const top = sorted[0];
     const entry = getPatternEntry(top);
     return entry ? entry.label : (top.label || top.pattern_id || null);
@@ -1703,7 +1713,10 @@ function getFilteredEntries() {
         list = list.filter(e => {
             const analysis = appState.analysisById[e.id];
             if (!analysis) return false;
-            return (analysis.patterns || []).some((p) => {
+            const patternsList = Array.isArray(analysis.patterns)
+                ? analysis.patterns
+                : (analysis.patterns ? Object.values(analysis.patterns) : []);
+            return patternsList.some((p) => {
                 const entry = getPatternEntry(p);
                 return entry && entry.id === appState.filters.pattern;
             });
