@@ -1999,3 +1999,23 @@ body .app-container .main-content .view-section .editor-container .editor-textar
     color: var(--text-muted);
     font-size: 0.9rem;
 }
+
+
+.journal-frame .journal-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.journal-frame .journal-card + .journal-card {
+    margin-top: 0.6rem;
+}
+
+.journal-frame .journal-sections {
+    gap: 12px;
+}
+
+.journal-frame .journal-card label {
+    margin-bottom: 0.35rem;
+}
