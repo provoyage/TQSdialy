@@ -184,6 +184,19 @@ const MBTI_TRAITS = {
     ENFJ: '周囲を支え、方向性を示すことが多い傾向。',
     ENTJ: '目的志向で、判断と推進が速い傾向。'
 };
+const TOPIC_KEYWORDS = {
+    仕事: ['仕事', '会社', '上司', '職場', '会議', '残業', '出勤', '退勤', '業務', 'メール', '営業', '転職', '働'],
+    恋愛: ['恋愛', '恋人', '彼氏', '彼女', '好き', 'デート', '片思い', '失恋', '結婚', '別れ'],
+    家族: ['家族', '母', '父', '兄', '姉', '弟', '妹', '子ども', '子供', '親', '両親'],
+    友人: ['友人', '友達', '友だち', '仲間', '同僚', '同期', '先輩', '後輩'],
+    お金: ['お金', '給料', '貯金', '支出', '節約', '請求', '家計', '収入', '出費'],
+    健康: ['健康', '体調', '病院', '薬', '睡眠', '疲れ', '風邪', '痛み', '食事', '運動'],
+    勉強: ['勉強', '学習', '試験', 'テスト', '資格', '講座', '宿題'],
+    趣味: ['趣味', '映画', '音楽', 'ゲーム', '旅行', 'カフェ', '読書', '写真'],
+    将来: ['将来', '未来', '夢', '目標', '不安', '期待', '計画'],
+    自由: ['自由', '制限', '束縛', '余裕', '時間'],
+    生活: ['生活', '家事', '料理', '掃除', '洗濯', '買い物']
+};
 const PERSONALITY_TRAIT_MAP = {
     jump_to_conclusion: '結論を早く出しがち',
     overgeneralization: '物事を広く捉えがち',
@@ -985,7 +998,7 @@ function aggregateStats(entries) {
     const emotionCounts = {};
     const patternCounts = {};
     const traitCounts = {};
-    const triggerCounts = {};
+    const topicCounts = {};
     let analyzedCount = 0;
 
     entries.forEach((entry) => {
@@ -1011,10 +1024,9 @@ function aggregateStats(entries) {
             }
         });
 
-        (analysis.triggers || []).forEach((t) => {
-            const label = String(t || '').trim();
-            if (!label) return;
-            triggerCounts[label] = (triggerCounts[label] || 0) + 1;
+        const topics = new Set(extractTopics(entry));
+        topics.forEach((topic) => {
+            topicCounts[topic] = (topicCounts[topic] || 0) + 1;
         });
     });
 
@@ -1034,8 +1046,8 @@ function aggregateStats(entries) {
         .map((label) => ({ label, count: traitCounts[label] }))
         .sort((a, b) => b.count - a.count);
 
-    const triggersSorted = Object.keys(triggerCounts)
-        .map((label) => ({ label, count: triggerCounts[label] }))
+    const topicsSorted = Object.keys(topicCounts)
+        .map((label) => ({ label, count: topicCounts[label] }))
         .sort((a, b) => b.count - a.count);
 
     return {
@@ -1049,7 +1061,7 @@ function aggregateStats(entries) {
         patternsSorted,
         traitCounts,
         traitsSorted,
-        triggersSorted
+        topicsSorted
     };
 }
 
@@ -1138,13 +1150,7 @@ function renderMyPage() {
         label: t.label,
         value: t.count
     }));
-    const shortTriggers = stats.triggersSorted.filter((t) => {
-        const label = String(t.label || '').trim();
-        if (!label) return false;
-        if (label.length > 6) return false;
-        return !/\s/.test(label);
-    });
-    const triggerTop10 = shortTriggers.slice(0, 10).map((t) => ({
+    const topicTop10 = stats.topicsSorted.slice(0, 10).map((t) => ({
         label: t.label,
         value: t.count
     }));
@@ -1220,8 +1226,8 @@ function renderMyPage() {
                     ${renderRankList(patternTop5, '')}
                 </div>
                 <div class="stat-card">
-                    <h4>よく使う単語Top10</h4>
-                    ${renderRankList(triggerTop10, '')}
+                    <h4>頻出トピックTop10</h4>
+                    ${renderRankList(topicTop10, '')}
                 </div>
             </div>
 
@@ -1530,7 +1536,7 @@ function renderAnalysisPanel(entry) {
         : '<li class="pattern-empty">該当なし</li>';
     const habitInsight = buildHabitInsight(sortedPatterns);
     const nextStep = buildNextStepSuggestion(analysis, sortedPatterns);
-    const triggers = (analysis.triggers || []).map(escapeHtml);
+    const topics = extractTopics(entry);
 
     const similar = appState.similarById[entry.id] || [];
     const similarHtml = similar.length
@@ -1579,8 +1585,8 @@ function renderAnalysisPanel(entry) {
                     <p class="analysis-text">${escapeHtml(nextStep)}</p>
                 </div>
                 <div class="analysis-detail">
-                    <h4>キーワード</h4>
-                    <div class="analysis-tags">${triggers.map(t => `<span class="tag">${t}</span>`).join('') || '<span class="tag">なし</span>'}</div>
+                    <h4>頻出トピック</h4>
+                    <div class="analysis-tags">${topics.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('') || '<span class="tag">該当なし</span>'}</div>
                 </div>
             </div>
         </div>
@@ -1811,6 +1817,20 @@ function getTopPattern(analysis) {
     return entry ? entry.label : (top.label || top.pattern_id || null);
 }
 
+function extractTopics(entry) {
+    const base = `${entry?.content || ''}`;
+    if (!base.trim()) return [];
+    const normalized = base.replace(/\s+/g, '');
+    const topics = [];
+    Object.keys(TOPIC_KEYWORDS).forEach((topic) => {
+        const keywords = TOPIC_KEYWORDS[topic] || [];
+        if (keywords.some((kw) => normalized.includes(kw))) {
+            topics.push(topic);
+        }
+    });
+    return topics;
+}
+
 function buildNextStepSuggestion(analysis, patternsList) {
     const topEmotion = getTopEmotion(analysis);
     const topPatternEntry = patternsList && patternsList.length ? getPatternEntry(patternsList[0]) : null;
@@ -1869,7 +1889,7 @@ function buildDiaryPersonalityInsight(stats) {
     const parts = [];
     const topEmotion = stats.emotionsSorted[0];
     const topPattern = stats.patternsSorted[0];
-    const topTrigger = stats.triggersSorted[0];
+    const topTopic = stats.topicsSorted[0];
 
     if (topEmotion) {
         const label = EMOTION_LABELS[topEmotion.key] || topEmotion.key;
@@ -1878,8 +1898,8 @@ function buildDiaryPersonalityInsight(stats) {
     if (topPattern) {
         parts.push(`認知パターンは「${topPattern.label}」が目立つ`);
     }
-    if (topTrigger) {
-        parts.push(`「${topTrigger.label}」に反応しやすい`);
+    if (topTopic) {
+        parts.push(`「${topTopic.label}」がよく登場する`);
     }
 
     return parts.length
@@ -1955,10 +1975,10 @@ function getFilteredEntries() {
 
     if (appState.filters.trigger) {
         const q = appState.filters.trigger.toLowerCase();
-        list = list.filter(e => {
-            const analysis = appState.analysisById[e.id];
+        list = list.filter((entry) => {
+            const analysis = appState.analysisById[entry.id];
             if (!analysis) return false;
-            return (analysis.triggers || []).some(t => String(t).toLowerCase().includes(q));
+            return extractTopics(entry).some((t) => String(t).toLowerCase().includes(q));
         });
     }
 
