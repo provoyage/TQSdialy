@@ -166,6 +166,24 @@ const MBTI_TYPES = [
     'ESTP', 'ESFP', 'ENFP', 'ENTP',
     'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
 ];
+const MBTI_TRAITS = {
+    ISTJ: '事実を重視し、計画的に物事を進める傾向。',
+    ISFJ: '思いやりがあり、周囲の安定を大切にする傾向。',
+    INFJ: '内省的で、意味や価値を深く考える傾向。',
+    INTJ: '全体像を描き、長期的な戦略を立てる傾向。',
+    ISTP: '冷静に状況を見て、実用的に対処する傾向。',
+    ISFP: '感覚を大切にし、穏やかな選択を好む傾向。',
+    INFP: '理想や価値観に沿って行動しやすい傾向。',
+    INTP: '論理的に考え、理解を深めることを好む傾向。',
+    ESTP: '行動力があり、現場で素早く動く傾向。',
+    ESFP: '周囲と楽しさを共有し、体験を重視する傾向。',
+    ENFP: '好奇心が強く、新しい可能性を追いやすい傾向。',
+    ENTP: '発想力があり、柔軟にアイデアを試す傾向。',
+    ESTJ: '効率や秩序を重視し、実行力が高い傾向。',
+    ESFJ: '協調性が高く、関係性を大切にする傾向。',
+    ENFJ: '周囲を支え、方向性を示すことが多い傾向。',
+    ENTJ: '目的志向で、判断と推進が速い傾向。'
+};
 const PERSONALITY_TRAIT_MAP = {
     jump_to_conclusion: '結論を早く出しがち',
     overgeneralization: '物事を広く捉えがち',
@@ -1132,6 +1150,7 @@ function renderMyPage() {
     `).join('');
     const mbtiValue = appState.userProfile?.mbti || '';
     const mbtiDisplay = mbtiValue ? mbtiValue : '未設定';
+    const mbtiInsight = getMbtiInsight(mbtiValue);
     const personalityInsight = buildDiaryPersonalityInsight(stats);
 
     const periodButtons = [
@@ -1210,6 +1229,7 @@ function renderMyPage() {
                         </select>
                         <div class="mbti-note">任意。自己申告の補助情報として使用します。</div>
                         <div class="mbti-current">現在: ${escapeHtml(mbtiDisplay)}</div>
+                        <div class="analysis-text">性格の特徴: ${escapeHtml(mbtiInsight)}</div>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -1863,6 +1883,11 @@ function buildDiaryPersonalityInsight(stats) {
     return parts.length
         ? `${parts.join('、')}傾向があります。`
         : '分析結果はありますが、傾向がまだ安定していません。';
+}
+
+function getMbtiInsight(mbti) {
+    if (!mbti) return 'MBTIを設定するとここに表示されます。';
+    return MBTI_TRAITS[mbti] || 'このMBTIの説明は未登録です。';
 }
 
 function buildHabitInsight(patternsList) {
