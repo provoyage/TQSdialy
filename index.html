@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 
 <body>
@@ -40,16 +40,16 @@
                 </button>
                 <button id="btn-new-entry" class="nav-item" onclick="openEntry()">
                     <i class="fa-solid fa-pen-nib"></i>
-                    <span>書ぁE/span>
+                    <span>書く</span>
                 </button>
                 <button id="btn-settings" class="nav-item"
                     onclick="document.getElementById('modal-settings').classList.remove('hidden'); document.getElementById('modal-settings').classList.add('active');">
                     <i class="fa-solid fa-cog"></i>
-                    <span>設宁E/span>
+                    <span>設定</span>
                 </button>
                 <button id="btn-mypage" class="nav-item" onclick="navigateTo('mypage')">
                     <i class="fa-solid fa-user-circle"></i>
-                    <span>マイペ�Eジ</span>
+                    <span>マイページ</span>
                 </button>
             </nav>
             <div class="theme-toggle">
@@ -58,7 +58,7 @@
                     <img id="user-avatar" src="" alt="User" class="user-avatar">
                     <div class="user-info">
                         <span id="user-name" class="user-name">Guest</span>
-                        <button id="btn-logout" class="btn-text-sm">ログアウチE/button>
+                        <button id="btn-logout" class="btn-text-sm">ログアウト</button>
                     </div>
                 </div>
                 <button id="btn-login" class="nav-item full-width" style="justify-content:center; margin-bottom:1rem;"
@@ -80,7 +80,7 @@
             <!-- View: My Page -->
             <section id="view-mypage" class="view-section hidden">
                 <header class="section-header">
-                    <h2>マイペ�Eジ</h2>
+                    <h2>マイページ</h2>
                 </header>
                 <div class="mypage-container" id="mypage-container">
                     <!-- Stats injected by JS -->
@@ -100,16 +100,16 @@
                         <input type="date" id="filter-date-to" class="filter-input" aria-label="to">
                         <select id="filter-emotion" class="filter-input" aria-label="emotion"></select>
                         <select id="filter-pattern" class="filter-input" aria-label="pattern"></select>
-                        <input type="text" id="filter-trigger" class="filter-input" placeholder="トリガー誁E>
+                        <input type="text" id="filter-trigger" class="filter-input" placeholder="トリガー語">
                         <button id="btn-apply-filters" class="btn-secondary">適用</button>
-                        <button id="btn-reset-filters" class="btn-text">リセチE��</button>
+                        <button id="btn-reset-filters" class="btn-text">リセット</button>
                     </div>
                 </header>
                 <div id="entry-list-container" class="entry-grid">
                     <!-- Entries will be injected here -->
                     <div class="empty-state">
-                        <p>まだ日記がありません、E/p>
-                        <button class="btn-primary" onclick="openEntry()">最初�E日記を書ぁE/button>
+                        <p>まだ日記がありません。</p>
+                        <button class="btn-primary" onclick="openEntry()">最初の日記を書く</button>
                     </div>
                 </div>
             </section>
@@ -123,18 +123,18 @@
                     <div class="calendar-controls">
                         <button id="btn-prev-month" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
                         <select id="select-calendar-year" class="btn-secondary calendar-select" aria-label="年"></select>
-                        <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="朁E></select>
-                        <h3 id="calendar-month-year">2025年 12朁E/h3>
+                        <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="月"></select>
+                        <h3 id="calendar-month-year">2025年 12月</h3>
                         <button id="btn-next-month" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     <div class="weekdays-grid">
                         <div>日</div>
-                        <div>朁E/div>
+                        <div>月</div>
                         <div>火</div>
                         <div>水</div>
                         <div>木</div>
-                        <div>釁E/div>
-                        <div>圁E/div>
+                        <div>金</div>
+                        <div>土</div>
                     </div>
                     <div id="calendar-days-grid" class="days-grid">
                         <!-- Days injected by JS -->
@@ -145,12 +145,12 @@
             <!-- View: Editor -->
             <section id="view-editor" class="view-section hidden">
                 <header class="section-header">
-                    <h2 id="editor-title-label">新しい日訁E/h2>
+                    <h2 id="editor-title-label">新しい日記</h2>
                     <div class="editor-actions">
                         <select id="select-lock-status" class="btn-secondary"
                             style="margin-right:auto; border-color:transparent; background:transparent;">
-                            <option value="unlocked">?? 公閁E/option>
-                            <option value="locked">?? ロチE��</option>
+                            <option value="unlocked">?? 公開</option>
+                            <option value="locked">?? ロック</option>
                         </select>
                         <button id="btn-delete-entry" class="btn-text" style="color:#ff6b6b; display:none;"
                             onclick="requestDeleteEntry()">
@@ -158,11 +158,11 @@
                         </button>
                         <button id="btn-edit-entry" class="btn-primary" style="display:none;"
                             onclick="toggleEditMode(true)">
-                            <i class="fa-solid fa-pen"></i> 編雁E
+                            <i class="fa-solid fa-pen"></i> 編集
                         </button>
                         <button id="btn-cancel" class="btn-text" onclick="cancelEdit()">キャンセル</button>
                         <button id="btn-save" class="btn-primary" onclick="saveEntryHelper()">
-                            <i class="fa-solid fa-save"></i> 保孁E
+                            <i class="fa-solid fa-save"></i> 保存
                         </button>
                     </div>
                 </header>
@@ -179,14 +179,14 @@
                             <i class="fa-regular fa-image"></i> 本日のハイライトを追加
                         </button>
                         <div id="image-preview-container" class="hidden">
-                            <label class="highlight-label">本日のハイライチE/label>
+                            <label class="highlight-label">本日のハイライト</label>
                             <img id="image-preview" src="" alt="Highlight">
                             <button id="btn-remove-image" class="icon-btn-small"><i
                                     class="fa-solid fa-times"></i></button>
                         </div>
                     </div>
 
-                    <textarea id="entry-content" rows="1" placeholder="今日の出来亁E.." class="editor-textarea"></textarea>
+                    <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
                     <!-- Text Display Div for View Mode (Auto-expand) -->
                     <div id="entry-content-display-text" class="entry-content-text hidden"></div>
                     <div id="analysis-panel" class="analysis-panel"></div>
@@ -195,16 +195,16 @@
                     <div id="lock-overlay" class="lock-overlay hidden">
                         <i class="fa-solid fa-lock"
                             style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                        <h3>こ�E日記�EロチE��されてぁE��ぁE/h3>
+                        <h3>この日記はロックされています</h3>
                         <p style="color:var(--text-muted); margin-bottom:1.5rem;">閲覧するにはパスワードを入力してください</p>
                         <div style="display:flex; gap:10px; justify-content:center; flex-wrap: wrap;">
-                            <input type="password" id="input-unlock-pass" placeholder="パスワーチE
+                            <input type="password" id="input-unlock-pass" placeholder="パスワード"
                                 style="padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--glass-border); background:var(--bg-input); color:var(--text-main);">
                             <button id="btn-unlock-entry" class="btn-primary">解除</button>
                         </div>
                         <button id="btn-forgot-pass" class="btn-text-sm"
                             style="margin-top: 1rem; color: var(--text-muted); width: auto; display: inline-block;">
-                            <i class="fa-solid fa-key"></i> パスワードを忘れた場合！Eoogle認証�E�E
+                            <i class="fa-solid fa-key"></i> パスワードを忘れた場合（Google認証）
                         </button>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
     <!-- Settings Modal -->
     <div id="modal-settings" class="modal hidden">
         <div class="modal-content">
-            <h3>設宁E/h3>
+            <h3>設定</h3>
 
             <div class="input-group">
                 <label for="input-api-base">API Base URL</label>
@@ -227,27 +227,27 @@
             </div>
             <hr style="border:0; border-top:1px solid var(--glass-border); margin: 1.5rem 0;">
 
-            <h3>パスワード設宁E/h3>
+            <h3>パスワード設定</h3>
             <div class="input-group">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <label for="input-current-pass">現在のパスワーチE/label>
+                    <label for="input-current-pass">現在のパスワード</label>
                     <button id="btn-forgot-pass-settings" class="btn-text-sm"
                         style="color:var(--accent); margin-bottom:0.5rem;">
-                        (忘れた場吁E
+                        (忘れた場合)
                     </button>
                 </div>
-                <input type="password" id="input-current-pass" placeholder="現在のパスワード（未設定なら空欁E��E>
+                <input type="password" id="input-current-pass" placeholder="現在のパスワード（未設定なら空欄）">
             </div>
             <div class="input-group">
-                <label for="input-new-pass">新しいパスワーチE/label>
-                <input type="password" id="input-new-pass" placeholder="新しいパスワーチE>
+                <label for="input-new-pass">新しいパスワード</label>
+                <input type="password" id="input-new-pass" placeholder="新しいパスワード">
             </div>
             <button id="btn-update-pass" class="btn-secondary" style="width:100%; margin-bottom:1rem;">
                 <i class="fa-brands fa-google"></i> Google認証して変更
             </button>
 
             <div class="modal-actions">
-                <button id="btn-close-settings" class="btn-primary">閉じめE/button>
+                <button id="btn-close-settings" class="btn-primary">閉じる</button>
             </div>
         </div>
     </div>
@@ -258,8 +258,8 @@
             <div style="font-size: 3rem; color: #ff6b6b; margin-bottom: 1rem;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3>日記を削除しますか�E�E/h3>
-            <p style="opacity: 0.8; margin-bottom: 2rem;">こ�E操作�E取り消せません。本当に削除してもよろしぁE��すか�E�E/p>
+            <h3>日記を削除しますか？</h3>
+            <p style="opacity: 0.8; margin-bottom: 2rem;">この操作は取り消せません。本当に削除してもよろしいですか？</p>
             <div class="modal-actions" style="justify-content: center; gap: 1rem;">
                 <button id="btn-cancel-delete" class="btn-text" style="color: var(--text-primary);"
                     onclick="cancelDeleteHelper()">キャンセル</button>
@@ -272,15 +272,15 @@
     <!-- Simple Password Input Modal (for Reset) -->
     <div id="modal-reset-input" class="modal hidden">
         <div class="modal-content" style="max-width: 400px;">
-            <h3>新しいパスワーチE/h3>
-            <p style="margin-bottom:1rem; color:var(--text-muted);">認証に成功しました、Ebr>新しいロチE��用パスワードを入力してください、E/p>
+            <h3>新しいパスワード</h3>
+            <p style="margin-bottom:1rem; color:var(--text-muted);">認証に成功しました。<br>新しいロック用パスワードを入力してください。</p>
             <div class="input-group">
-                <input type="password" id="input-reset-new-pass" placeholder="新しいパスワード（空欁E�EロチE��解除�E�E
+                <input type="password" id="input-reset-new-pass" placeholder="新しいパスワード（空欄はロック解除）"
                     style="width:100%; padding:0.8rem; border-radius:var(--radius-sm); border:1px solid var(--accent); background:var(--bg-input); color:var(--text-main);">
             </div>
             <div class="modal-actions">
                 <button id="btn-cancel-reset" class="btn-text">キャンセル</button>
-                <button id="btn-save-reset" class="btn-primary">変更を保孁E/button>
+                <button id="btn-save-reset" class="btn-primary">変更を保存</button>
             </div>
         </div>
     </div>
@@ -295,7 +295,7 @@
     <script src="firebase-config.js"></script>
 
     <!-- App Logic (No Module) -->
-    <script src="script.js?v=85"></script>
+    <script src="script.js?v=86"></script>
 
     <!-- Global Error Handler -->
     <script>
