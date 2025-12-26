@@ -1382,25 +1382,24 @@ function renderAnalysisPanel(entry) {
     const patternsList = Array.isArray(analysis.patterns)
         ? analysis.patterns
         : (analysis.patterns ? Object.values(analysis.patterns) : []);
-    const patterns = patternsList.map((p) => {
-        const entry = getPatternEntry(p);
-        const rawLabel = typeof p === 'string' ? p : (p.label || p.pattern_id || '');
-        const label = entry ? entry.label : (rawLabel ? '未分類' : '無し');
-        const desc = entry ? entry.desc : (rawLabel || '');
-        const conf = typeof p === 'object' && p !== null && p.confidence_0_1 != null
-            ? Number(p.confidence_0_1).toFixed(2)
+    const matchedPatterns = patternsList
+        .map((p) => ({ entry: getPatternEntry(p), raw: p }))
+        .filter((item) => item.entry);
+    const patterns = matchedPatterns.map(({ entry, raw }) => {
+        const conf = typeof raw === 'object' && raw !== null && raw.confidence_0_1 != null
+            ? Number(raw.confidence_0_1).toFixed(2)
             : null;
         const meta = conf ? `確度 ${conf}` : '';
         return `
             <li class="pattern-item">
-                <div class="pattern-label">${escapeHtml(label)}${meta ? ` <span class="pattern-meta">${meta}</span>` : ''}</div>
-                ${desc ? `<div class="pattern-desc">${escapeHtml(desc)}</div>` : ''}
+                <div class="pattern-label">${escapeHtml(entry.label)}${meta ? ` <span class="pattern-meta">${meta}</span>` : ''}</div>
+                ${entry.desc ? `<div class="pattern-desc">${escapeHtml(entry.desc)}</div>` : ''}
             </li>
         `;
     });
     const patternsHtml = patterns.length
         ? patterns.join('')
-        : '<li class="pattern-empty">無し</li>';
+        : '<li class="pattern-empty">該当なし</li>';
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
     const similar = appState.similarById[entry.id] || [];
@@ -1447,8 +1446,12 @@ function renderAnalysisPanel(entry) {
                     <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
                 </div>
                 <div class="analysis-detail">
-                    <h4>考え方の癖</h4>
+                    <h4>認知パターン</h4>
                     <ul class="analysis-list">${patternsHtml}</ul>
+                </div>
+                <div class="analysis-detail">
+                    <h4>考え方の癖とは</h4>
+                    <p class="analysis-text">考え方の癖は、物事の受け取り方や反応の傾向を指します。認知パターンはその一部を12カテゴリで整理したものです。</p>
                 </div>
                 <div class="analysis-detail">
                     <h4>トリガー語</h4>
