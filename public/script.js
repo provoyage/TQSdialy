@@ -166,6 +166,20 @@ const MBTI_TYPES = [
     'ESTP', 'ESFP', 'ENFP', 'ENTP',
     'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
 ];
+const PERSONALITY_TRAIT_MAP = {
+    jump_to_conclusion: '結論を早く出しがち',
+    overgeneralization: '物事を広く捉えがち',
+    black_and_white: '白黒はっきりさせたい',
+    emotional_reasoning: '感情を重視しやすい',
+    self_blame: '自責傾向が出やすい',
+    mind_reading: '相手の意図を想像しがち',
+    catastrophizing: 'リスクを先読みしやすい',
+    magnification_minimization: '良し悪しの評価が振れやすい',
+    should_statements: '理想や規範を大切にする',
+    negative_filter: '欠点に注意が向きやすい',
+    comparison_inferiority: '比較で評価しがち',
+    avoidance_procrastination: '慎重で回避的になりやすい'
+};
 const EMOTION_KEY_ALIASES = {
     joy: 'joy',
     trust: 'trust',
@@ -952,6 +966,7 @@ function aggregateStats(entries) {
 
     const emotionCounts = {};
     const patternCounts = {};
+    const traitCounts = {};
     const triggerCounts = {};
     let analyzedCount = 0;
 
@@ -972,6 +987,10 @@ function aggregateStats(entries) {
             const entry = getPatternEntry(p);
             if (!entry) return;
             patternCounts[entry.id] = (patternCounts[entry.id] || 0) + 1;
+            const traitLabel = PERSONALITY_TRAIT_MAP[entry.id];
+            if (traitLabel) {
+                traitCounts[traitLabel] = (traitCounts[traitLabel] || 0) + 1;
+            }
         });
 
         (analysis.triggers || []).forEach((t) => {
@@ -993,6 +1012,10 @@ function aggregateStats(entries) {
         }))
         .sort((a, b) => b.count - a.count);
 
+    const traitsSorted = Object.keys(traitCounts)
+        .map((label) => ({ label, count: traitCounts[label] }))
+        .sort((a, b) => b.count - a.count);
+
     const triggersSorted = Object.keys(triggerCounts)
         .map((label) => ({ label, count: triggerCounts[label] }))
         .sort((a, b) => b.count - a.count);
@@ -1006,6 +1029,8 @@ function aggregateStats(entries) {
         emotionCounts,
         emotionsSorted,
         patternsSorted,
+        traitCounts,
+        traitsSorted,
         triggersSorted
     };
 }
@@ -1090,6 +1115,10 @@ function renderMyPage() {
     const patternTop5 = stats.patternsSorted.slice(0, 5).map((p) => ({
         label: p.label,
         value: p.count
+    }));
+    const traitTop3 = stats.traitsSorted.slice(0, 3).map((t) => ({
+        label: t.label,
+        value: t.count
     }));
     const triggerTop10 = stats.triggersSorted.slice(0, 10).map((t) => ({
         label: t.label,
@@ -1186,6 +1215,10 @@ function renderMyPage() {
                 <div class="stat-card">
                     <h4>日記から読み取れる性格診断（推定）</h4>
                     <p class="analysis-text">${escapeHtml(personalityInsight)}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>性格の傾向Top3</h4>
+                    ${renderRankList(traitTop3, '')}
                 </div>
             </div>
 
@@ -1450,7 +1483,8 @@ function renderAnalysisPanel(entry) {
     const patternsList = Array.isArray(analysis.patterns)
         ? analysis.patterns
         : (analysis.patterns ? Object.values(analysis.patterns) : []);
-    const matchedPatterns = patternsList
+    const sortedPatterns = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
+    const matchedPatterns = sortedPatterns
         .map((p) => ({ entry: getPatternEntry(p), raw: p }))
         .filter((item) => item.entry);
     const patterns = matchedPatterns.map(({ entry, raw }) => {
@@ -1468,7 +1502,8 @@ function renderAnalysisPanel(entry) {
     const patternsHtml = patterns.length
         ? patterns.join('')
         : '<li class="pattern-empty">該当なし</li>';
-    const habitInsight = buildHabitInsight(patternsList);
+    const habitInsight = buildHabitInsight(sortedPatterns);
+    const nextStep = buildNextStepSuggestion(analysis, sortedPatterns);
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
     const similar = appState.similarById[entry.id] || [];
@@ -1502,11 +1537,7 @@ function renderAnalysisPanel(entry) {
         <div class="analysis-block analysis-details is-open" id="analysis-details-${entry.id}">
             <div class="analysis-detail-grid">
                 <div class="analysis-detail">
-                    <h4>出来事（Fact）</h4>
-                    <ul class="analysis-list">${facts.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
-                </div>
-                <div class="analysis-detail">
-                    <h4>気づき（Story）</h4>
+                    <h4>気づき</h4>
                     <ul class="analysis-list">${story.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
                 </div>
                 <div class="analysis-detail">
@@ -1520,6 +1551,10 @@ function renderAnalysisPanel(entry) {
                 <div class="analysis-detail">
                     <h4>考え方の癖</h4>
                     <p class="analysis-text">${escapeHtml(habitInsight)}</p>
+                </div>
+                <div class="analysis-detail">
+                    <h4>次の一歩</h4>
+                    <p class="analysis-text">${escapeHtml(nextStep)}</p>
                 </div>
                 <div class="analysis-detail">
                     <h4>トリガー語</h4>
@@ -1754,9 +1789,60 @@ function getTopPattern(analysis) {
     return entry ? entry.label : (top.label || top.pattern_id || null);
 }
 
+function buildNextStepSuggestion(analysis, patternsList) {
+    const topEmotion = getTopEmotion(analysis);
+    const topPatternEntry = patternsList && patternsList.length ? getPatternEntry(patternsList[0]) : null;
+    const patternId = topPatternEntry ? topPatternEntry.id : null;
+
+    const patternSuggestions = {
+        jump_to_conclusion: '結論を出す前に、事実を1つだけ追加で確認してみる。',
+        overgeneralization: '今日の出来事の例外を1つ書き出してみる。',
+        black_and_white: '白黒以外の中間の選択肢を1つ考えてみる。',
+        emotional_reasoning: '気分と事実を分けて1行ずつ書いてみる。',
+        self_blame: '自分の要因と外的要因を分けて整理してみる。',
+        mind_reading: '相手に確認できる事実だけを書き出してみる。',
+        catastrophizing: '最悪と最良の2パターンを書いて幅を作る。',
+        magnification_minimization: '良かった点を1つ同じ重さで書いてみる。',
+        should_statements: '「〜すべき」を「〜したい」に言い換えてみる。',
+        negative_filter: '良かった点を1つだけ追加で書いてみる。',
+        comparison_inferiority: '自分基準でできたことを1つ書いてみる。',
+        avoidance_procrastination: '5分だけ着手する小さな一歩を決める。'
+    };
+    if (patternId && patternSuggestions[patternId]) return patternSuggestions[patternId];
+
+    if (!topEmotion) return '小さな行動を1つ決めて実行してみる。';
+    switch (topEmotion.key) {
+        case 'sadness':
+            return '今日は休息や回復を優先する時間を作ってみる。';
+        case 'fear':
+            return '不安の正体を1行で書き出してみる。';
+        case 'anger':
+            return '落ち着くために一度深呼吸して距離を置く。';
+        case 'joy':
+            return '嬉しかった理由を1つ残してみる。';
+        case 'anticipation':
+            return '期待していることに向けて小さな準備をする。';
+        case 'trust':
+            return '信頼できる人との関係を1つ振り返る。';
+        case 'surprise':
+            return '驚いた点を1つ学びに変えてみる。';
+        case 'disgust':
+            return '嫌だった点と距離を取る方法を1つ考える。';
+        default:
+            return '小さな行動を1つ決めて実行してみる。';
+    }
+}
+
 function buildDiaryPersonalityInsight(stats) {
     if (!stats || !stats.analyzedCount) {
         return '分析データがまだありません。日記が増えるほど傾向が見えてきます。';
+    }
+    if (stats.traitsSorted && stats.traitsSorted.length) {
+        const top = stats.traitsSorted.slice(0, 2).map((t) => t.label);
+        if (top.length === 1) {
+            return `日記からは「${top[0]}」の傾向が積み上がっています。`;
+        }
+        return `日記からは「${top[0]}」「${top[1]}」の傾向が積み上がっています。`;
     }
     const parts = [];
     const topEmotion = stats.emotionsSorted[0];
@@ -1785,16 +1871,19 @@ function buildHabitInsight(patternsList) {
     const labels = [];
     for (const p of sorted) {
         const entry = getPatternEntry(p);
+        const id = entry ? entry.id : null;
         const rawLabel = typeof p === 'string' ? p : (p.label || p.pattern_id || '');
-        const label = entry ? entry.label : rawLabel;
+        const label = id && PERSONALITY_TRAIT_MAP[id]
+            ? PERSONALITY_TRAIT_MAP[id]
+            : (entry ? entry.label : rawLabel);
         if (label && !labels.includes(label)) labels.push(label);
         if (labels.length >= 2) break;
     }
     if (!labels.length) return '該当なし';
     if (labels.length === 1) {
-        return `日記からは「${labels[0]}」に近い考え方の癖が見られる可能性があります。`;
+        return `日記からは「${labels[0]}」という傾向が見られる可能性があります。`;
     }
-    return `日記からは「${labels[0]}」「${labels[1]}」に近い考え方の癖が見られる可能性があります。`;
+    return `日記からは「${labels[0]}」「${labels[1]}」という傾向が見られる可能性があります。`;
 }
 
 function getFilteredEntries() {
