@@ -1054,6 +1054,12 @@ function renderMyPage() {
         label: t.label,
         value: t.count
     }));
+    const patternCatalogHtml = PATTERN_CATALOG.map((p) => `
+        <li class="pattern-item">
+            <div class="pattern-label">${escapeHtml(p.label)}</div>
+            <div class="pattern-desc">${escapeHtml(p.desc)}</div>
+        </li>
+    `).join('');
 
     const periodButtons = [
         { key: '7d', label: '7日' },
@@ -1119,6 +1125,12 @@ function renderMyPage() {
                     <h4>トリガー語Top10</h4>
                     ${renderRankList(triggerTop10, '')}
                 </div>
+            </div>
+
+            <div class="stat-card pattern-catalog-card">
+                <h4>認知パターン一覧</h4>
+                <p class="pattern-catalog-note">固定12種類の説明です。</p>
+                <ul class="pattern-catalog">${patternCatalogHtml}</ul>
             </div>
 
             <div class="stat-card themes-card">
@@ -1377,6 +1389,9 @@ function renderAnalysisPanel(entry) {
             </li>
         `;
     });
+    const patternsHtml = patterns.length
+        ? patterns.join('')
+        : '<li class="pattern-empty">認知パターンは見つかりませんでした</li>';
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
     const similar = appState.similarById[entry.id] || [];
@@ -1424,7 +1439,7 @@ function renderAnalysisPanel(entry) {
                 </div>
                 <div class="analysis-detail">
                     <h4>考え方の癖</h4>
-                    <ul class="analysis-list">${patterns.join('') || '<li>なし</li>'}</ul>
+                    <ul class="analysis-list">${patternsHtml}</ul>
                 </div>
                 <div class="analysis-detail">
                     <h4>トリガー語</h4>

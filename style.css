@@ -997,6 +997,11 @@ body {
     margin-bottom: 0.6rem;
 }
 
+.pattern-empty {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
 .pattern-label {
     color: var(--text-main);
     font-weight: 600;
@@ -1012,6 +1017,28 @@ body {
     color: var(--text-muted);
     font-size: 0.8rem;
     margin-left: 0.4rem;
+}
+
+.pattern-catalog {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+}
+
+.pattern-catalog .pattern-item {
+    margin: 0;
+    padding: 0.6rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    border: 1px solid var(--glass-border);
+}
+
+.pattern-catalog-note {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0.2rem 0 0.75rem;
 }
 
 .analysis-tags {
