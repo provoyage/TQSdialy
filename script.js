@@ -1141,7 +1141,7 @@ function renderMyPage() {
     const shortTriggers = stats.triggersSorted.filter((t) => {
         const label = String(t.label || '').trim();
         if (!label) return false;
-        if (label.length > 10) return false;
+        if (label.length > 6) return false;
         return !/\s/.test(label);
     });
     const triggerTop10 = shortTriggers.slice(0, 10).map((t) => ({
@@ -1220,7 +1220,7 @@ function renderMyPage() {
                     ${renderRankList(patternTop5, '')}
                 </div>
                 <div class="stat-card">
-                    <h4>トリガー語Top10</h4>
+                    <h4>よく使う単語Top10</h4>
                     ${renderRankList(triggerTop10, '')}
                 </div>
             </div>
@@ -1579,7 +1579,7 @@ function renderAnalysisPanel(entry) {
                     <p class="analysis-text">${escapeHtml(nextStep)}</p>
                 </div>
                 <div class="analysis-detail">
-                    <h4>トリガー語</h4>
+                    <h4>キーワード</h4>
                     <div class="analysis-tags">${triggers.map(t => `<span class="tag">${t}</span>`).join('') || '<span class="tag">なし</span>'}</div>
                 </div>
             </div>
