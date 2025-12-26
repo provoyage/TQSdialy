@@ -1421,7 +1421,6 @@ function renderAnalysisPanel(entry) {
                         <div class="analysis-emotion">${emotionLabel}${emotionScore != null ? ` <span class="analysis-emotion-score">${emotionScore}点</span>` : ''}</div>
                     </div>
                     <div class="analysis-actions">
-                        <button class="btn-secondary" data-analysis-toggle="${entry.id}" onclick="toggleAnalysisDetails('${entry.id}')">詳細を見る</button>
                         <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">再解析</button>
                     </div>
                 </div>
@@ -1432,7 +1431,7 @@ function renderAnalysisPanel(entry) {
             <div class="analysis-title">似ている日記</div>
             <div class="analysis-similar">${similarHtml}</div>
         </div>
-        <div class="analysis-block analysis-details" id="analysis-details-${entry.id}">
+        <div class="analysis-block analysis-details is-open" id="analysis-details-${entry.id}">
             <div class="analysis-detail-grid">
                 <div class="analysis-detail">
                     <h4>出来事（Fact）</h4>
