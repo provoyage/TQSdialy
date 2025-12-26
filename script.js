@@ -1378,9 +1378,12 @@ function renderAnalysisPanel(entry) {
     });
     const patterns = (analysis.patterns || []).map((p) => {
         const entry = getPatternEntry(p);
-        const label = entry ? entry.label : (p.label || p.pattern_id || '不明');
+        const rawLabel = typeof p === 'string' ? p : (p.label || p.pattern_id || '');
+        const label = entry ? entry.label : (rawLabel || '無し');
         const desc = entry ? entry.desc : '';
-        const conf = p.confidence_0_1 != null ? Number(p.confidence_0_1).toFixed(2) : null;
+        const conf = typeof p === 'object' && p !== null && p.confidence_0_1 != null
+            ? Number(p.confidence_0_1).toFixed(2)
+            : null;
         const meta = conf ? `確度 ${conf}` : '';
         return `
             <li class="pattern-item">
@@ -1391,7 +1394,7 @@ function renderAnalysisPanel(entry) {
     });
     const patternsHtml = patterns.length
         ? patterns.join('')
-        : '<li class="pattern-empty">認知パターンは見つかりませんでした</li>';
+        : '<li class="pattern-empty">無し</li>';
     const triggers = (analysis.triggers || []).map(escapeHtml);
 
     const similar = appState.similarById[entry.id] || [];
