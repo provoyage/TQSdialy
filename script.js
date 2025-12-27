@@ -77,6 +77,8 @@ const dom = {
 
     inputContent: getEl('entry-content'),
     contentDisplayText: getEl('entry-content-display-text'),
+    inputMorning: getEl('entry-morning'),
+    displayMorning: getEl('entry-morning-display'),
     journalSections: getEl('journal-sections'),
     inputDone: getEl('entry-done'),
     inputNotDone: getEl('entry-not-done'),
@@ -526,6 +528,7 @@ function getJournalFromEntry(entry) {
     const source = { ...meta, ...journal };
     const meals = source.meals || {};
     return {
+        morning: source.morning || '',
         done: source.done || '',
         notDone: source.not_done || '',
         nextPlan: source.next_plan || '',
@@ -540,6 +543,7 @@ function getJournalFromEntry(entry) {
 }
 
 function fillJournalInputs(journal) {
+    if (dom.inputMorning) dom.inputMorning.value = journal.morning || '';
     if (dom.inputDone) dom.inputDone.value = journal.done || '';
     if (dom.inputNotDone) dom.inputNotDone.value = journal.notDone || '';
     if (dom.inputNextPlan) dom.inputNextPlan.value = journal.nextPlan || '';
@@ -551,6 +555,7 @@ function fillJournalInputs(journal) {
 }
 
 function fillJournalDisplays(journal) {
+    if (dom.displayMorning) dom.displayMorning.textContent = journal.morning || '未記入';
     if (dom.displayDone) dom.displayDone.textContent = journal.done || '未記入';
     if (dom.displayNotDone) dom.displayNotDone.textContent = journal.notDone || '未記入';
     if (dom.displayNextPlan) dom.displayNextPlan.textContent = journal.nextPlan || '未記入';
@@ -570,6 +575,7 @@ function fillJournalDisplays(journal) {
 
 function clearJournalFields() {
     fillJournalInputs({
+        morning: '',
         done: '',
         notDone: '',
         nextPlan: '',
@@ -578,6 +584,7 @@ function clearJournalFields() {
         sleepHours: ''
     });
     fillJournalDisplays({
+        morning: '',
         done: '',
         notDone: '',
         nextPlan: '',
@@ -749,6 +756,7 @@ async function saveEntryHelper() {
     entry.locked = isLocked;
     entry.created_at = entry.created_at || baseDate;
     const journal = {
+        morning: dom.inputMorning ? dom.inputMorning.value.trim() : '',
         done: dom.inputDone ? dom.inputDone.value.trim() : '',
         not_done: dom.inputNotDone ? dom.inputNotDone.value.trim() : '',
         next_plan: dom.inputNextPlan ? dom.inputNextPlan.value.trim() : '',
