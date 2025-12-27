@@ -1473,7 +1473,7 @@ function openEntry(entryId = null, targetDate = null) {
 
         currentUploadImage = entry.image || null;
         appState.writingDate = getEntryDate(entry);
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '\u30b8\u30e3\u30fc\u30ca\u30eb\u306e\u8a73\u7d30';
+        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '\u30b8\u30e3\u30fc\u30ca\u30eb';
         if (dom.displayDate) {
             dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-check"></i> ${formatDate(getEntryDate(entry))} <span style="font-size:0.8em; margin-left:10px;">${formatTime(getEntryDate(entry))}</span>`;
         }
@@ -1506,7 +1506,7 @@ function openEntry(entryId = null, targetDate = null) {
         renderAnalysisPanel(entry);
     } else {
         appState.writingDate = targetDate || new Date();
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65b0\u3057\u3044\u30b8\u30e3\u30fc\u30ca\u30eb';
+        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb';
         if (dom.displayDate) dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-plus"></i> ${formatDate(appState.writingDate)}`;
         if (dom.selectLockStatus) dom.selectLockStatus.value = 'unlocked';
         if (dom.inputContent) dom.inputContent.value = '';
@@ -1545,12 +1545,12 @@ function toggleEditMode(isEdit) {
                 const journal = getJournalFromEntry(entry);
                 fillJournalInputs(journal);
                 if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
-                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb\u3092\u7de8\u96c6';
+                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb';
             }
             if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'inline-flex';
         } else {
             if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
-            if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb\u3092\u66f8\u304f';
+            if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb';
         }
         setTimeout(() => {
             if (autoResizeTextarea) autoResizeTextarea();
