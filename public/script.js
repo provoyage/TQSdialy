@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TQS Diary - Core Logic (Final)
  * Firebase Integration, AI Analysis, and Local Storage Fallbacks.
  */
@@ -187,49 +187,49 @@ const MBTI_TYPES = [
     'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
 ];
 const MBTI_TRAITS = {
-    ISTJ: '事実を重視し、計画的に物事を進める傾向。',
-    ISFJ: '思いやりがあり、周囲の安定を大切にする傾向。',
-    INFJ: '内省的で、意味や価値を深く考える傾向。',
-    INTJ: '全体像を描き、長期的な戦略を立てる傾向。',
-    ISTP: '冷静に状況を見て、実用的に対処する傾向。',
-    ISFP: '感覚を大切にし、穏やかな選択を好む傾向。',
-    INFP: '理想や価値観に沿って行動しやすい傾向。',
-    INTP: '論理的に考え、理解を深めることを好む傾向。',
-    ESTP: '行動力があり、現場で素早く動く傾向。',
-    ESFP: '周囲と楽しさを共有し、体験を重視する傾向。',
-    ENFP: '好奇心が強く、新しい可能性を追いやすい傾向。',
-    ENTP: '発想力があり、柔軟にアイデアを試す傾向。',
-    ESTJ: '効率や秩序を重視し、実行力が高い傾向。',
-    ESFJ: '協調性が高く、関係性を大切にする傾向。',
-    ENFJ: '周囲を支え、方向性を示すことが多い傾向。',
-    ENTJ: '目的志向で、判断と推進が速い傾向。'
+    ISTJ: '莠句ｮ溘ｒ驥崎ｦ悶＠縲∬ｨ育判逧・↓迚ｩ莠九ｒ騾ｲ繧√ｋ蛯ｾ蜷代・,
+    ISFJ: '諤昴＞繧・ｊ縺後≠繧翫∝捉蝗ｲ縺ｮ螳牙ｮ壹ｒ螟ｧ蛻・↓縺吶ｋ蛯ｾ蜷代・,
+    INFJ: '蜀・怐逧・〒縲∵э蜻ｳ繧・ｾ｡蛟､繧呈ｷｱ縺剰・∴繧句だ蜷代・,
+    INTJ: '蜈ｨ菴灘ワ繧呈緒縺阪・聞譛溽噪縺ｪ謌ｦ逡･繧堤ｫ九※繧句だ蜷代・,
+    ISTP: '蜀ｷ髱吶↓迥ｶ豕√ｒ隕九※縲∝ｮ溽畑逧・↓蟇ｾ蜃ｦ縺吶ｋ蛯ｾ蜷代・,
+    ISFP: '諢溯ｦ壹ｒ螟ｧ蛻・↓縺励∫ｩ上ｄ縺九↑驕ｸ謚槭ｒ螂ｽ繧蛯ｾ蜷代・,
+    INFP: '逅・Φ繧・ｾ｡蛟､隕ｳ縺ｫ豐ｿ縺｣縺ｦ陦悟虚縺励ｄ縺吶＞蛯ｾ蜷代・,
+    INTP: '隲也炊逧・↓閠・∴縲∫炊隗｣繧呈ｷｱ繧√ｋ縺薙→繧貞･ｽ繧蛯ｾ蜷代・,
+    ESTP: '陦悟虚蜉帙′縺ゅｊ縲∫樟蝣ｴ縺ｧ邏譌ｩ縺丞虚縺丞だ蜷代・,
+    ESFP: '蜻ｨ蝗ｲ縺ｨ讌ｽ縺励＆繧貞・譛峨＠縲∽ｽ馴ｨ薙ｒ驥崎ｦ悶☆繧句だ蜷代・,
+    ENFP: '螂ｽ螂・ｿ・′蠑ｷ縺上∵眠縺励＞蜿ｯ閭ｽ諤ｧ繧定ｿｽ縺・ｄ縺吶＞蛯ｾ蜷代・,
+    ENTP: '逋ｺ諠ｳ蜉帙′縺ゅｊ縲∵沐霆溘↓繧｢繧､繝・い繧定ｩｦ縺吝だ蜷代・,
+    ESTJ: '蜉ｹ邇・ｄ遘ｩ蠎上ｒ驥崎ｦ悶＠縲∝ｮ溯｡悟鴨縺碁ｫ倥＞蛯ｾ蜷代・,
+    ESFJ: '蜊碑ｪｿ諤ｧ縺碁ｫ倥￥縲・未菫よｧ繧貞､ｧ蛻・↓縺吶ｋ蛯ｾ蜷代・,
+    ENFJ: '蜻ｨ蝗ｲ繧呈髪縺医∵婿蜷第ｧ繧堤､ｺ縺吶％縺ｨ縺悟､壹＞蛯ｾ蜷代・,
+    ENTJ: '逶ｮ逧・ｿ怜髄縺ｧ縲∝愛譁ｭ縺ｨ謗ｨ騾ｲ縺碁溘＞蛯ｾ蜷代・
 };
 const TOPIC_KEYWORDS = {
-    仕事: ['仕事', '会社', '上司', '職場', '会議', '残業', '出勤', '退勤', '業務', 'メール', '営業', '転職', '働'],
-    恋愛: ['恋愛', '恋人', '彼氏', '彼女', '好き', 'デート', '片思い', '失恋', '結婚', '別れ'],
-    家族: ['家族', '母', '父', '兄', '姉', '弟', '妹', '子ども', '子供', '親', '両親'],
-    友人: ['友人', '友達', '友だち', '仲間', '同僚', '同期', '先輩', '後輩'],
-    お金: ['お金', '給料', '貯金', '支出', '節約', '請求', '家計', '収入', '出費'],
-    健康: ['健康', '体調', '病院', '薬', '睡眠', '疲れ', '風邪', '痛み', '食事', '運動'],
-    勉強: ['勉強', '学習', '試験', 'テスト', '資格', '講座', '宿題'],
-    趣味: ['趣味', '映画', '音楽', 'ゲーム', '旅行', 'カフェ', '読書', '写真'],
-    将来: ['将来', '未来', '夢', '目標', '不安', '期待', '計画'],
-    自由: ['自由', '制限', '束縛', '余裕', '時間'],
-    生活: ['生活', '家事', '料理', '掃除', '洗濯', '買い物']
+    莉穂ｺ・ ['莉穂ｺ・, '莨夂､ｾ', '荳雁昇', '閨ｷ蝣ｴ', '莨夊ｭｰ', '谿区･ｭ', '蜃ｺ蜍､', '騾蜍､', '讌ｭ蜍・, '繝｡繝ｼ繝ｫ', '蝟ｶ讌ｭ', '霆｢閨ｷ', '蜒・],
+    諱区・: ['諱区・', '諱倶ｺｺ', '蠖ｼ豌・, '蠖ｼ螂ｳ', '螂ｽ縺・, '繝・・繝・, '迚・昴＞', '螟ｱ諱・, '邨仙ｩ・, '蛻･繧・],
+    螳ｶ譌・ ['螳ｶ譌・, '豈・, '辷ｶ', '蜈・, '蟋・, '蠑・, '螯ｹ', '蟄舌←繧・, '蟄蝉ｾ・, '隕ｪ', '荳｡隕ｪ'],
+    蜿倶ｺｺ: ['蜿倶ｺｺ', '蜿矩＃', '蜿九□縺｡', '莉ｲ髢・, '蜷悟・', '蜷梧悄', '蜈郁ｼｩ', '蠕瑚ｼｩ'],
+    縺企≡: ['縺企≡', '邨ｦ譁・, '雋ｯ驥・, '謾ｯ蜃ｺ', '遽邏・, '隲区ｱ・, '螳ｶ險・, '蜿主・', '蜃ｺ雋ｻ'],
+    蛛･蠎ｷ: ['蛛･蠎ｷ', '菴楢ｪｿ', '逞・劼', '阮ｬ', '逹｡逵', '逍ｲ繧・, '鬚ｨ驍ｪ', '逞帙∩', '鬟滉ｺ・, '驕句虚'],
+    蜍牙ｼｷ: ['蜍牙ｼｷ', '蟄ｦ鄙・, '隧ｦ鬨・, '繝・せ繝・, '雉・ｼ', '隰帛ｺｧ', '螳ｿ鬘・],
+    雜｣蜻ｳ: ['雜｣蜻ｳ', '譏逕ｻ', '髻ｳ讌ｽ', '繧ｲ繝ｼ繝', '譌・｡・, '繧ｫ繝輔ぉ', '隱ｭ譖ｸ', '蜀咏悄'],
+    蟆・擂: ['蟆・擂', '譛ｪ譚･', '螟｢', '逶ｮ讓・, '荳榊ｮ・, '譛溷ｾ・, '險育判'],
+    閾ｪ逕ｱ: ['閾ｪ逕ｱ', '蛻ｶ髯・, '譚溽ｸ・, '菴呵｣・, '譎る俣'],
+    逕滓ｴｻ: ['逕滓ｴｻ', '螳ｶ莠・, '譁咏炊', '謗・勁', '豢玲ｿｯ', '雋ｷ縺・黄']
 };
 const PERSONALITY_TRAIT_MAP = {
-    jump_to_conclusion: '結論を早く出しがち',
-    overgeneralization: '物事を広く捉えがち',
-    black_and_white: '白黒はっきりさせたい',
-    emotional_reasoning: '感情を重視しやすい',
-    self_blame: '自責傾向が出やすい',
-    mind_reading: '相手の意図を想像しがち',
-    catastrophizing: 'リスクを先読みしやすい',
-    magnification_minimization: '良し悪しの評価が振れやすい',
-    should_statements: '理想や規範を大切にする',
-    negative_filter: '欠点に注意が向きやすい',
-    comparison_inferiority: '比較で評価しがち',
-    avoidance_procrastination: '慎重で回避的になりやすい'
+    jump_to_conclusion: '邨占ｫ悶ｒ譌ｩ縺丞・縺励′縺｡',
+    overgeneralization: '迚ｩ莠九ｒ蠎・￥謐峨∴縺後■',
+    black_and_white: '逋ｽ鮟偵・縺｣縺阪ｊ縺輔○縺溘＞',
+    emotional_reasoning: '諢滓ュ繧帝㍾隕悶＠繧・☆縺・,
+    self_blame: '閾ｪ雋ｬ蛯ｾ蜷代′蜃ｺ繧・☆縺・,
+    mind_reading: '逶ｸ謇九・諢丞峙繧呈Φ蜒上＠縺後■',
+    catastrophizing: '繝ｪ繧ｹ繧ｯ繧貞・隱ｭ縺ｿ縺励ｄ縺吶＞',
+    magnification_minimization: '濶ｯ縺玲が縺励・隧穂ｾ｡縺梧険繧後ｄ縺吶＞',
+    should_statements: '逅・Φ繧・ｦ冗ｯ・ｒ螟ｧ蛻・↓縺吶ｋ',
+    negative_filter: '谺轤ｹ縺ｫ豕ｨ諢上′蜷代″繧・☆縺・,
+    comparison_inferiority: '豈碑ｼ・〒隧穂ｾ｡縺励′縺｡',
+    avoidance_procrastination: '諷朱㍾縺ｧ蝗樣∩逧・↓縺ｪ繧翫ｄ縺吶＞'
 };
 const EMOTION_KEY_ALIASES = {
     joy: 'joy',
@@ -243,63 +243,63 @@ const EMOTION_KEY_ALIASES = {
 };
 
 const PATTERN_CATALOG = [
-    { id: 'jump_to_conclusion', label: '結論の飛躍', desc: '根拠が少ないまま結論を出す' },
-    { id: 'overgeneralization', label: '過度の一般化', desc: '一度の出来事で全体を決めつける' },
-    { id: 'black_and_white', label: '白黒思考', desc: '極端に捉える' },
-    { id: 'emotional_reasoning', label: '感情で決めつけ', desc: '気分を事実だとみなす' },
-    { id: 'self_blame', label: '自己否定', desc: '自分のせいだと決めつける' },
-    { id: 'mind_reading', label: '他者の意図の読みすぎ', desc: '相手の意図を決めつける' },
-    { id: 'catastrophizing', label: '未来の悲観', desc: '悪い結果を決めつける' },
-    { id: 'magnification_minimization', label: '拡大・過小評価', desc: '悪い点は大きく、良い点は小さく見る' },
-    { id: 'should_statements', label: 'べき思考', desc: '〜すべきで縛る' },
-    { id: 'negative_filter', label: 'ネガティブ抽出', desc: '悪い点だけに注目する' },
-    { id: 'comparison_inferiority', label: '比較・劣等感', desc: '他人と比べて自分を下げる' },
-    { id: 'avoidance_procrastination', label: '回避・先延ばし', desc: '不安や負担から行動を避ける' }
+    { id: 'jump_to_conclusion', label: '邨占ｫ悶・鬟幄ｺ・, desc: '譬ｹ諡縺悟ｰ代↑縺・∪縺ｾ邨占ｫ悶ｒ蜃ｺ縺・ },
+    { id: 'overgeneralization', label: '驕主ｺｦ縺ｮ荳闊ｬ蛹・, desc: '荳蠎ｦ縺ｮ蜃ｺ譚･莠九〒蜈ｨ菴薙ｒ豎ｺ繧√▽縺代ｋ' },
+    { id: 'black_and_white', label: '逋ｽ鮟呈晁・, desc: '讌ｵ遶ｯ縺ｫ謐峨∴繧・ },
+    { id: 'emotional_reasoning', label: '諢滓ュ縺ｧ豎ｺ繧√▽縺・, desc: '豌怜・繧剃ｺ句ｮ溘□縺ｨ縺ｿ縺ｪ縺・ },
+    { id: 'self_blame', label: '閾ｪ蟾ｱ蜷ｦ螳・, desc: '閾ｪ蛻・・縺帙＞縺縺ｨ豎ｺ繧√▽縺代ｋ' },
+    { id: 'mind_reading', label: '莉冶・・諢丞峙縺ｮ隱ｭ縺ｿ縺吶℃', desc: '逶ｸ謇九・諢丞峙繧呈ｱｺ繧√▽縺代ｋ' },
+    { id: 'catastrophizing', label: '譛ｪ譚･縺ｮ謔ｲ隕ｳ', desc: '謔ｪ縺・ｵ先棡繧呈ｱｺ繧√▽縺代ｋ' },
+    { id: 'magnification_minimization', label: '諡｡螟ｧ繝ｻ驕主ｰ剰ｩ穂ｾ｡', desc: '謔ｪ縺・せ縺ｯ螟ｧ縺阪￥縲∬憶縺・せ縺ｯ蟆上＆縺剰ｦ九ｋ' },
+    { id: 'should_statements', label: '縺ｹ縺肴晁・, desc: '縲懊☆縺ｹ縺阪〒邵帙ｋ' },
+    { id: 'negative_filter', label: '繝阪ぎ繝・ぅ繝匁歓蜃ｺ', desc: '謔ｪ縺・せ縺縺代↓豕ｨ逶ｮ縺吶ｋ' },
+    { id: 'comparison_inferiority', label: '豈碑ｼ・・蜉｣遲画─', desc: '莉紋ｺｺ縺ｨ豈斐∋縺ｦ閾ｪ蛻・ｒ荳九￡繧・ },
+    { id: 'avoidance_procrastination', label: '蝗樣∩繝ｻ蜈亥ｻｶ縺ｰ縺・, desc: '荳榊ｮ峨ｄ雋諡・°繧芽｡悟虚繧帝∩縺代ｋ' }
 ];
 
 const PATTERN_ALIASES = {
     inference_jump: 'jump_to_conclusion',
     jump_to_conclusion: 'jump_to_conclusion',
-    '結論飛躍': 'jump_to_conclusion',
-    '結論の飛躍': 'jump_to_conclusion',
+    '邨占ｫ夜｣幄ｺ・: 'jump_to_conclusion',
+    '邨占ｫ悶・鬟幄ｺ・: 'jump_to_conclusion',
     overgeneralization: 'overgeneralization',
-    '過度の一般化': 'overgeneralization',
+    '驕主ｺｦ縺ｮ荳闊ｬ蛹・: 'overgeneralization',
     black_and_white: 'black_and_white',
     all_or_nothing: 'black_and_white',
     'all-or-nothing': 'black_and_white',
-    '白黒思考': 'black_and_white',
+    '逋ｽ鮟呈晁・: 'black_and_white',
     emotional_reasoning: 'emotional_reasoning',
-    '感情で決めつけ': 'emotional_reasoning',
-    '感情的決めつけ': 'emotional_reasoning',
+    '諢滓ュ縺ｧ豎ｺ繧√▽縺・: 'emotional_reasoning',
+    '諢滓ュ逧・ｱｺ繧√▽縺・: 'emotional_reasoning',
     self_blame: 'self_blame',
     'self-blame': 'self_blame',
-    '自己否定': 'self_blame',
-    '自己責任化': 'self_blame',
+    '閾ｪ蟾ｱ蜷ｦ螳・: 'self_blame',
+    '閾ｪ蟾ｱ雋ｬ莉ｻ蛹・: 'self_blame',
     mind_reading: 'mind_reading',
     'mind-reading': 'mind_reading',
-    '他者の意図の読みすぎ': 'mind_reading',
-    '読心': 'mind_reading',
+    '莉冶・・諢丞峙縺ｮ隱ｭ縺ｿ縺吶℃': 'mind_reading',
+    '隱ｭ蠢・: 'mind_reading',
     catastrophizing: 'catastrophizing',
-    '未来の悲観': 'catastrophizing',
-    '最悪予測': 'catastrophizing',
+    '譛ｪ譚･縺ｮ謔ｲ隕ｳ': 'catastrophizing',
+    '譛謔ｪ莠域ｸｬ': 'catastrophizing',
     magnification_minimization: 'magnification_minimization',
-    '拡大・過小評価': 'magnification_minimization',
-    '拡大': 'magnification_minimization',
-    '過小評価': 'magnification_minimization',
+    '諡｡螟ｧ繝ｻ驕主ｰ剰ｩ穂ｾ｡': 'magnification_minimization',
+    '諡｡螟ｧ': 'magnification_minimization',
+    '驕主ｰ剰ｩ穂ｾ｡': 'magnification_minimization',
     should_statements: 'should_statements',
-    'べき思考': 'should_statements',
+    '縺ｹ縺肴晁・: 'should_statements',
     negative_filter: 'negative_filter',
-    'ネガティブ抽出': 'negative_filter',
-    'ネガティブフィルター': 'negative_filter',
-    '選択的注目': 'negative_filter',
+    '繝阪ぎ繝・ぅ繝匁歓蜃ｺ': 'negative_filter',
+    '繝阪ぎ繝・ぅ繝悶ヵ繧｣繝ｫ繧ｿ繝ｼ': 'negative_filter',
+    '驕ｸ謚樒噪豕ｨ逶ｮ': 'negative_filter',
     comparison_inferiority: 'comparison_inferiority',
-    '比較・劣等感': 'comparison_inferiority',
-    '比較': 'comparison_inferiority',
-    '劣等感': 'comparison_inferiority',
+    '豈碑ｼ・・蜉｣遲画─': 'comparison_inferiority',
+    '豈碑ｼ・: 'comparison_inferiority',
+    '蜉｣遲画─': 'comparison_inferiority',
     avoidance_procrastination: 'avoidance_procrastination',
-    '回避・先延ばし': 'avoidance_procrastination',
-    '回避': 'avoidance_procrastination',
-    '先延ばし': 'avoidance_procrastination'
+    '蝗樣∩繝ｻ蜈亥ｻｶ縺ｰ縺・: 'avoidance_procrastination',
+    '蝗樣∩': 'avoidance_procrastination',
+    '蜈亥ｻｶ縺ｰ縺・: 'avoidance_procrastination'
 };
 
 const PATTERN_MAP = PATTERN_CATALOG.reduce((acc, item) => {
@@ -350,7 +350,7 @@ function init() {
                 loadUserProfile().then(() => {
                     if (appState.currentView === 'mypage') renderMyPage();
                 });
-                showToast(`ようこそ、${user.displayName}さん`);
+                showToast(`繧医≧縺薙◎縲・{user.displayName}縺輔ｓ`);
             } else {
                 appState.user = null;
                 appState.entries = [];
@@ -518,6 +518,16 @@ function setJournalEditMode(isEdit) {
 function formatWithUnit(value, unit) {
     const v = String(value || '').trim();
     if (!v) return '未記入';
+    if (unit === '時間') {
+        if (/[時間分]/.test(v)) return v;
+        const num = Number(v);
+        if (!Number.isNaN(num)) {
+            const hours = Math.floor(num);
+            const hasHalf = Math.abs(num - hours - 0.5) < 0.01;
+            if (hasHalf) return hours ? `${hours}時間30分` : '30分';
+            if (Number.isInteger(num)) return `${num}時間`;
+        }
+    }
     if (unit && !v.endsWith(unit)) return `${v}${unit}`;
     return v;
 }
@@ -555,18 +565,18 @@ function fillJournalInputs(journal) {
 }
 
 function fillJournalDisplays(journal) {
-    if (dom.displayMorning) dom.displayMorning.textContent = journal.morning || '未記入';
-    if (dom.displayDone) dom.displayDone.textContent = journal.done || '未記入';
-    if (dom.displayNotDone) dom.displayNotDone.textContent = journal.notDone || '未記入';
-    if (dom.displayNextPlan) dom.displayNextPlan.textContent = journal.nextPlan || '未記入';
+    if (dom.displayMorning) dom.displayMorning.textContent = journal.morning || '譛ｪ險伜・';
+    if (dom.displayDone) dom.displayDone.textContent = journal.done || '譛ｪ險伜・';
+    if (dom.displayNotDone) dom.displayNotDone.textContent = journal.notDone || '譛ｪ險伜・';
+    if (dom.displayNextPlan) dom.displayNextPlan.textContent = journal.nextPlan || '譛ｪ險伜・';
     if (dom.displayMeals) {
-        const breakfast = journal.meals.breakfast || '未記入';
-        const lunch = journal.meals.lunch || '未記入';
-        const dinner = journal.meals.dinner || '未記入';
+        const breakfast = journal.meals.breakfast || '譛ｪ險伜・';
+        const lunch = journal.meals.lunch || '譛ｪ險伜・';
+        const dinner = journal.meals.dinner || '譛ｪ險伜・';
         dom.displayMeals.innerHTML = `
-            <div>朝: ${escapeHtml(breakfast)}</div>
-            <div>昼: ${escapeHtml(lunch)}</div>
-            <div>晩: ${escapeHtml(dinner)}</div>
+            <div>譛・ ${escapeHtml(breakfast)}</div>
+            <div>譏ｼ: ${escapeHtml(lunch)}</div>
+            <div>譎ｩ: ${escapeHtml(dinner)}</div>
         `;
     }
     if (dom.displayWeight) dom.displayWeight.textContent = formatWithUnit(journal.weight, 'kg');
@@ -635,14 +645,14 @@ function resetFilters() {
 
 async function googleLogin() {
     if (!window.auth || !window.googleProvider) {
-        showToast('Firebaseが初期化されていません', 'error');
+        showToast('Firebase縺悟・譛溷喧縺輔ｌ縺ｦ縺・∪縺帙ｓ', 'error');
         return;
     }
     try {
         await window.auth.signInWithPopup(window.googleProvider);
     } catch (e) {
         console.error('[auth] login failed', { code: e.code, message: e.message });
-        showToast('ログインに失敗しました', 'error');
+        showToast('繝ｭ繧ｰ繧､繝ｳ縺ｫ螟ｱ謨励＠縺ｾ縺励◆', 'error');
     }
 }
 
@@ -650,22 +660,22 @@ async function handleLogout() {
     if (!window.auth) return;
     try {
         await window.auth.signOut();
-        showToast('ログアウトしました');
+        showToast('繝ｭ繧ｰ繧｢繧ｦ繝医＠縺ｾ縺励◆');
     } catch (e) {
         console.error('[auth] logout failed', { code: e.code, message: e.message });
-        showToast('ログアウトに失敗しました', 'error');
+        showToast('繝ｭ繧ｰ繧｢繧ｦ繝医↓螟ｱ謨励＠縺ｾ縺励◆', 'error');
     }
 }
 
 async function handleUpdatePassword() {
     if (!appState.user || !window.auth || !window.googleProvider) {
-        showToast('ログインしてください', 'error');
+        showToast('繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞', 'error');
         return;
     }
     const currentPass = dom.inputCurrentPass ? dom.inputCurrentPass.value : '';
     const nextPass = dom.inputNewPass ? dom.inputNewPass.value : '';
     if (appState.masterPassword && currentPass !== appState.masterPassword) {
-        showToast('現在のパスワードが違います', 'error');
+        showToast('迴ｾ蝨ｨ縺ｮ繝代せ繝ｯ繝ｼ繝峨′驕輔＞縺ｾ縺・, 'error');
         return;
     }
     try {
@@ -678,16 +688,16 @@ async function handleUpdatePassword() {
         }
         if (dom.inputCurrentPass) dom.inputCurrentPass.value = '';
         if (dom.inputNewPass) dom.inputNewPass.value = '';
-        showToast('パスワードを更新しました');
+        showToast('繝代せ繝ｯ繝ｼ繝峨ｒ譖ｴ譁ｰ縺励∪縺励◆');
     } catch (e) {
         console.error('[auth] reauth failed', { code: e.code, message: e.message });
-        showToast('認証に失敗しました', 'error');
+        showToast('隱崎ｨｼ縺ｫ螟ｱ謨励＠縺ｾ縺励◆', 'error');
     }
 }
 
 async function handleForgotPassword() {
     if (!appState.user || !window.auth || !window.googleProvider) {
-        showToast('ログインしてください', 'error');
+        showToast('繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞', 'error');
         return;
     }
     try {
@@ -695,7 +705,7 @@ async function handleForgotPassword() {
         openResetModal();
     } catch (e) {
         console.error('[auth] reset reauth failed', { code: e.code, message: e.message });
-        showToast('認証に失敗しました', 'error');
+        showToast('隱崎ｨｼ縺ｫ螟ｱ謨励＠縺ｾ縺励◆', 'error');
     }
 }
 
@@ -721,7 +731,7 @@ function saveResetPassword() {
         localStorage.removeItem('masterPassword');
     }
     closeResetModal();
-    showToast('パスワードを更新しました');
+    showToast('繝代せ繝ｯ繝ｼ繝峨ｒ譖ｴ譁ｰ縺励∪縺励◆');
 }
 
 function closeSettingsModal() {
@@ -732,13 +742,13 @@ function closeSettingsModal() {
 
 async function saveEntryHelper() {
     if (!appState.user) {
-        showToast('ログインしてください', 'error');
+        showToast('繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞', 'error');
         return;
     }
 
     const content = dom.inputContent ? dom.inputContent.value.trim() : '';
     if (!content && !currentUploadImage) {
-        showToast('本文を入力してください', 'error');
+        showToast('譛ｬ譁・ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞', 'error');
         return;
     }
 
@@ -785,7 +795,7 @@ async function saveEntryHelper() {
     appState.activeEntryId = entryId;
     appState.writingDate = baseDate;
 
-    showToast('保存しました');
+    showToast('菫晏ｭ倥＠縺ｾ縺励◆');
     openEntry(entryId);
     renderEntryList();
     if (appState.currentView === 'calendar') renderCalendar();
@@ -976,7 +986,7 @@ async function saveEntryToFirestore(entry) {
     const db = window.db;
 
     if (!auth || !auth.currentUser || !db) {
-        alert('ログイン状態を確認できません。再読み込みしてください。');
+        alert('繝ｭ繧ｰ繧､繝ｳ迥ｶ諷九ｒ遒ｺ隱阪〒縺阪∪縺帙ｓ縲ょ・隱ｭ縺ｿ霎ｼ縺ｿ縺励※縺上□縺輔＞縲・);
         return false;
     }
 
@@ -1004,7 +1014,7 @@ async function saveEntryToFirestore(entry) {
         return entry.id;
     } catch (e) {
         console.error('[save] diary_entries failed', { stage: 'entry', code: e.code, message: e.message });
-        alert('保存に失敗しました: ' + e.message);
+        alert('菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆: ' + e.message);
         return false;
     }
 }
@@ -1025,10 +1035,10 @@ async function deleteEntryFromFirestore(entryId) {
 
         await db.collection('diary_entries').doc(entryId).delete();
         await loadEntries();
-        showToast('日記を削除しました');
+        showToast('譌･險倥ｒ蜑企勁縺励∪縺励◆');
     } catch (e) {
         console.error('Delete Error:', e);
-        showToast('削除に失敗しました', 'error');
+        showToast('蜑企勁縺ｫ螟ｱ謨励＠縺ｾ縺励◆', 'error');
     }
 }
 
@@ -1211,7 +1221,7 @@ function aggregateStats(entries) {
 
 function renderRankList(items, unit) {
     if (!items.length) {
-        return `<div class="rank-empty">未集計</div>`;
+        return `<div class="rank-empty">譛ｪ髮・ｨ・/div>`;
     }
     return `<div class="rank-list">${items.map((item, idx) => {
         const value = unit ? `${item.value}${unit}` : String(item.value);
@@ -1259,7 +1269,7 @@ async function requestSummaryUpdate(periodKey, periodLabel, stats) {
         appState.summaryPeriod = periodKey;
         appState.summaryUpdatedAt = new Date().toISOString();
     } catch (e) {
-        showToast('要約の更新に失敗しました', 'error');
+        showToast('隕∫ｴ・・譖ｴ譁ｰ縺ｫ螟ｱ謨励＠縺ｾ縺励◆', 'error');
     } finally {
         appState.summaryUpdating = false;
         renderMyPage();
@@ -1289,16 +1299,16 @@ function renderMyPage() {
     const stats = aggregateStats(filtered);
 
     const topEmotion = stats.emotionsSorted[0];
-    const topEmotionLabel = topEmotion ? (EMOTION_LABELS[topEmotion.key] || topEmotion.key) : '未集計';
+    const topEmotionLabel = topEmotion ? (EMOTION_LABELS[topEmotion.key] || topEmotion.key) : '譛ｪ髮・ｨ・;
     const emotionTotal = stats.analyzedCount || 0;
     const topEmotionPct = emotionTotal ? Math.round((topEmotion.count / emotionTotal) * 100) : 0;
-    const topEmotionValue = emotionTotal ? `${topEmotionLabel} ${topEmotionPct}%` : '未集計';
+    const topEmotionValue = emotionTotal ? `${topEmotionLabel} ${topEmotionPct}%` : '譛ｪ髮・ｨ・;
 
     const topPattern = stats.patternsSorted[0];
-    const topPatternValue = topPattern ? `${topPattern.label} (${topPattern.count})` : '未集計';
+    const topPatternValue = topPattern ? `${topPattern.label} (${topPattern.count})` : '譛ｪ髮・ｨ・;
 
     const summaryAvailable = appState.summaryPeriod === periodKey && appState.summaryText;
-    const summaryText = summaryAvailable ? appState.summaryText : '要約は未更新です。';
+    const summaryText = summaryAvailable ? appState.summaryText : '隕∫ｴ・・譛ｪ譖ｴ譁ｰ縺ｧ縺吶・;
     const themes = summaryAvailable ? appState.themes : [];
 
     const emotionTop5 = stats.emotionsSorted.slice(0, 5).map((e) => ({
@@ -1324,15 +1334,15 @@ function renderMyPage() {
         </li>
     `).join('');
     const mbtiValue = appState.userProfile?.mbti || '';
-    const mbtiDisplay = mbtiValue ? mbtiValue : '未設定';
+    const mbtiDisplay = mbtiValue ? mbtiValue : '譛ｪ險ｭ螳・;
     const mbtiInsight = getMbtiInsight(mbtiValue);
     const personalityInsight = buildDiaryPersonalityInsight(stats);
 
     const periodButtons = [
-        { key: '7d', label: '7日' },
-        { key: '30d', label: '30日' },
-        { key: '90d', label: '90日' },
-        { key: 'all', label: '全期間' }
+        { key: '7d', label: '7譌･' },
+        { key: '30d', label: '30譌･' },
+        { key: '90d', label: '90譌･' },
+        { key: 'all', label: '蜈ｨ譛滄俣' }
     ];
 
     const latestEntry = filtered[0];
@@ -1348,8 +1358,8 @@ function renderMyPage() {
     const similarHtml = latestEntry
         ? (similarItems.length
             ? `<div class="similar-list">${similarItems.map((s) => `<button class="btn-text-sm" onclick="openEntry('${s.id}')">${s.label}</button>`).join('')}</div>`
-            : `<button id="btn-similar-refresh" class="btn-text-sm">類似日記を検索</button>`)
-        : `<div class="rank-empty">該当期間の日記がありません</div>`;
+            : `<button id="btn-similar-refresh" class="btn-text-sm">鬘樔ｼｼ譌･險倥ｒ讀懃ｴ｢</button>`)
+        : `<div class="rank-empty">隧ｲ蠖捺悄髢薙・譌･險倥′縺ゅｊ縺ｾ縺帙ｓ</div>`;
 
     dom.mypageContainer.innerHTML = `
         <div class="mypage-stack">
@@ -1359,37 +1369,37 @@ function renderMyPage() {
                         <button class="period-btn ${btn.key === periodKey ? 'active' : ''}" data-period="${btn.key}">${btn.label}</button>
                     `).join('')}
                 </div>
-                <button id="btn-summary-refresh" class="btn-secondary" ${appState.summaryUpdating ? 'disabled' : ''}>${appState.summaryUpdating ? '更新中...' : '要約を更新'}</button>
+                <button id="btn-summary-refresh" class="btn-secondary" ${appState.summaryUpdating ? 'disabled' : ''}>${appState.summaryUpdating ? '譖ｴ譁ｰ荳ｭ...' : '隕∫ｴ・ｒ譖ｴ譁ｰ'}</button>
             </div>
 
             <div class="stat-card summary-card">
                 <div class="summary-header">
-                    <h3>今の要約</h3>
+                    <h3>莉翫・隕∫ｴ・/h3>
                     <span class="summary-period">${periodConfig.label}</span>
                 </div>
                 <p class="summary-text">${escapeHtml(summaryText)}</p>
             </div>
 
             <div class="stats-grid" style="width:100%;">
-                <div class="stat-card"> <i class="fa-solid fa-book stat-icon"></i> <div class="stat-value">${stats.totalCount}</div> <div class="stat-label">日記の総数</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-fire stat-icon"></i> <div class="stat-value">${stats.streak}</div> <div class="stat-label">連続投稿日数</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-trophy stat-icon"></i> <div class="stat-value">${stats.longestStreak}</div> <div class="stat-label">最長連続投稿日数</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-keyboard stat-icon"></i> <div class="stat-value">${stats.totalChars.toLocaleString('ja-JP')}</div> <div class="stat-label">投稿の総文字数</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-heart stat-icon"></i> <div class="stat-value">${escapeHtml(topEmotionValue)}</div> <div class="stat-label">感情Top1</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-brain stat-icon"></i> <div class="stat-value">${escapeHtml(topPatternValue)}</div> <div class="stat-label">認知パターンTop1</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-book stat-icon"></i> <div class="stat-value">${stats.totalCount}</div> <div class="stat-label">譌･險倥・邱乗焚</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-fire stat-icon"></i> <div class="stat-value">${stats.streak}</div> <div class="stat-label">騾｣邯壽兜遞ｿ譌･謨ｰ</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-trophy stat-icon"></i> <div class="stat-value">${stats.longestStreak}</div> <div class="stat-label">譛髟ｷ騾｣邯壽兜遞ｿ譌･謨ｰ</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-keyboard stat-icon"></i> <div class="stat-value">${stats.totalChars.toLocaleString('ja-JP')}</div> <div class="stat-label">謚慕ｨｿ縺ｮ邱乗枚蟄玲焚</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-heart stat-icon"></i> <div class="stat-value">${escapeHtml(topEmotionValue)}</div> <div class="stat-label">諢滓ュTop1</div> </div>
+                <div class="stat-card"> <i class="fa-solid fa-brain stat-icon"></i> <div class="stat-value">${escapeHtml(topPatternValue)}</div> <div class="stat-label">隱咲衍繝代ち繝ｼ繝ｳTop1</div> </div>
             </div>
 
             <div class="ranking-grid">
                 <div class="stat-card">
-                    <h4>感情Top5</h4>
+                    <h4>諢滓ュTop5</h4>
                     ${renderRankList(emotionTop5, '')}
                 </div>
                 <div class="stat-card">
-                    <h4>認知パターンTop5</h4>
+                    <h4>隱咲衍繝代ち繝ｼ繝ｳTop5</h4>
                     ${renderRankList(patternTop5, '')}
                 </div>
                 <div class="stat-card">
-                    <h4>頻出トピックTop10</h4>
+                    <h4>鬆ｻ蜃ｺ繝医ヴ繝・けTop10</h4>
                     ${renderRankList(topicTop10, '')}
                 </div>
             </div>
@@ -1399,39 +1409,39 @@ function renderMyPage() {
                     <h4>MBTI</h4>
                     <div class="mbti-row">
                         <select id="mbti-select" class="filter-input">
-                            <option value="">未設定</option>
+                            <option value="">譛ｪ險ｭ螳・/option>
                             ${MBTI_TYPES.map((type) => `<option value="${type}">${type}</option>`).join('')}
                         </select>
-                        <div class="mbti-note">任意。自己申告の補助情報として使用します。</div>
-                        <div class="mbti-current">現在: ${escapeHtml(mbtiDisplay)}</div>
-                        <div class="analysis-text">性格の特徴: ${escapeHtml(mbtiInsight)}</div>
+                        <div class="mbti-note">莉ｻ諢上り・蟾ｱ逕ｳ蜻翫・陬懷勧諠・ｱ縺ｨ縺励※菴ｿ逕ｨ縺励∪縺吶・/div>
+                        <div class="mbti-current">迴ｾ蝨ｨ: ${escapeHtml(mbtiDisplay)}</div>
+                        <div class="analysis-text">諤ｧ譬ｼ縺ｮ迚ｹ蠕ｴ: ${escapeHtml(mbtiInsight)}</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <h4>日記から読み取れる性格診断（推定）</h4>
+                    <h4>譌･險倥°繧芽ｪｭ縺ｿ蜿悶ｌ繧区ｧ譬ｼ險ｺ譁ｭ・域耳螳夲ｼ・/h4>
                     <p class="analysis-text">${escapeHtml(personalityInsight)}</p>
                 </div>
                 <div class="stat-card">
-                    <h4>性格の傾向Top3</h4>
+                    <h4>諤ｧ譬ｼ縺ｮ蛯ｾ蜷禅op3</h4>
                     ${renderRankList(traitTop3, '')}
                 </div>
             </div>
 
             <div class="stat-card pattern-catalog-card">
-                <h4>認知パターン一覧</h4>
-                <p class="pattern-catalog-note">固定12種類の説明です。</p>
+                <h4>隱咲衍繝代ち繝ｼ繝ｳ荳隕ｧ</h4>
+                <p class="pattern-catalog-note">蝗ｺ螳・2遞ｮ鬘槭・隱ｬ譏弱〒縺吶・/p>
                 <ul class="pattern-catalog">${patternCatalogHtml}</ul>
             </div>
 
             <div class="stat-card themes-card">
-                <h4>繰り返しテーマTop3</h4>
+                <h4>郢ｰ繧願ｿ斐＠繝・・繝杁op3</h4>
                 <div class="themes-list">
-                    ${themes.length ? themes.map((t) => `<span class="tag">${escapeHtml(stripParenthetical(t))}</span>`).join('') : '<span class="rank-empty">未更新</span>'}
+                    ${themes.length ? themes.map((t) => `<span class="tag">${escapeHtml(stripParenthetical(t))}</span>`).join('') : '<span class="rank-empty">譛ｪ譖ｴ譁ｰ</span>'}
                 </div>
             </div>
 
             <div class="stat-card similar-card">
-                <h4>最近の似ている日</h4>
+                <h4>譛霑代・莨ｼ縺ｦ縺・ｋ譌･</h4>
                 ${similarHtml}
             </div>
         </div>
@@ -1649,7 +1659,7 @@ function renderAnalysisPanel(entry) {
         return;
     }
     if (entry.isLocked) {
-        dom.analysisPanel.innerHTML = '<div class="analysis-status">ロック中</div>';
+        dom.analysisPanel.innerHTML = '<div class="analysis-status">繝ｭ繝・け荳ｭ</div>';
         return;
     }
 
@@ -1657,42 +1667,42 @@ function renderAnalysisPanel(entry) {
     const status = appState.analysisStatusById[entry.id] || (analysis ? 'done' : 'none');
 
     if (status === 'processing') {
-        dom.analysisPanel.innerHTML = '<div class="analysis-status">解析中...</div>';
+        dom.analysisPanel.innerHTML = '<div class="analysis-status">隗｣譫蝉ｸｭ...</div>';
         return;
     }
 
     if (status === 'failed') {
         dom.analysisPanel.innerHTML = `
-            <div class="analysis-status">解析に失敗しました</div>
-            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">解析を再試行</button>
+            <div class="analysis-status">隗｣譫舌↓螟ｱ謨励＠縺ｾ縺励◆</div>
+            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">隗｣譫舌ｒ蜀崎ｩｦ陦・/button>
         `;
         return;
     }
 
     if (!analysis) {
         dom.analysisPanel.innerHTML = `
-            <div class="analysis-status">解析がまだありません</div>
-            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">解析を実行</button>
+            <div class="analysis-status">隗｣譫舌′縺ｾ縺縺ゅｊ縺ｾ縺帙ｓ</div>
+            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">隗｣譫舌ｒ螳溯｡・/button>
         `;
         return;
     }
 
     const topEmotion = getTopEmotion(analysis);
-    const emotionLabel = topEmotion ? EMOTION_LABELS[topEmotion.key] : '不明';
+    const emotionLabel = topEmotion ? EMOTION_LABELS[topEmotion.key] : '荳肴・';
     const emotionScore = topEmotion ? Math.round(topEmotion.intensity || 0) : null;
     const summaryText = (analysis.observation_comment || '').trim();
     const summarySafe = summaryText
         ? escapeHtml(summaryText)
-        : `「${emotionLabel}」が中心の記録です。`;
+        : `縲・{emotionLabel}縲阪′荳ｭ蠢・・險倬鹸縺ｧ縺吶Ａ;
 
     const facts = (analysis.facts || []).map(escapeHtml);
     const story = (analysis.story || []).map(escapeHtml);
     const emotions = (analysis.emotions || []).map((e) => {
         const key = normalizeEmotionKey(e.label || e.primary || e.emotion);
-        const name = key ? EMOTION_LABELS[key] : (e.label || '不明');
+        const name = key ? EMOTION_LABELS[key] : (e.label || '荳肴・');
         const intensity = Math.round(e.intensity_0_100 || 0);
         const certainty = e.certainty_0_1 != null ? Number(e.certainty_0_1).toFixed(2) : null;
-        return `${escapeHtml(name)}${Number.isFinite(intensity) ? ` ${intensity}点` : ''}${certainty ? ` (確度 ${certainty})` : ''}`;
+        return `${escapeHtml(name)}${Number.isFinite(intensity) ? ` ${intensity}轤ｹ` : ''}${certainty ? ` (遒ｺ蠎ｦ ${certainty})` : ''}`;
     });
     const patternsList = Array.isArray(analysis.patterns)
         ? analysis.patterns
@@ -1705,7 +1715,7 @@ function renderAnalysisPanel(entry) {
         const conf = typeof raw === 'object' && raw !== null && raw.confidence_0_1 != null
             ? Number(raw.confidence_0_1).toFixed(2)
             : null;
-        const meta = conf ? `確度 ${conf}` : '';
+        const meta = conf ? `遒ｺ蠎ｦ ${conf}` : '';
         return `
             <li class="pattern-item">
                 <div class="pattern-label">${escapeHtml(entry.label)}${meta ? ` <span class="pattern-meta">${meta}</span>` : ''}</div>
@@ -1715,7 +1725,7 @@ function renderAnalysisPanel(entry) {
     });
     const patternsHtml = patterns.length
         ? patterns.join('')
-        : '<li class="pattern-empty">該当なし</li>';
+        : '<li class="pattern-empty">隧ｲ蠖薙↑縺・/li>';
     const habitInsight = buildHabitInsight(sortedPatterns);
     const nextStep = buildNextStepSuggestion(analysis, sortedPatterns);
     const topics = extractTopics(entry);
@@ -1727,48 +1737,48 @@ function renderAnalysisPanel(entry) {
             const label = ref ? escapeHtml(ref.content || '').slice(0, 40) : s.entry_id;
             return `<button class="btn-text-sm" onclick="openEntry('${s.entry_id}')">${label}</button>`;
         }).join('')
-        : `<button class="btn-text-sm" onclick="fetchSimilarForEntryById('${entry.id}')">類似を検索</button>`;
+        : `<button class="btn-text-sm" onclick="fetchSimilarForEntryById('${entry.id}')">鬘樔ｼｼ繧呈､懃ｴ｢</button>`;
 
     dom.analysisPanel.innerHTML = `
         <div class="analysis-block">
             <div class="analysis-summary">
                 <div class="analysis-summary-header">
                     <div>
-                        <div class="analysis-title">今日の気分</div>
-                        <div class="analysis-emotion">${emotionLabel}${emotionScore != null ? ` <span class="analysis-emotion-score">${emotionScore}点</span>` : ''}</div>
+                        <div class="analysis-title">莉頑律縺ｮ豌怜・</div>
+                        <div class="analysis-emotion">${emotionLabel}${emotionScore != null ? ` <span class="analysis-emotion-score">${emotionScore}轤ｹ</span>` : ''}</div>
                     </div>
                     <div class="analysis-actions">
-                        <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">再解析</button>
+                        <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">蜀崎ｧ｣譫・/button>
                     </div>
                 </div>
                 <div class="analysis-summary-text">${summarySafe}</div>
             </div>
         </div>
         <div class="analysis-block">
-            <div class="analysis-title">似ている日記</div>
+            <div class="analysis-title">莨ｼ縺ｦ縺・ｋ譌･險・/div>
             <div class="analysis-similar">${similarHtml}</div>
         </div>
         <div class="analysis-block analysis-details is-open" id="analysis-details-${entry.id}">
             <div class="analysis-detail-grid">
                 <div class="analysis-detail">
-                    <h4>感情の内訳</h4>
-                    <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>なし</li>'}</ul>
+                    <h4>諢滓ュ縺ｮ蜀・ｨｳ</h4>
+                    <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>縺ｪ縺・/li>'}</ul>
                 </div>
                 <div class="analysis-detail">
-                    <h4>認知パターン</h4>
+                    <h4>隱咲衍繝代ち繝ｼ繝ｳ</h4>
                     <ul class="analysis-list">${patternsHtml}</ul>
                 </div>
                 <div class="analysis-detail">
-                    <h4>考え方の癖</h4>
+                    <h4>閠・∴譁ｹ縺ｮ逋・/h4>
                     <p class="analysis-text">${escapeHtml(habitInsight)}</p>
                 </div>
                 <div class="analysis-detail">
-                    <h4>次の一歩</h4>
+                    <h4>谺｡縺ｮ荳豁ｩ</h4>
                     <p class="analysis-text">${escapeHtml(nextStep)}</p>
                 </div>
                 <div class="analysis-detail">
-                    <h4>頻出トピック</h4>
-                    <div class="analysis-tags">${topics.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('') || '<span class="tag">該当なし</span>'}</div>
+                    <h4>鬆ｻ蜃ｺ繝医ヴ繝・け</h4>
+                    <div class="analysis-tags">${topics.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('') || '<span class="tag">隧ｲ蠖薙↑縺・/span>'}</div>
                 </div>
             </div>
         </div>
@@ -1780,7 +1790,7 @@ function toggleAnalysisDetails(entryId) {
     details.classList.toggle('is-open');
     const btn = dom.analysisPanel ? dom.analysisPanel.querySelector(`[data-analysis-toggle="${entryId}"]`) : null;
     if (btn) {
-        btn.textContent = details.classList.contains('is-open') ? '詳細を閉じる' : '詳細を見る';
+        btn.textContent = details.classList.contains('is-open') ? '隧ｳ邏ｰ繧帝哩縺倥ｋ' : '隧ｳ邏ｰ繧定ｦ九ｋ';
     }
 }
 async function saveAnalysisResultToFirestore(entryId, analysis) {
@@ -1850,7 +1860,7 @@ async function runFallbackAnalysis(entry) {
         renderAnalysisPanel(entry);
 
         if (!analysisSaved || !embeddingSaved) {
-            showToast('解析の保存に失敗しました', 'error');
+            showToast('隗｣譫舌・菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆', 'error');
         }
         return true;
     } catch (e) {
@@ -1894,7 +1904,7 @@ async function runAnalysisForEntry(entry, force = false) {
         if (!analysisSaved || !embeddingSaved) {
             appState.analysisStatusById[entry.id] = 'failed';
             renderAnalysisPanel(entry);
-            showToast('日記は保存済みです。解析のみ失敗しました。再試行できます。', 'error');
+            showToast('譌･險倥・菫晏ｭ俶ｸ医∩縺ｧ縺吶りｧ｣譫舌・縺ｿ螟ｱ謨励＠縺ｾ縺励◆縲ょ・隧ｦ陦後〒縺阪∪縺吶・, 'error');
             return false;
         }
         appState.analysisStatusById[entry.id] = 'done';
@@ -1938,14 +1948,14 @@ async function fetchSimilarForEntryById(entryId) {
 
 function renderEmotionWheel(emotionData) {
     const key = normalizeEmotionKey(emotionData.primary);
-    const label = key ? EMOTION_LABELS[key] : '不明';
+    const label = key ? EMOTION_LABELS[key] : '荳肴・';
     const markers = key ? [{ key, size: 14, opacity: 1 }] : [];
     const chart = renderEmotionImage(markers);
 
     return `
         <div class="emotion-wheel-wrap">
             ${chart}
-            <div class="emotion-caption">感情: <strong>${label}</strong></div>
+            <div class="emotion-caption">諢滓ュ: <strong>${label}</strong></div>
         </div>
     `;
 }
@@ -1973,7 +1983,7 @@ function renderEmotionImage(markers) {
 
     return `
         <div class="emotion-image-wrap">
-            <img src="${EMOTION_IMAGE_PATH}" alt="プルチックの感情の輪" class="emotion-image">
+            <img src="${EMOTION_IMAGE_PATH}" alt="繝励Ν繝√ャ繧ｯ縺ｮ諢滓ュ縺ｮ霈ｪ" class="emotion-image">
             <div class="emotion-marker-layer">${markerHtml}</div>
         </div>
     `;
@@ -2019,54 +2029,54 @@ function buildNextStepSuggestion(analysis, patternsList) {
     const patternId = topPatternEntry ? topPatternEntry.id : null;
 
     const patternSuggestions = {
-        jump_to_conclusion: '結論を出す前に、事実を1つだけ追加で確認してみる。',
-        overgeneralization: '今日の出来事の例外を1つ書き出してみる。',
-        black_and_white: '白黒以外の中間の選択肢を1つ考えてみる。',
-        emotional_reasoning: '気分と事実を分けて1行ずつ書いてみる。',
-        self_blame: '自分の要因と外的要因を分けて整理してみる。',
-        mind_reading: '相手に確認できる事実だけを書き出してみる。',
-        catastrophizing: '最悪と最良の2パターンを書いて幅を作る。',
-        magnification_minimization: '良かった点を1つ同じ重さで書いてみる。',
-        should_statements: '「〜すべき」を「〜したい」に言い換えてみる。',
-        negative_filter: '良かった点を1つだけ追加で書いてみる。',
-        comparison_inferiority: '自分基準でできたことを1つ書いてみる。',
-        avoidance_procrastination: '5分だけ着手する小さな一歩を決める。'
+        jump_to_conclusion: '邨占ｫ悶ｒ蜃ｺ縺吝燕縺ｫ縲∽ｺ句ｮ溘ｒ1縺､縺縺題ｿｽ蜉縺ｧ遒ｺ隱阪＠縺ｦ縺ｿ繧九・,
+        overgeneralization: '莉頑律縺ｮ蜃ｺ譚･莠九・萓句､悶ｒ1縺､譖ｸ縺榊・縺励※縺ｿ繧九・,
+        black_and_white: '逋ｽ鮟剃ｻ･螟悶・荳ｭ髢薙・驕ｸ謚櫁い繧・縺､閠・∴縺ｦ縺ｿ繧九・,
+        emotional_reasoning: '豌怜・縺ｨ莠句ｮ溘ｒ蛻・￠縺ｦ1陦後★縺､譖ｸ縺・※縺ｿ繧九・,
+        self_blame: '閾ｪ蛻・・隕∝屏縺ｨ螟也噪隕∝屏繧貞・縺代※謨ｴ逅・＠縺ｦ縺ｿ繧九・,
+        mind_reading: '逶ｸ謇九↓遒ｺ隱阪〒縺阪ｋ莠句ｮ溘□縺代ｒ譖ｸ縺榊・縺励※縺ｿ繧九・,
+        catastrophizing: '譛謔ｪ縺ｨ譛濶ｯ縺ｮ2繝代ち繝ｼ繝ｳ繧呈嶌縺・※蟷・ｒ菴懊ｋ縲・,
+        magnification_minimization: '濶ｯ縺九▲縺溽せ繧・縺､蜷後§驥阪＆縺ｧ譖ｸ縺・※縺ｿ繧九・,
+        should_statements: '縲後懊☆縺ｹ縺阪阪ｒ縲後懊＠縺溘＞縲阪↓險縺・鋤縺医※縺ｿ繧九・,
+        negative_filter: '濶ｯ縺九▲縺溽せ繧・縺､縺縺題ｿｽ蜉縺ｧ譖ｸ縺・※縺ｿ繧九・,
+        comparison_inferiority: '閾ｪ蛻・渕貅悶〒縺ｧ縺阪◆縺薙→繧・縺､譖ｸ縺・※縺ｿ繧九・,
+        avoidance_procrastination: '5蛻・□縺醍捩謇九☆繧句ｰ上＆縺ｪ荳豁ｩ繧呈ｱｺ繧√ｋ縲・
     };
     if (patternId && patternSuggestions[patternId]) return patternSuggestions[patternId];
 
-    if (!topEmotion) return '小さな行動を1つ決めて実行してみる。';
+    if (!topEmotion) return '蟆上＆縺ｪ陦悟虚繧・縺､豎ｺ繧√※螳溯｡後＠縺ｦ縺ｿ繧九・;
     switch (topEmotion.key) {
         case 'sadness':
-            return '今日は休息や回復を優先する時間を作ってみる。';
+            return '莉頑律縺ｯ莨第・繧・屓蠕ｩ繧貞━蜈医☆繧区凾髢薙ｒ菴懊▲縺ｦ縺ｿ繧九・;
         case 'fear':
-            return '不安の正体を1行で書き出してみる。';
+            return '荳榊ｮ峨・豁｣菴薙ｒ1陦後〒譖ｸ縺榊・縺励※縺ｿ繧九・;
         case 'anger':
-            return '落ち着くために一度深呼吸して距離を置く。';
+            return '關ｽ縺｡逹縺上◆繧√↓荳蠎ｦ豺ｱ蜻ｼ蜷ｸ縺励※霍晞屬繧堤ｽｮ縺上・;
         case 'joy':
-            return '嬉しかった理由を1つ残してみる。';
+            return '螫峨＠縺九▲縺溽炊逕ｱ繧・縺､谿九＠縺ｦ縺ｿ繧九・;
         case 'anticipation':
-            return '期待していることに向けて小さな準備をする。';
+            return '譛溷ｾ・＠縺ｦ縺・ｋ縺薙→縺ｫ蜷代￠縺ｦ蟆上＆縺ｪ貅門ｙ繧偵☆繧九・;
         case 'trust':
-            return '信頼できる人との関係を1つ振り返る。';
+            return '菫｡鬆ｼ縺ｧ縺阪ｋ莠ｺ縺ｨ縺ｮ髢｢菫ゅｒ1縺､謖ｯ繧願ｿ斐ｋ縲・;
         case 'surprise':
-            return '驚いた点を1つ学びに変えてみる。';
+            return '鬩壹＞縺溽せ繧・縺､蟄ｦ縺ｳ縺ｫ螟峨∴縺ｦ縺ｿ繧九・;
         case 'disgust':
-            return '嫌だった点と距離を取る方法を1つ考える。';
+            return '雖後□縺｣縺溽せ縺ｨ霍晞屬繧貞叙繧区婿豕輔ｒ1縺､閠・∴繧九・;
         default:
-            return '小さな行動を1つ決めて実行してみる。';
+            return '蟆上＆縺ｪ陦悟虚繧・縺､豎ｺ繧√※螳溯｡後＠縺ｦ縺ｿ繧九・;
     }
 }
 
 function buildDiaryPersonalityInsight(stats) {
     if (!stats || !stats.analyzedCount) {
-        return '分析データがまだありません。日記が増えるほど傾向が見えてきます。';
+        return '蛻・梵繝・・繧ｿ縺後∪縺縺ゅｊ縺ｾ縺帙ｓ縲よ律險倥′蠅励∴繧九⊇縺ｩ蛯ｾ蜷代′隕九∴縺ｦ縺阪∪縺吶・;
     }
     if (stats.traitsSorted && stats.traitsSorted.length) {
         const top = stats.traitsSorted.slice(0, 2).map((t) => t.label);
         if (top.length === 1) {
-            return `日記からは「${top[0]}」の傾向が積み上がっています。`;
+            return `譌･險倥°繧峨・縲・{top[0]}縲阪・蛯ｾ蜷代′遨阪∩荳翫′縺｣縺ｦ縺・∪縺吶Ａ;
         }
-        return `日記からは「${top[0]}」「${top[1]}」の傾向が積み上がっています。`;
+        return `譌･險倥°繧峨・縲・{top[0]}縲阪・{top[1]}縲阪・蛯ｾ蜷代′遨阪∩荳翫′縺｣縺ｦ縺・∪縺吶Ａ;
     }
     const parts = [];
     const topEmotion = stats.emotionsSorted[0];
@@ -2075,27 +2085,27 @@ function buildDiaryPersonalityInsight(stats) {
 
     if (topEmotion) {
         const label = EMOTION_LABELS[topEmotion.key] || topEmotion.key;
-        parts.push(`感情は「${label}」が多め`);
+        parts.push(`諢滓ュ縺ｯ縲・{label}縲阪′螟壹ａ`);
     }
     if (topPattern) {
-        parts.push(`認知パターンは「${topPattern.label}」が目立つ`);
+        parts.push(`隱咲衍繝代ち繝ｼ繝ｳ縺ｯ縲・{topPattern.label}縲阪′逶ｮ遶九▽`);
     }
     if (topTopic) {
-        parts.push(`「${topTopic.label}」がよく登場する`);
+        parts.push(`縲・{topTopic.label}縲阪′繧医￥逋ｻ蝣ｴ縺吶ｋ`);
     }
 
     return parts.length
-        ? `${parts.join('、')}傾向があります。`
-        : '分析結果はありますが、傾向がまだ安定していません。';
+        ? `${parts.join('縲・)}蛯ｾ蜷代′縺ゅｊ縺ｾ縺吶Ａ
+        : '蛻・梵邨先棡縺ｯ縺ゅｊ縺ｾ縺吶′縲∝だ蜷代′縺ｾ縺螳牙ｮ壹＠縺ｦ縺・∪縺帙ｓ縲・;
 }
 
 function getMbtiInsight(mbti) {
-    if (!mbti) return 'MBTIを設定するとここに表示されます。';
-    return MBTI_TRAITS[mbti] || 'このMBTIの説明は未登録です。';
+    if (!mbti) return 'MBTI繧定ｨｭ螳壹☆繧九→縺薙％縺ｫ陦ｨ遉ｺ縺輔ｌ縺ｾ縺吶・;
+    return MBTI_TRAITS[mbti] || '縺薙・MBTI縺ｮ隱ｬ譏弱・譛ｪ逋ｻ骭ｲ縺ｧ縺吶・;
 }
 
 function buildHabitInsight(patternsList) {
-    if (!patternsList || !patternsList.length) return '該当なし';
+    if (!patternsList || !patternsList.length) return '隧ｲ蠖薙↑縺・;
     const sorted = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
     const labels = [];
     for (const p of sorted) {
@@ -2108,11 +2118,11 @@ function buildHabitInsight(patternsList) {
         if (label && !labels.includes(label)) labels.push(label);
         if (labels.length >= 2) break;
     }
-    if (!labels.length) return '該当なし';
+    if (!labels.length) return '隧ｲ蠖薙↑縺・;
     if (labels.length === 1) {
-        return `日記からは「${labels[0]}」という傾向が見られる可能性があります。`;
+        return `譌･險倥°繧峨・縲・{labels[0]}縲阪→縺・≧蛯ｾ蜷代′隕九ｉ繧後ｋ蜿ｯ閭ｽ諤ｧ縺後≠繧翫∪縺吶Ａ;
     }
-    return `日記からは「${labels[0]}」「${labels[1]}」という傾向が見られる可能性があります。`;
+    return `譌･險倥°繧峨・縲・{labels[0]}縲阪・{labels[1]}縲阪→縺・≧蛯ｾ蜷代′隕九ｉ繧後ｋ蜿ｯ閭ｽ諤ｧ縺後≠繧翫∪縺吶Ａ;
 }
 
 function getFilteredEntries() {
@@ -2178,7 +2188,7 @@ function renderEntryList() {
     const filtered = getFilteredEntries();
 
     if (filtered.length === 0) {
-        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>まだ日記がありません</p><button class="btn-primary" onclick="openEntry()">最初のジャーナル</button></div>';
+        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>縺ｾ縺譌･險倥′縺ゅｊ縺ｾ縺帙ｓ</p><button class="btn-primary" onclick="openEntry()">譛蛻昴・繧ｸ繝｣繝ｼ繝翫Ν</button></div>';
         return;
     }
 
@@ -2191,10 +2201,10 @@ function renderEntryList() {
         const analysis = appState.analysisById[entry.id];
         const topEmotion = getTopEmotion(analysis);
         const miniSummary = entry.isLocked
-            ? 'ロック中'
+            ? '繝ｭ繝・け荳ｭ'
             : (analysis
-                ? `感情: ${topEmotion ? EMOTION_LABELS[topEmotion.key] : '不明'}${topEmotion ? ` (${Math.round(topEmotion.intensity || 0)}点)` : ''}`
-                : '解析なし');
+                ? `諢滓ュ: ${topEmotion ? EMOTION_LABELS[topEmotion.key] : '荳肴・'}${topEmotion ? ` (${Math.round(topEmotion.intensity || 0)}轤ｹ)` : ''}`
+                : '隗｣譫舌↑縺・);
 
         let contentPrev = entry.content || '...';
         let cardTitle = entry.title || '\u65e5\u8a18';
@@ -2268,7 +2278,7 @@ function syncCalendarSelectors() {
         for (let y = start; y <= end; y++) {
             const opt = document.createElement('option');
             opt.value = String(y);
-            opt.textContent = `${y}年`;
+            opt.textContent = `${y}蟷ｴ`;
             dom.selectCalendarYear.appendChild(opt);
         }
     }
@@ -2299,24 +2309,24 @@ function renderMonthlyGoal() {
     const key = getMonthlyGoalKey(date);
     const goals = (appState.userProfile && appState.userProfile.monthlyGoals) ? appState.userProfile.monthlyGoals : {};
     const text = goals[key] || '';
-    dom.monthlyGoalTitle.textContent = `${year}年${month}月の目標`;
+    dom.monthlyGoalTitle.textContent = `${year}蟷ｴ${month}譛医・逶ｮ讓兪;
     if (!appState.user) {
-        dom.monthlyGoalText.textContent = 'ログインすると保存できます';
+        dom.monthlyGoalText.textContent = '繝ｭ繧ｰ繧､繝ｳ縺吶ｋ縺ｨ菫晏ｭ倥〒縺阪∪縺・;
     } else {
-        dom.monthlyGoalText.textContent = text ? text : '未設定';
+        dom.monthlyGoalText.textContent = text ? text : '譛ｪ險ｭ螳・;
     }
 }
 
 async function editMonthlyGoal() {
     if (!appState.user) {
-        showToast('ログインしてください', 'error');
+        showToast('繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞', 'error');
         return;
     }
     const date = appState.calendarDate || new Date();
     const key = getMonthlyGoalKey(date);
     const goals = { ...(appState.userProfile?.monthlyGoals || {}) };
     const current = goals[key] || '';
-    const input = window.prompt('今月の目標を入力（空欄で削除）', current);
+    const input = window.prompt('莉頑怦縺ｮ逶ｮ讓吶ｒ蜈･蜉幢ｼ育ｩｺ谺・〒蜑企勁・・, current);
     if (input === null) return;
     const value = input.trim();
     if (value) {
@@ -2326,7 +2336,7 @@ async function editMonthlyGoal() {
     }
     await saveUserProfile({ monthlyGoals: goals });
     renderMonthlyGoal();
-    showToast(value ? '目標を保存しました' : '目標を削除しました');
+    showToast(value ? '逶ｮ讓吶ｒ菫晏ｭ倥＠縺ｾ縺励◆' : '逶ｮ讓吶ｒ蜑企勁縺励∪縺励◆');
 }
 
 // --- Utils ---
@@ -2451,7 +2461,7 @@ function safeInit() {
         init();
     } catch (e) {
         console.error('[App] Init crashed:', e);
-        alert('アプリの起動に失敗しました: ' + e.message);
+        alert('繧｢繝励Μ縺ｮ襍ｷ蜍輔↓螟ｱ謨励＠縺ｾ縺励◆: ' + e.message);
     }
 }
 
@@ -2460,3 +2470,6 @@ if (document.readyState === 'loading') {
 } else {
     safeInit();
 }
+
+
+
