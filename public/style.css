@@ -2067,3 +2067,8 @@ body .app-container .main-content .view-section .editor-container .editor-textar
 .journal-card-inline {
     min-height: 140px;
 }
+
+
+#entry-morning {
+    min-height: 140px;
+}
