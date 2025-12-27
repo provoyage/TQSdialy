@@ -2068,22 +2068,3 @@ body .app-container .main-content .view-section .editor-container .editor-textar
     min-height: 140px;
 }
 
-
-#entry-morning {
-    min-height: 140px;
-}
-
-
-.morning-text {
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    padding: 0;
-    resize: none;
-    min-height: 140px;
-}
-
-.morning-text::placeholder {
-    color: var(--text-muted);
-}
