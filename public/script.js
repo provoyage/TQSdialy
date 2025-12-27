@@ -794,7 +794,7 @@ async function saveEntryHelper() {
     appState.activeEntryId = entryId;
     appState.writingDate = baseDate;
 
-    showToast('菫晏ｭ倥＠縺ｾ縺励◆');
+            showToast('日記は保存済みですが、解析または類似の保存に失敗しました。再試行してください。', 'error');
     openEntry(entryId);
     renderEntryList();
     if (appState.currentView === 'calendar') renderCalendar();
