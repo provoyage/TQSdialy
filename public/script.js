@@ -187,49 +187,49 @@ const MBTI_TYPES = [
     'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
 ];
 const MBTI_TRAITS = {
-    ISTJ: '莠句ｮ溘ｒ驥崎ｦ悶＠縲∬ｨ育判逧・↓迚ｩ莠九ｒ騾ｲ繧√ｋ蛯ｾ蜷代・,
-    ISFJ: '諤昴＞繧・ｊ縺後≠繧翫∝捉蝗ｲ縺ｮ螳牙ｮ壹ｒ螟ｧ蛻・↓縺吶ｋ蛯ｾ蜷代・,
-    INFJ: '蜀・怐逧・〒縲∵э蜻ｳ繧・ｾ｡蛟､繧呈ｷｱ縺剰・∴繧句だ蜷代・,
-    INTJ: '蜈ｨ菴灘ワ繧呈緒縺阪・聞譛溽噪縺ｪ謌ｦ逡･繧堤ｫ九※繧句だ蜷代・,
-    ISTP: '蜀ｷ髱吶↓迥ｶ豕√ｒ隕九※縲∝ｮ溽畑逧・↓蟇ｾ蜃ｦ縺吶ｋ蛯ｾ蜷代・,
-    ISFP: '諢溯ｦ壹ｒ螟ｧ蛻・↓縺励∫ｩ上ｄ縺九↑驕ｸ謚槭ｒ螂ｽ繧蛯ｾ蜷代・,
-    INFP: '逅・Φ繧・ｾ｡蛟､隕ｳ縺ｫ豐ｿ縺｣縺ｦ陦悟虚縺励ｄ縺吶＞蛯ｾ蜷代・,
-    INTP: '隲也炊逧・↓閠・∴縲∫炊隗｣繧呈ｷｱ繧√ｋ縺薙→繧貞･ｽ繧蛯ｾ蜷代・,
-    ESTP: '陦悟虚蜉帙′縺ゅｊ縲∫樟蝣ｴ縺ｧ邏譌ｩ縺丞虚縺丞だ蜷代・,
-    ESFP: '蜻ｨ蝗ｲ縺ｨ讌ｽ縺励＆繧貞・譛峨＠縲∽ｽ馴ｨ薙ｒ驥崎ｦ悶☆繧句だ蜷代・,
-    ENFP: '螂ｽ螂・ｿ・′蠑ｷ縺上∵眠縺励＞蜿ｯ閭ｽ諤ｧ繧定ｿｽ縺・ｄ縺吶＞蛯ｾ蜷代・,
-    ENTP: '逋ｺ諠ｳ蜉帙′縺ゅｊ縲∵沐霆溘↓繧｢繧､繝・い繧定ｩｦ縺吝だ蜷代・,
-    ESTJ: '蜉ｹ邇・ｄ遘ｩ蠎上ｒ驥崎ｦ悶＠縲∝ｮ溯｡悟鴨縺碁ｫ倥＞蛯ｾ蜷代・,
-    ESFJ: '蜊碑ｪｿ諤ｧ縺碁ｫ倥￥縲・未菫よｧ繧貞､ｧ蛻・↓縺吶ｋ蛯ｾ蜷代・,
-    ENFJ: '蜻ｨ蝗ｲ繧呈髪縺医∵婿蜷第ｧ繧堤､ｺ縺吶％縺ｨ縺悟､壹＞蛯ｾ蜷代・,
-    ENTJ: '逶ｮ逧・ｿ怜髄縺ｧ縲∝愛譁ｭ縺ｨ謗ｨ騾ｲ縺碁溘＞蛯ｾ蜷代・
+    ISTJ: '事実を重視し、計画的に物事を進める傾向。',
+    ISFJ: '思いやりがあり、周囲の安定を大切にする傾向。',
+    INFJ: '理想や意味を深く考え、全体像を捉える傾向。',
+    INTJ: '長期的な視点で戦略を立てる傾向。',
+    ISTP: '冷静に状況を見て、実用的に対処する傾向。',
+    ISFP: '感覚を大切にし、穏やかな選択を好む傾向。',
+    INFP: '価値観に沿って行動し、内面を重視する傾向。',
+    INTP: '論理的に考え、理解を深めることを好む傾向。',
+    ESTP: '行動力があり、現場で素早く動く傾向。',
+    ESFP: '周囲と楽しさを共有し、体験を重視する傾向。',
+    ENFP: '好奇心が強く、新しい可能性を追う傾向。',
+    ENTP: '発想力があり、柔軟にアイデアを試す傾向。',
+    ESTJ: '秩序を重視し、実行力が高い傾向。',
+    ESFJ: '協調性が高く、人間関係を大切にする傾向。',
+    ENFJ: '周囲を支え、方向性を示すことが多い傾向。',
+    ENTJ: '目標志向で、判断と推進が速い傾向。'
 };
 const TOPIC_KEYWORDS = {
-    莉穂ｺ・ ['莉穂ｺ・, '莨夂､ｾ', '荳雁昇', '閨ｷ蝣ｴ', '莨夊ｭｰ', '谿区･ｭ', '蜃ｺ蜍､', '騾蜍､', '讌ｭ蜍・, '繝｡繝ｼ繝ｫ', '蝟ｶ讌ｭ', '霆｢閨ｷ', '蜒・],
-    諱区・: ['諱区・', '諱倶ｺｺ', '蠖ｼ豌・, '蠖ｼ螂ｳ', '螂ｽ縺・, '繝・・繝・, '迚・昴＞', '螟ｱ諱・, '邨仙ｩ・, '蛻･繧・],
-    螳ｶ譌・ ['螳ｶ譌・, '豈・, '辷ｶ', '蜈・, '蟋・, '蠑・, '螯ｹ', '蟄舌←繧・, '蟄蝉ｾ・, '隕ｪ', '荳｡隕ｪ'],
-    蜿倶ｺｺ: ['蜿倶ｺｺ', '蜿矩＃', '蜿九□縺｡', '莉ｲ髢・, '蜷悟・', '蜷梧悄', '蜈郁ｼｩ', '蠕瑚ｼｩ'],
-    縺企≡: ['縺企≡', '邨ｦ譁・, '雋ｯ驥・, '謾ｯ蜃ｺ', '遽邏・, '隲区ｱ・, '螳ｶ險・, '蜿主・', '蜃ｺ雋ｻ'],
-    蛛･蠎ｷ: ['蛛･蠎ｷ', '菴楢ｪｿ', '逞・劼', '阮ｬ', '逹｡逵', '逍ｲ繧・, '鬚ｨ驍ｪ', '逞帙∩', '鬟滉ｺ・, '驕句虚'],
-    蜍牙ｼｷ: ['蜍牙ｼｷ', '蟄ｦ鄙・, '隧ｦ鬨・, '繝・せ繝・, '雉・ｼ', '隰帛ｺｧ', '螳ｿ鬘・],
-    雜｣蜻ｳ: ['雜｣蜻ｳ', '譏逕ｻ', '髻ｳ讌ｽ', '繧ｲ繝ｼ繝', '譌・｡・, '繧ｫ繝輔ぉ', '隱ｭ譖ｸ', '蜀咏悄'],
-    蟆・擂: ['蟆・擂', '譛ｪ譚･', '螟｢', '逶ｮ讓・, '荳榊ｮ・, '譛溷ｾ・, '險育判'],
-    閾ｪ逕ｱ: ['閾ｪ逕ｱ', '蛻ｶ髯・, '譚溽ｸ・, '菴呵｣・, '譎る俣'],
-    逕滓ｴｻ: ['逕滓ｴｻ', '螳ｶ莠・, '譁咏炊', '謗・勁', '豢玲ｿｯ', '雋ｷ縺・黄']
+    '仕事': ['仕事', '会社', '上司', '職場', '会議', '残業', '出勤', '退勤', '業務', 'メール', '営業', '転職', '面接'],
+    '恋愛': ['恋愛', '恋人', '彼氏', '彼女', '好き', 'デート', '片思い', '失恋', '結婚', '別れ'],
+    '家族': ['家族', '家庭', '父', '母', '姉', '兄', '妹', '弟', '子ども', '親', '両親'],
+    '友人': ['友人', '友達', '友だち', '仲間', '同僚', '同期', '先輩', '後輩'],
+    'お金': ['お金', '給料', '貯金', '支出', '節約', '請求', '家計', '収入', '出費'],
+    '健康': ['健康', '体調', '病気', '薬', '睡眠', '疲れ', '風邪', '痛み', '食事', '運動'],
+    '勉強': ['勉強', '学習', '試験', 'テスト', '資格', '講座', '宿題'],
+    '趣味': ['趣味', '映画', '音楽', 'ゲーム', '旅行', 'カフェ', '読書', '写真'],
+    '将来': ['将来', '未来', '夢', '目標', '不安', '期待', '計画'],
+    '自由': ['自由', '制限', '束縛', '余裕', '時間'],
+    '生活': ['生活', '家事', '料理', '掃除', '洗濯', '買い物']
 };
 const PERSONALITY_TRAIT_MAP = {
-    jump_to_conclusion: '邨占ｫ悶ｒ譌ｩ縺丞・縺励′縺｡',
-    overgeneralization: '迚ｩ莠九ｒ蠎・￥謐峨∴縺後■',
-    black_and_white: '逋ｽ鮟偵・縺｣縺阪ｊ縺輔○縺溘＞',
-    emotional_reasoning: '諢滓ュ繧帝㍾隕悶＠繧・☆縺・,
-    self_blame: '閾ｪ雋ｬ蛯ｾ蜷代′蜃ｺ繧・☆縺・,
-    mind_reading: '逶ｸ謇九・諢丞峙繧呈Φ蜒上＠縺後■',
-    catastrophizing: '繝ｪ繧ｹ繧ｯ繧貞・隱ｭ縺ｿ縺励ｄ縺吶＞',
-    magnification_minimization: '濶ｯ縺玲が縺励・隧穂ｾ｡縺梧険繧後ｄ縺吶＞',
-    should_statements: '逅・Φ繧・ｦ冗ｯ・ｒ螟ｧ蛻・↓縺吶ｋ',
-    negative_filter: '谺轤ｹ縺ｫ豕ｨ諢上′蜷代″繧・☆縺・,
-    comparison_inferiority: '豈碑ｼ・〒隧穂ｾ｡縺励′縺｡',
-    avoidance_procrastination: '諷朱㍾縺ｧ蝗樣∩逧・↓縺ｪ繧翫ｄ縺吶＞'
+    jump_to_conclusion: '結論を急ぎやすい',
+    overgeneralization: '一度の出来事を全体化しやすい',
+    black_and_white: '白黒ではっきりさせたくなる',
+    emotional_reasoning: '感情を根拠にしやすい',
+    self_blame: '自分のせいだと思いがち',
+    mind_reading: '相手の意図を決めつけがち',
+    catastrophizing: '最悪の結果を想定しやすい',
+    magnification_minimization: '良し悪しを誇張しやすい',
+    should_statements: '〜すべきで自分を縛りがち',
+    negative_filter: '悪い点に注意が偏りがち',
+    comparison_inferiority: '比べて落ち込みやすい',
+    avoidance_procrastination: '不安から先延ばししがち'
 };
 const EMOTION_KEY_ALIASES = {
     joy: 'joy',
@@ -243,63 +243,62 @@ const EMOTION_KEY_ALIASES = {
 };
 
 const PATTERN_CATALOG = [
-    { id: 'jump_to_conclusion', label: '邨占ｫ悶・鬟幄ｺ・, desc: '譬ｹ諡縺悟ｰ代↑縺・∪縺ｾ邨占ｫ悶ｒ蜃ｺ縺・ },
-    { id: 'overgeneralization', label: '驕主ｺｦ縺ｮ荳闊ｬ蛹・, desc: '荳蠎ｦ縺ｮ蜃ｺ譚･莠九〒蜈ｨ菴薙ｒ豎ｺ繧√▽縺代ｋ' },
-    { id: 'black_and_white', label: '逋ｽ鮟呈晁・, desc: '讌ｵ遶ｯ縺ｫ謐峨∴繧・ },
-    { id: 'emotional_reasoning', label: '諢滓ュ縺ｧ豎ｺ繧√▽縺・, desc: '豌怜・繧剃ｺ句ｮ溘□縺ｨ縺ｿ縺ｪ縺・ },
-    { id: 'self_blame', label: '閾ｪ蟾ｱ蜷ｦ螳・, desc: '閾ｪ蛻・・縺帙＞縺縺ｨ豎ｺ繧√▽縺代ｋ' },
-    { id: 'mind_reading', label: '莉冶・・諢丞峙縺ｮ隱ｭ縺ｿ縺吶℃', desc: '逶ｸ謇九・諢丞峙繧呈ｱｺ繧√▽縺代ｋ' },
-    { id: 'catastrophizing', label: '譛ｪ譚･縺ｮ謔ｲ隕ｳ', desc: '謔ｪ縺・ｵ先棡繧呈ｱｺ繧√▽縺代ｋ' },
-    { id: 'magnification_minimization', label: '諡｡螟ｧ繝ｻ驕主ｰ剰ｩ穂ｾ｡', desc: '謔ｪ縺・せ縺ｯ螟ｧ縺阪￥縲∬憶縺・せ縺ｯ蟆上＆縺剰ｦ九ｋ' },
-    { id: 'should_statements', label: '縺ｹ縺肴晁・, desc: '縲懊☆縺ｹ縺阪〒邵帙ｋ' },
-    { id: 'negative_filter', label: '繝阪ぎ繝・ぅ繝匁歓蜃ｺ', desc: '謔ｪ縺・せ縺縺代↓豕ｨ逶ｮ縺吶ｋ' },
-    { id: 'comparison_inferiority', label: '豈碑ｼ・・蜉｣遲画─', desc: '莉紋ｺｺ縺ｨ豈斐∋縺ｦ閾ｪ蛻・ｒ荳九￡繧・ },
-    { id: 'avoidance_procrastination', label: '蝗樣∩繝ｻ蜈亥ｻｶ縺ｰ縺・, desc: '荳榊ｮ峨ｄ雋諡・°繧芽｡悟虚繧帝∩縺代ｋ' }
+    { id: 'jump_to_conclusion', label: '結論の飛躍', desc: '根拠が少ないまま結論を出しやすい' },
+    { id: 'overgeneralization', label: '過度の一般化', desc: '一度の出来事で全体を決めつけやすい' },
+    { id: 'black_and_white', label: '白黒思考', desc: '極端に捉えてしまう' },
+    { id: 'emotional_reasoning', label: '感情的決めつけ', desc: '気分を事実だと感じやすい' },
+    { id: 'self_blame', label: '自己否定', desc: '自分のせいだと考えがち' },
+    { id: 'mind_reading', label: '心の読みすぎ', desc: '相手の意図を決めつけやすい' },
+    { id: 'catastrophizing', label: '未来の悲観', desc: '最悪の結果を想定しやすい' },
+    { id: 'magnification_minimization', label: '拡大・過小評価', desc: '悪い点は大きく、良い点は小さく見やすい' },
+    { id: 'should_statements', label: 'べき思考', desc: '〜すべきで自分を縛りがち' },
+    { id: 'negative_filter', label: 'ネガティブ抽出', desc: '悪い点に注意が偏りやすい' },
+    { id: 'comparison_inferiority', label: '比較による劣等感', desc: '他人と比べて自分を下げやすい' },
+    { id: 'avoidance_procrastination', label: '回避・先延ばし', desc: '不安から行動を避けがち' }
 ];
 
 const PATTERN_ALIASES = {
     inference_jump: 'jump_to_conclusion',
     jump_to_conclusion: 'jump_to_conclusion',
-    '邨占ｫ夜｣幄ｺ・: 'jump_to_conclusion',
-    '邨占ｫ悶・鬟幄ｺ・: 'jump_to_conclusion',
+    '結論の飛躍': 'jump_to_conclusion',
+    '結論飛躍': 'jump_to_conclusion',
     overgeneralization: 'overgeneralization',
-    '驕主ｺｦ縺ｮ荳闊ｬ蛹・: 'overgeneralization',
+    '過度の一般化': 'overgeneralization',
     black_and_white: 'black_and_white',
     all_or_nothing: 'black_and_white',
     'all-or-nothing': 'black_and_white',
-    '逋ｽ鮟呈晁・: 'black_and_white',
+    '白黒思考': 'black_and_white',
     emotional_reasoning: 'emotional_reasoning',
-    '諢滓ュ縺ｧ豎ｺ繧√▽縺・: 'emotional_reasoning',
-    '諢滓ュ逧・ｱｺ繧√▽縺・: 'emotional_reasoning',
+    '感情的決めつけ': 'emotional_reasoning',
     self_blame: 'self_blame',
     'self-blame': 'self_blame',
-    '閾ｪ蟾ｱ蜷ｦ螳・: 'self_blame',
-    '閾ｪ蟾ｱ雋ｬ莉ｻ蛹・: 'self_blame',
+    '自己否定': 'self_blame',
+    '自己責任': 'self_blame',
     mind_reading: 'mind_reading',
     'mind-reading': 'mind_reading',
-    '莉冶・・諢丞峙縺ｮ隱ｭ縺ｿ縺吶℃': 'mind_reading',
-    '隱ｭ蠢・: 'mind_reading',
+    '心の読みすぎ': 'mind_reading',
+    '読心': 'mind_reading',
     catastrophizing: 'catastrophizing',
-    '譛ｪ譚･縺ｮ謔ｲ隕ｳ': 'catastrophizing',
-    '譛謔ｪ莠域ｸｬ': 'catastrophizing',
+    '未来の悲観': 'catastrophizing',
+    '最悪予測': 'catastrophizing',
     magnification_minimization: 'magnification_minimization',
-    '諡｡螟ｧ繝ｻ驕主ｰ剰ｩ穂ｾ｡': 'magnification_minimization',
-    '諡｡螟ｧ': 'magnification_minimization',
-    '驕主ｰ剰ｩ穂ｾ｡': 'magnification_minimization',
+    '拡大・過小評価': 'magnification_minimization',
+    '拡大': 'magnification_minimization',
+    '過小評価': 'magnification_minimization',
     should_statements: 'should_statements',
-    '縺ｹ縺肴晁・: 'should_statements',
+    'べき思考': 'should_statements',
     negative_filter: 'negative_filter',
-    '繝阪ぎ繝・ぅ繝匁歓蜃ｺ': 'negative_filter',
-    '繝阪ぎ繝・ぅ繝悶ヵ繧｣繝ｫ繧ｿ繝ｼ': 'negative_filter',
-    '驕ｸ謚樒噪豕ｨ逶ｮ': 'negative_filter',
+    'ネガティブ抽出': 'negative_filter',
+    'ネガティブフィルター': 'negative_filter',
+    '選択的注目': 'negative_filter',
     comparison_inferiority: 'comparison_inferiority',
-    '豈碑ｼ・・蜉｣遲画─': 'comparison_inferiority',
-    '豈碑ｼ・: 'comparison_inferiority',
-    '蜉｣遲画─': 'comparison_inferiority',
+    '比較による劣等感': 'comparison_inferiority',
+    '比較': 'comparison_inferiority',
+    '劣等感': 'comparison_inferiority',
     avoidance_procrastination: 'avoidance_procrastination',
-    '蝗樣∩繝ｻ蜈亥ｻｶ縺ｰ縺・: 'avoidance_procrastination',
-    '蝗樣∩': 'avoidance_procrastination',
-    '蜈亥ｻｶ縺ｰ縺・: 'avoidance_procrastination'
+    '回避・先延ばし': 'avoidance_procrastination',
+    '回避': 'avoidance_procrastination',
+    '先延ばし': 'avoidance_procrastination'
 };
 
 const PATTERN_MAP = PATTERN_CATALOG.reduce((acc, item) => {
@@ -675,7 +674,7 @@ async function handleUpdatePassword() {
     const currentPass = dom.inputCurrentPass ? dom.inputCurrentPass.value : '';
     const nextPass = dom.inputNewPass ? dom.inputNewPass.value : '';
     if (appState.masterPassword && currentPass !== appState.masterPassword) {
-        showToast('迴ｾ蝨ｨ縺ｮ繝代せ繝ｯ繝ｼ繝峨′驕輔＞縺ｾ縺・, 'error');
+        showToast('現在のパスワードが違います', 'error');
         return;
     }
     try {
@@ -986,7 +985,7 @@ async function saveEntryToFirestore(entry) {
     const db = window.db;
 
     if (!auth || !auth.currentUser || !db) {
-        alert('繝ｭ繧ｰ繧､繝ｳ迥ｶ諷九ｒ遒ｺ隱阪〒縺阪∪縺帙ｓ縲ょ・隱ｭ縺ｿ霎ｼ縺ｿ縺励※縺上□縺輔＞縲・);
+        alert('ログイン状態を確認してください。再読み込みしてください。');
         return false;
     }
 
@@ -1156,1058 +1155,16 @@ function aggregateStats(entries) {
     let analyzedCount = 0;
 
     entries.forEach((entry) => {
-        const analysis = appState.analysisById[entry.id];
-        if (!analysis) return;
-        analyzedCount += 1;
-
-        const topEmotion = getTopEmotion(analysis);
-        if (topEmotion) {
-            emotionCounts[topEmotion.key] = (emotionCounts[topEmotion.key] || 0) + 1;
-        }
-
-        const patternsList = Array.isArray(analysis.patterns)
-            ? analysis.patterns
-            : (analysis.patterns ? Object.values(analysis.patterns) : []);
-        patternsList.forEach((p) => {
-            const entry = getPatternEntry(p);
-            if (!entry) return;
-            patternCounts[entry.id] = (patternCounts[entry.id] || 0) + 1;
-            const traitLabel = PERSONALITY_TRAIT_MAP[entry.id];
-            if (traitLabel) {
-                traitCounts[traitLabel] = (traitCounts[traitLabel] || 0) + 1;
-            }
-        });
-
-        const topics = new Set(extractTopics(entry));
-        topics.forEach((topic) => {
-            topicCounts[topic] = (topicCounts[topic] || 0) + 1;
-        });
-    });
-
-    const emotionsSorted = Object.keys(emotionCounts)
-        .map((key) => ({ key, count: emotionCounts[key] }))
-        .sort((a, b) => b.count - a.count);
-
-    const patternsSorted = Object.keys(patternCounts)
-        .map((id) => ({
-            id,
-            label: PATTERN_MAP[id]?.label || id,
-            count: patternCounts[id]
-        }))
-        .sort((a, b) => b.count - a.count);
-
-    const traitsSorted = Object.keys(traitCounts)
-        .map((label) => ({ label, count: traitCounts[label] }))
-        .sort((a, b) => b.count - a.count);
-
-    const topicsSorted = Object.keys(topicCounts)
-        .map((label) => ({ label, count: topicCounts[label] }))
-        .sort((a, b) => b.count - a.count);
-
-    return {
-        totalCount,
-        totalChars,
-        streak: streakStats.streak,
-        longestStreak: streakStats.longestStreak,
-        analyzedCount,
-        emotionCounts,
-        emotionsSorted,
-        patternsSorted,
-        traitCounts,
-        traitsSorted,
-        topicsSorted
-    };
-}
-
-function renderRankList(items, unit) {
-    if (!items.length) {
-        return `<div class="rank-empty">譛ｪ髮・ｨ・/div>`;
-    }
-    return `<div class="rank-list">${items.map((item, idx) => {
-        const value = unit ? `${item.value}${unit}` : String(item.value);
-        return `
-            <div class="rank-row">
-                <span class="rank-index">${idx + 1}</span>
-                <span class="rank-label">${escapeHtml(item.label)}</span>
-                <span class="rank-value">${value}</span>
-            </div>
-        `;
-    }).join('')}</div>`;
-}
-
-function stripParenthetical(text) {
-    if (!text) return '';
-    return String(text).replace(/\s*[?(][^?)]+[?)]\s*$/, '').trim();
-}
-
-async function requestSummaryUpdate(periodKey, periodLabel, stats) {
-    if (appState.summaryUpdating) return;
-    appState.summaryUpdating = true;
-    renderMyPage();
-    try {
-        const topEmotion = stats.emotionsSorted[0] ? EMOTION_LABELS[stats.emotionsSorted[0].key] : '';
-        const topPattern = stats.patternsSorted[0] ? stats.patternsSorted[0].label : '';
-        const emotionTop5 = stats.emotionsSorted.slice(0, 5).map((e) => ({
-            label: EMOTION_LABELS[e.key] || e.key,
-            value: e.count
-        }));
-        const patternTop5 = stats.patternsSorted.slice(0, 5).map((p) => ({
-            label: p.label,
-            value: p.count
-        }));
-
-        const result = await apiPost('/api/summary', {
-            period_label: periodLabel,
-            top_emotion: topEmotion,
-            top_pattern: topPattern,
-            emotion_top5: emotionTop5,
-            pattern_top5: patternTop5
-        });
-
-        appState.summaryText = result.summary || '';
-        appState.themes = Array.isArray(result.themes) ? result.themes : [];
-        appState.summaryPeriod = periodKey;
-        appState.summaryUpdatedAt = new Date().toISOString();
-    } catch (e) {
-        showToast('隕∫ｴ・・譖ｴ譁ｰ縺ｫ螟ｱ謨励＠縺ｾ縺励◆', 'error');
-    } finally {
-        appState.summaryUpdating = false;
-        renderMyPage();
-    }
-}
-
-function updateSummaryForCurrentPeriod() {
-    const periodKey = appState.period || '7d';
-    const periodConfig = getPeriodConfig(periodKey);
-    const filtered = filterEntriesByPeriod(appState.entries || [], periodConfig.from);
-    const stats = aggregateStats(filtered);
-    if (!stats.totalCount) {
-        appState.summaryText = '';
-        appState.summaryPeriod = '';
-        appState.summaryUpdatedAt = null;
-        return Promise.resolve();
-    }
-    return requestSummaryUpdate(periodKey, periodConfig.label, stats);
-}
-
-function renderMyPage() {
-    if (!dom.mypageContainer) return;
-    const periodKey = appState.period || '7d';
-    const periodConfig = getPeriodConfig(periodKey);
-    const filtered = filterEntriesByPeriod(appState.entries || [], periodConfig.from)
-        .sort((a, b) => getEntryDate(b) - getEntryDate(a));
-    const stats = aggregateStats(filtered);
-
-    const topEmotion = stats.emotionsSorted[0];
-    const topEmotionLabel = topEmotion ? (EMOTION_LABELS[topEmotion.key] || topEmotion.key) : '譛ｪ髮・ｨ・;
-    const emotionTotal = stats.analyzedCount || 0;
-    const topEmotionPct = emotionTotal ? Math.round((topEmotion.count / emotionTotal) * 100) : 0;
-    const topEmotionValue = emotionTotal ? `${topEmotionLabel} ${topEmotionPct}%` : '譛ｪ髮・ｨ・;
-
-    const topPattern = stats.patternsSorted[0];
-    const topPatternValue = topPattern ? `${topPattern.label} (${topPattern.count})` : '譛ｪ髮・ｨ・;
-
-    const summaryAvailable = appState.summaryPeriod === periodKey && appState.summaryText;
-    const summaryText = summaryAvailable ? appState.summaryText : '隕∫ｴ・・譛ｪ譖ｴ譁ｰ縺ｧ縺吶・;
-    const themes = summaryAvailable ? appState.themes : [];
-
-    const emotionTop5 = stats.emotionsSorted.slice(0, 5).map((e) => ({
-        label: EMOTION_LABELS[e.key] || e.key,
-        value: emotionTotal ? Math.round((e.count / emotionTotal) * 100) + '%' : '0%'
-    }));
-    const patternTop5 = stats.patternsSorted.slice(0, 5).map((p) => ({
-        label: p.label,
-        value: p.count
-    }));
-    const traitTop3 = stats.traitsSorted.slice(0, 3).map((t) => ({
-        label: t.label,
-        value: t.count
-    }));
-    const topicTop10 = stats.topicsSorted.slice(0, 10).map((t) => ({
-        label: t.label,
-        value: t.count
-    }));
-    const patternCatalogHtml = PATTERN_CATALOG.map((p) => `
-        <li class="pattern-item">
-            <div class="pattern-label">${escapeHtml(p.label)}</div>
-            <div class="pattern-desc">${escapeHtml(p.desc)}</div>
-        </li>
-    `).join('');
-    const mbtiValue = appState.userProfile?.mbti || '';
-    const mbtiDisplay = mbtiValue ? mbtiValue : '譛ｪ險ｭ螳・;
-    const mbtiInsight = getMbtiInsight(mbtiValue);
-    const personalityInsight = buildDiaryPersonalityInsight(stats);
-
-    const periodButtons = [
-        { key: '7d', label: '7譌･' },
-        { key: '30d', label: '30譌･' },
-        { key: '90d', label: '90譌･' },
-        { key: 'all', label: '蜈ｨ譛滄俣' }
-    ];
-
-    const latestEntry = filtered[0];
-    const similar = latestEntry ? (appState.similarById[latestEntry.id] || []) : [];
-    const similarItems = similar.map((s) => {
-        const ref = appState.entries.find(e => e.id === s.entry_id);
-        return {
-            id: s.entry_id,
-            label: ref ? escapeHtml(ref.content || '').slice(0, 40) : s.entry_id
-        };
-    });
-
-    const similarHtml = latestEntry
-        ? (similarItems.length
-            ? `<div class="similar-list">${similarItems.map((s) => `<button class="btn-text-sm" onclick="openEntry('${s.id}')">${s.label}</button>`).join('')}</div>`
-            : `<button id="btn-similar-refresh" class="btn-text-sm">鬘樔ｼｼ譌･險倥ｒ讀懃ｴ｢</button>`)
-        : `<div class="rank-empty">隧ｲ蠖捺悄髢薙・譌･險倥′縺ゅｊ縺ｾ縺帙ｓ</div>`;
-
-    dom.mypageContainer.innerHTML = `
-        <div class="mypage-stack">
-            <div class="period-selector">
-                <div class="period-buttons">
-                    ${periodButtons.map((btn) => `
-                        <button class="period-btn ${btn.key === periodKey ? 'active' : ''}" data-period="${btn.key}">${btn.label}</button>
-                    `).join('')}
-                </div>
-                <button id="btn-summary-refresh" class="btn-secondary" ${appState.summaryUpdating ? 'disabled' : ''}>${appState.summaryUpdating ? '譖ｴ譁ｰ荳ｭ...' : '隕∫ｴ・ｒ譖ｴ譁ｰ'}</button>
-            </div>
-
-            <div class="stat-card summary-card">
-                <div class="summary-header">
-                    <h3>莉翫・隕∫ｴ・/h3>
-                    <span class="summary-period">${periodConfig.label}</span>
-                </div>
-                <p class="summary-text">${escapeHtml(summaryText)}</p>
-            </div>
-
-            <div class="stats-grid" style="width:100%;">
-                <div class="stat-card"> <i class="fa-solid fa-book stat-icon"></i> <div class="stat-value">${stats.totalCount}</div> <div class="stat-label">譌･險倥・邱乗焚</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-fire stat-icon"></i> <div class="stat-value">${stats.streak}</div> <div class="stat-label">騾｣邯壽兜遞ｿ譌･謨ｰ</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-trophy stat-icon"></i> <div class="stat-value">${stats.longestStreak}</div> <div class="stat-label">譛髟ｷ騾｣邯壽兜遞ｿ譌･謨ｰ</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-keyboard stat-icon"></i> <div class="stat-value">${stats.totalChars.toLocaleString('ja-JP')}</div> <div class="stat-label">謚慕ｨｿ縺ｮ邱乗枚蟄玲焚</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-heart stat-icon"></i> <div class="stat-value">${escapeHtml(topEmotionValue)}</div> <div class="stat-label">諢滓ュTop1</div> </div>
-                <div class="stat-card"> <i class="fa-solid fa-brain stat-icon"></i> <div class="stat-value">${escapeHtml(topPatternValue)}</div> <div class="stat-label">隱咲衍繝代ち繝ｼ繝ｳTop1</div> </div>
-            </div>
-
-            <div class="ranking-grid">
-                <div class="stat-card">
-                    <h4>諢滓ュTop5</h4>
-                    ${renderRankList(emotionTop5, '')}
-                </div>
-                <div class="stat-card">
-                    <h4>隱咲衍繝代ち繝ｼ繝ｳTop5</h4>
-                    ${renderRankList(patternTop5, '')}
-                </div>
-                <div class="stat-card">
-                    <h4>鬆ｻ蜃ｺ繝医ヴ繝・けTop10</h4>
-                    ${renderRankList(topicTop10, '')}
-                </div>
-            </div>
-
-            <div class="stats-grid" style="width:100%;">
-                <div class="stat-card">
-                    <h4>MBTI</h4>
-                    <div class="mbti-row">
-                        <select id="mbti-select" class="filter-input">
-                            <option value="">譛ｪ險ｭ螳・/option>
-                            ${MBTI_TYPES.map((type) => `<option value="${type}">${type}</option>`).join('')}
-                        </select>
-                        <div class="mbti-note">莉ｻ諢上り・蟾ｱ逕ｳ蜻翫・陬懷勧諠・ｱ縺ｨ縺励※菴ｿ逕ｨ縺励∪縺吶・/div>
-                        <div class="mbti-current">迴ｾ蝨ｨ: ${escapeHtml(mbtiDisplay)}</div>
-                        <div class="analysis-text">諤ｧ譬ｼ縺ｮ迚ｹ蠕ｴ: ${escapeHtml(mbtiInsight)}</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <h4>譌･險倥°繧芽ｪｭ縺ｿ蜿悶ｌ繧区ｧ譬ｼ險ｺ譁ｭ・域耳螳夲ｼ・/h4>
-                    <p class="analysis-text">${escapeHtml(personalityInsight)}</p>
-                </div>
-                <div class="stat-card">
-                    <h4>諤ｧ譬ｼ縺ｮ蛯ｾ蜷禅op3</h4>
-                    ${renderRankList(traitTop3, '')}
-                </div>
-            </div>
-
-            <div class="stat-card pattern-catalog-card">
-                <h4>隱咲衍繝代ち繝ｼ繝ｳ荳隕ｧ</h4>
-                <p class="pattern-catalog-note">蝗ｺ螳・2遞ｮ鬘槭・隱ｬ譏弱〒縺吶・/p>
-                <ul class="pattern-catalog">${patternCatalogHtml}</ul>
-            </div>
-
-            <div class="stat-card themes-card">
-                <h4>郢ｰ繧願ｿ斐＠繝・・繝杁op3</h4>
-                <div class="themes-list">
-                    ${themes.length ? themes.map((t) => `<span class="tag">${escapeHtml(stripParenthetical(t))}</span>`).join('') : '<span class="rank-empty">譛ｪ譖ｴ譁ｰ</span>'}
-                </div>
-            </div>
-
-            <div class="stat-card similar-card">
-                <h4>譛霑代・莨ｼ縺ｦ縺・ｋ譌･</h4>
-                ${similarHtml}
-            </div>
-        </div>
-    `;
-
-    const periodBtns = dom.mypageContainer.querySelectorAll('.period-btn');
-    periodBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-            appState.period = btn.dataset.period || '7d';
-            renderMyPage();
-        });
-    });
-
-    const summaryBtn = dom.mypageContainer.querySelector('#btn-summary-refresh');
-    if (summaryBtn) {
-        summaryBtn.addEventListener('click', () => requestSummaryUpdate(periodKey, periodConfig.label, stats));
-    }
-
-    const mbtiSelect = dom.mypageContainer.querySelector('#mbti-select');
-    if (mbtiSelect) {
-        mbtiSelect.value = mbtiValue;
-        mbtiSelect.addEventListener('change', async () => {
-            await saveUserProfile({ mbti: mbtiSelect.value });
-            renderMyPage();
-        });
-    }
-
-    const similarBtn = dom.mypageContainer.querySelector('#btn-similar-refresh');
-    if (similarBtn && latestEntry) {
-        similarBtn.addEventListener('click', () => fetchSimilarForEntryById(latestEntry.id));
-    }
-}
-
-// --- Editor Logic ---
-
-function openEntry(entryId = null, targetDate = null) {
-    appState.activeEntryId = entryId;
-    currentUploadImage = null;
-    navigateTo('editor');
-
-    if (dom.lockOverlay) dom.lockOverlay.classList.add('hidden');
-    if (dom.inputUnlockPass) dom.inputUnlockPass.value = '';
-
-    if (entryId) {
-        const entry = appState.entries.find(e => e.id === entryId);
-        if (!entry) return navigateTo('list');
-
-        currentUploadImage = entry.image || null;
-        appState.writingDate = getEntryDate(entry);
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '\u30b8\u30e3\u30fc\u30ca\u30eb';
-        if (dom.displayDate) {
-            dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-check"></i> ${formatDate(getEntryDate(entry))} <span style="font-size:0.8em; margin-left:10px;">${formatTime(getEntryDate(entry))}</span>`;
-        }
-        if (dom.selectLockStatus) dom.selectLockStatus.value = entry.isLocked ? 'locked' : 'unlocked';
-        const journal = getJournalFromEntry(entry);
-        fillJournalInputs(journal);
-        fillJournalDisplays(journal);
-        if (dom.journalSections) dom.journalSections.classList.remove('hidden');
-
-        if (entry.isLocked) {
-            toggleEditMode(false);
-            if (dom.contentDisplayText) dom.contentDisplayText.classList.add('hidden');
-            if (dom.lockOverlay) dom.lockOverlay.classList.remove('hidden');
-            if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
-            if (dom.btnEditEntry) dom.btnEditEntry.style.display = 'none';
-            if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'none';
-            if (dom.journalSections) dom.journalSections.classList.add('hidden');
-        } else {
-            if (dom.contentDisplayText) dom.contentDisplayText.textContent = entry.content;
-            toggleEditMode(false);
-            if (entry.image) {
-                if (dom.imagePreview) dom.imagePreview.src = entry.image;
-                if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.remove('hidden');
-            } else if (dom.imagePreviewContainer) {
-                dom.imagePreviewContainer.classList.add('hidden');
-            }
-        }
-
-        if (dom.displayScore) dom.displayScore.innerHTML = '';
-        renderAnalysisPanel(entry);
-    } else {
-        appState.writingDate = targetDate || new Date();
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb';
-        if (dom.displayDate) dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-plus"></i> ${formatDate(appState.writingDate)}`;
-        if (dom.selectLockStatus) dom.selectLockStatus.value = 'unlocked';
-        if (dom.inputContent) dom.inputContent.value = '';
-        clearJournalFields();
-        if (dom.displayScore) dom.displayScore.innerHTML = '';
-        if (dom.entryImageInput) dom.entryImageInput.value = '';
-        if (dom.imagePreview) dom.imagePreview.src = '';
-        if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.add('hidden');
-        if (dom.analysisPanel) dom.analysisPanel.innerHTML = '';
-        if (dom.journalSections) dom.journalSections.classList.remove('hidden');
-        toggleEditMode(true);
-        setTimeout(() => {
-            if (dom.inputContent) {
-                dom.inputContent.focus();
-                if (autoResizeTextarea) autoResizeTextarea();
-            }
-            resizeAllJournalTextareas();
-        }, 100);
-    }
-}
-
-function toggleEditMode(isEdit) {
-    if (isEdit) {
-        if (dom.inputContent) dom.inputContent.classList.remove('hidden');
-        if (dom.contentDisplayText) dom.contentDisplayText.classList.add('hidden');
-        setJournalEditMode(true);
-        if (dom.btnSave) dom.btnSave.classList.remove('hidden');
-        if (dom.btnEditEntry) dom.btnEditEntry.style.display = 'none';
-        if (dom.btnUploadImage) dom.btnUploadImage.classList.remove('hidden');
-        if (dom.btnRemoveImage) dom.btnRemoveImage.classList.remove('hidden');
-        if (dom.selectLockStatus) dom.selectLockStatus.disabled = false;
-        if (appState.activeEntryId) {
-            const entry = appState.entries.find(e => e.id === appState.activeEntryId);
-            if (entry) {
-                if (dom.inputContent) dom.inputContent.value = entry.content;
-                const journal = getJournalFromEntry(entry);
-                fillJournalInputs(journal);
-                if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
-                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb';
-            }
-            if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'inline-flex';
-        } else {
-            if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
-            if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb';
-        }
-        setTimeout(() => {
-            if (autoResizeTextarea) autoResizeTextarea();
-            resizeAllJournalTextareas();
-        }, 10);
-    } else {
-        if (dom.inputContent) dom.inputContent.classList.add('hidden');
-        if (dom.contentDisplayText) dom.contentDisplayText.classList.remove('hidden');
-        setJournalEditMode(false);
-        if (dom.btnSave) dom.btnSave.classList.add('hidden');
-        if (dom.btnEditEntry) dom.btnEditEntry.style.display = 'inline-flex';
-        if (dom.btnUploadImage) dom.btnUploadImage.classList.add('hidden');
-        if (dom.btnRemoveImage) dom.btnRemoveImage.classList.add('hidden');
-        if (dom.selectLockStatus) dom.selectLockStatus.disabled = true;
-        if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'none';
-        if (appState.activeEntryId) {
-            const entry = appState.entries.find(e => e.id === appState.activeEntryId);
-            if (entry && dom.contentDisplayText) dom.contentDisplayText.textContent = entry.content;
-            if (entry) {
-                const journal = getJournalFromEntry(entry);
-                fillJournalDisplays(journal);
-            }
-        }
-    }
-}
-
-function unlockEntry() {
-    const pass = dom.inputUnlockPass.value;
-    if (pass === appState.masterPassword) {
-        const entry = appState.entries.find(e => e.id === appState.activeEntryId);
-        if (entry) {
-            if (dom.lockOverlay) dom.lockOverlay.classList.add('hidden');
-            if (dom.contentDisplayText) dom.contentDisplayText.textContent = entry.content;
-            toggleEditMode(false);
-            if (entry.image) {
-                if (dom.imagePreview) dom.imagePreview.src = entry.image;
-                if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.remove('hidden');
-            }
-            renderAnalysisPanel(entry);
-        }
-    } else {
-        showToast('\u30d1\u30b9\u30ef\u30fc\u30c9\u304c\u9055\u3044\u307e\u3059', 'error');
-    }
-}
-
-async function retryAnalysisHelper(entryId) {
-    const entry = appState.entries.find(e => e.id === entryId);
-    if (!entry) return;
-    await runAnalysisForEntry(entry, true);
-}
-
-async function handleImageUpload(file) {
-    if (!file) return;
-    try {
-        const compressed = await compressImage(file, 800, 0.7);
-        currentUploadImage = compressed;
-        if (dom.imagePreview) dom.imagePreview.src = compressed;
-        if (dom.imagePreviewContainer) dom.imagePreviewContainer.classList.remove('hidden');
-    } catch (e) {
-        showToast('\u753b\u50cf\u306e\u8aad\u307f\u8fbc\u307f\u306b\u5931\u6557\u3057\u307e\u3057\u305f', 'error');
-    }
-}
-
-function compressImage(file, maxWidth, quality) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let w = img.width, h = img.height;
-                if (w > maxWidth) { h *= maxWidth / w; w = maxWidth; }
-                canvas.width = w; canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-                resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.onerror = reject; img.src = e.target.result;
-        };
-        reader.onerror = reject; reader.readAsDataURL(file);
-    });
-}
-
-function renderAnalysisPanel(entry) {
-    if (!dom.analysisPanel) return;
-    if (!entry) {
-        dom.analysisPanel.innerHTML = '';
-        return;
-    }
-    if (entry.isLocked) {
-        dom.analysisPanel.innerHTML = '<div class="analysis-status">繝ｭ繝・け荳ｭ</div>';
-        return;
-    }
-
-    const analysis = appState.analysisById[entry.id];
-    const status = appState.analysisStatusById[entry.id] || (analysis ? 'done' : 'none');
-
-    if (status === 'processing') {
-        dom.analysisPanel.innerHTML = '<div class="analysis-status">隗｣譫蝉ｸｭ...</div>';
-        return;
-    }
-
-    if (status === 'failed') {
-        dom.analysisPanel.innerHTML = `
-            <div class="analysis-status">隗｣譫舌↓螟ｱ謨励＠縺ｾ縺励◆</div>
-            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">隗｣譫舌ｒ蜀崎ｩｦ陦・/button>
-        `;
-        return;
-    }
-
-    if (!analysis) {
-        dom.analysisPanel.innerHTML = `
-            <div class="analysis-status">隗｣譫舌′縺ｾ縺縺ゅｊ縺ｾ縺帙ｓ</div>
-            <button class="btn-secondary" onclick="retryAnalysisHelper('${entry.id}')">隗｣譫舌ｒ螳溯｡・/button>
-        `;
-        return;
-    }
-
-    const topEmotion = getTopEmotion(analysis);
-    const emotionLabel = topEmotion ? EMOTION_LABELS[topEmotion.key] : '荳肴・';
-    const emotionScore = topEmotion ? Math.round(topEmotion.intensity || 0) : null;
-    const summaryText = (analysis.observation_comment || '').trim();
-    const summarySafe = summaryText
-        ? escapeHtml(summaryText)
-        : `縲・{emotionLabel}縲阪′荳ｭ蠢・・險倬鹸縺ｧ縺吶Ａ;
-
-    const facts = (analysis.facts || []).map(escapeHtml);
-    const story = (analysis.story || []).map(escapeHtml);
-    const emotions = (analysis.emotions || []).map((e) => {
-        const key = normalizeEmotionKey(e.label || e.primary || e.emotion);
-        const name = key ? EMOTION_LABELS[key] : (e.label || '荳肴・');
-        const intensity = Math.round(e.intensity_0_100 || 0);
-        const certainty = e.certainty_0_1 != null ? Number(e.certainty_0_1).toFixed(2) : null;
-        return `${escapeHtml(name)}${Number.isFinite(intensity) ? ` ${intensity}轤ｹ` : ''}${certainty ? ` (遒ｺ蠎ｦ ${certainty})` : ''}`;
-    });
-    const patternsList = Array.isArray(analysis.patterns)
-        ? analysis.patterns
-        : (analysis.patterns ? Object.values(analysis.patterns) : []);
-    const sortedPatterns = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
-    const matchedPatterns = sortedPatterns
-        .map((p) => ({ entry: getPatternEntry(p), raw: p }))
-        .filter((item) => item.entry);
-    const patterns = matchedPatterns.map(({ entry, raw }) => {
-        const conf = typeof raw === 'object' && raw !== null && raw.confidence_0_1 != null
-            ? Number(raw.confidence_0_1).toFixed(2)
-            : null;
-        const meta = conf ? `遒ｺ蠎ｦ ${conf}` : '';
-        return `
-            <li class="pattern-item">
-                <div class="pattern-label">${escapeHtml(entry.label)}${meta ? ` <span class="pattern-meta">${meta}</span>` : ''}</div>
-                ${entry.desc ? `<div class="pattern-desc">${escapeHtml(entry.desc)}</div>` : ''}
-            </li>
-        `;
-    });
-    const patternsHtml = patterns.length
-        ? patterns.join('')
-        : '<li class="pattern-empty">隧ｲ蠖薙↑縺・/li>';
-    const habitInsight = buildHabitInsight(sortedPatterns);
-    const nextStep = buildNextStepSuggestion(analysis, sortedPatterns);
-    const topics = extractTopics(entry);
-
-    const similar = appState.similarById[entry.id] || [];
-    const similarHtml = similar.length
-        ? similar.map((s) => {
-            const ref = appState.entries.find(e => e.id === s.entry_id);
-            const label = ref ? escapeHtml(ref.content || '').slice(0, 40) : s.entry_id;
-            return `<button class="btn-text-sm" onclick="openEntry('${s.entry_id}')">${label}</button>`;
-        }).join('')
-        : `<button class="btn-text-sm" onclick="fetchSimilarForEntryById('${entry.id}')">鬘樔ｼｼ繧呈､懃ｴ｢</button>`;
-
-    dom.analysisPanel.innerHTML = `
-        <div class="analysis-block">
-            <div class="analysis-summary">
-                <div class="analysis-summary-header">
-                    <div>
-                        <div class="analysis-title">莉頑律縺ｮ豌怜・</div>
-                        <div class="analysis-emotion">${emotionLabel}${emotionScore != null ? ` <span class="analysis-emotion-score">${emotionScore}轤ｹ</span>` : ''}</div>
-                    </div>
-                    <div class="analysis-actions">
-                        <button class="btn-text-sm" onclick="retryAnalysisHelper('${entry.id}')">蜀崎ｧ｣譫・/button>
-                    </div>
-                </div>
-                <div class="analysis-summary-text">${summarySafe}</div>
-            </div>
-        </div>
-        <div class="analysis-block">
-            <div class="analysis-title">莨ｼ縺ｦ縺・ｋ譌･險・/div>
-            <div class="analysis-similar">${similarHtml}</div>
-        </div>
-        <div class="analysis-block analysis-details is-open" id="analysis-details-${entry.id}">
-            <div class="analysis-detail-grid">
-                <div class="analysis-detail">
-                    <h4>諢滓ュ縺ｮ蜀・ｨｳ</h4>
-                    <ul class="analysis-list">${emotions.map(f => `<li>${f}</li>`).join('') || '<li>縺ｪ縺・/li>'}</ul>
-                </div>
-                <div class="analysis-detail">
-                    <h4>隱咲衍繝代ち繝ｼ繝ｳ</h4>
-                    <ul class="analysis-list">${patternsHtml}</ul>
-                </div>
-                <div class="analysis-detail">
-                    <h4>閠・∴譁ｹ縺ｮ逋・/h4>
-                    <p class="analysis-text">${escapeHtml(habitInsight)}</p>
-                </div>
-                <div class="analysis-detail">
-                    <h4>谺｡縺ｮ荳豁ｩ</h4>
-                    <p class="analysis-text">${escapeHtml(nextStep)}</p>
-                </div>
-                <div class="analysis-detail">
-                    <h4>鬆ｻ蜃ｺ繝医ヴ繝・け</h4>
-                    <div class="analysis-tags">${topics.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('') || '<span class="tag">隧ｲ蠖薙↑縺・/span>'}</div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-function toggleAnalysisDetails(entryId) {
-    const details = document.getElementById(`analysis-details-${entryId}`);
-    if (!details) return;
-    details.classList.toggle('is-open');
-    const btn = dom.analysisPanel ? dom.analysisPanel.querySelector(`[data-analysis-toggle="${entryId}"]`) : null;
-    if (btn) {
-        btn.textContent = details.classList.contains('is-open') ? '隧ｳ邏ｰ繧帝哩縺倥ｋ' : '隧ｳ邏ｰ繧定ｦ九ｋ';
-    }
-}
-async function saveAnalysisResultToFirestore(entryId, analysis) {
-    const db = window.db;
-    if (!db || !appState.user || !analysis) return false;
-    const payload = {
-        ...analysis,
-        entry_id: entryId,
-        user_id: appState.user.uid,
-        analysis_version: analysis.analysis_version || 'soos-v1',
-        created_at: analysis.created_at || new Date().toISOString()
-    };
-    try {
-        await db.collection('diary_analysis').doc(entryId).set(payload, { merge: true });
-        return true;
-    } catch (e) {
-        console.error('[save] diary_analysis failed', { stage: 'analysis', code: e.code, message: e.message });
-        return false;
-    }
-}
-
-async function saveEmbeddingResultToFirestore(entryId, embedding) {
-    const db = window.db;
-    if (!db || !appState.user || !Array.isArray(embedding)) return false;
-    const payload = {
-        entry_id: entryId,
-        user_id: appState.user.uid,
-        embedding,
-        created_at: new Date().toISOString()
-    };
-    try {
-        await db.collection('diary_embeddings').doc(entryId).set(payload, { merge: true });
-        return true;
-    } catch (e) {
-        console.error('[save] diary_embeddings failed', { stage: 'embedding', code: e.code, message: e.message });
-        return false;
-    }
-}
-
-async function runFallbackAnalysis(entry) {
-    try {
-        const result = await apiPost('/api/analyze-lite', {
-            entry_id: entry.id,
-            user_id: appState.user.uid,
-            text: entry.content,
-            created_at: getEntryDate(entry).toISOString()
-        }, { timeoutMs: 8000 });
-
-        if (result.analysis) {
-            appState.analysisById[entry.id] = result.analysis;
-        }
-        if (result.similar) {
-            appState.similarById[entry.id] = result.similar;
-        }
-
-        let analysisSaved = true;
-        let embeddingSaved = true;
-        if (result.analysis) {
-            analysisSaved = await saveAnalysisResultToFirestore(entry.id, result.analysis);
-        }
-        if (result.embedding) {
-            embeddingSaved = await saveEmbeddingResultToFirestore(entry.id, result.embedding);
-        }
-
-        console.info('[save] analysis fallback result', { entryId: entry.id, analysisSaved, embeddingSaved });
-        appState.analysisStatusById[entry.id] = 'done';
-        renderAnalysisPanel(entry);
-
-        if (!analysisSaved || !embeddingSaved) {
-            showToast('隗｣譫舌・菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆', 'error');
-        }
-        return true;
-    } catch (e) {
-        console.error('[save] analysis fallback failed', { entryId: entry.id, message: e.message });
-        return false;
-    }
-}
-
-async function runAnalysisForEntry(entry, force = false) {
-    if (!entry || !entry.content) return false;
-    if (!appState.user) return false;
-    if (!force && appState.analysisById[entry.id]) return true;
-    if (appState.analysisStatusById[entry.id] === 'processing') return false;
-
-    appState.analysisStatusById[entry.id] = 'processing';
-    renderAnalysisPanel(entry);
-
-    try {
-        console.info('[save] analysis start', { entryId: entry.id });
-        const result = await apiPost('/api/analyze', {
-            entry_id: entry.id,
-            user_id: appState.user.uid,
-            text: entry.content,
-            created_at: getEntryDate(entry).toISOString()
-        }, { timeoutMs: 20000 });
-        if (result.analysis) {
-            appState.analysisById[entry.id] = result.analysis;
-        }
-        if (result.similar) {
-            appState.similarById[entry.id] = result.similar;
-        }
-        let analysisSaved = result.analysis_saved !== false;
-        let embeddingSaved = result.embedding_saved !== false;
-        if (!analysisSaved && result.analysis) {
-            analysisSaved = await saveAnalysisResultToFirestore(entry.id, result.analysis);
-        }
-        if (!embeddingSaved && result.embedding) {
-            embeddingSaved = await saveEmbeddingResultToFirestore(entry.id, result.embedding);
-        }
-        console.info('[save] analysis result', { entryId: entry.id, analysisSaved, embeddingSaved });
-        if (!analysisSaved || !embeddingSaved) {
-            appState.analysisStatusById[entry.id] = 'failed';
-            renderAnalysisPanel(entry);
-            showToast('譌･險倥・菫晏ｭ俶ｸ医∩縺ｧ縺吶りｧ｣譫舌・縺ｿ螟ｱ謨励＠縺ｾ縺励◆縲ょ・隧ｦ陦後〒縺阪∪縺吶・, 'error');
-            return false;
-        }
-        appState.analysisStatusById[entry.id] = 'done';
-        refreshFilterOptions();
-        renderAnalysisPanel(entry);
-        return true;
-    } catch (e) {
-        appState.analysisStatusById[entry.id] = 'failed';
-        renderAnalysisPanel(entry);
-        let msg = '\u89e3\u6790\u306b\u5931\u6557\u3057\u307e\u3057\u305f';
-        if (e.message === 'api_base_missing') {
-            msg = 'API Base URL\u304c\u672a\u8a2d\u5b9a\u3067\u3059';
-        } else if (e.message === 'api_timeout') {
-            const ok = await runFallbackAnalysis(entry);
-            if (ok) return true;
-            msg = '\u89e3\u6790\u304c\u30bf\u30a4\u30e0\u30a2\u30a6\u30c8\u3057\u307e\u3057\u305f';
-        }
-        let errInfo = {};
-        try { errInfo = JSON.parse(e.message); } catch (_) { errInfo = {}; }
-        console.error('[save] analysis failed', { entryId: entry.id, code: errInfo.error || e.code, stage: errInfo.stage || 'analysis', message: e.message });
-        showToast(msg, 'error');
-        return false;
-    }
-}
-
-async function fetchSimilarForEntryById(entryId) {
-    const entry = appState.entries.find(e => e.id === entryId);
-    if (!entry || !appState.user) return;
-    try {
-        const result = await apiPost('/api/similar', {
-            entry_id: entry.id,
-            user_id: appState.user.uid,
-            limit: 3
-        });
-        appState.similarById[entry.id] = result.similar || [];
-        renderAnalysisPanel(entry);
-    } catch (e) {
-        showToast('\u985e\u4f3c\u691c\u7d22\u306b\u5931\u6557\u3057\u307e\u3057\u305f', 'error');
-    }
-}
-
-function renderEmotionWheel(emotionData) {
-    const key = normalizeEmotionKey(emotionData.primary);
-    const label = key ? EMOTION_LABELS[key] : '荳肴・';
-    const markers = key ? [{ key, size: 14, opacity: 1 }] : [];
-    const chart = renderEmotionImage(markers);
-
-    return `
-        <div class="emotion-wheel-wrap">
-            ${chart}
-            <div class="emotion-caption">諢滓ュ: <strong>${label}</strong></div>
-        </div>
-    `;
-}
-
-function getEmotionPlotPosition(key) {
-    const idx = EMOTION_ORDER.indexOf(key);
-    if (idx < 0) return { x: 50, y: 50 };
-    const angleDeg = -90 + (idx * 45);
-    const rad = angleDeg * Math.PI / 180;
-    const r = 38;
-    return {
-        x: 50 + (Math.cos(rad) * r),
-        y: 50 + (Math.sin(rad) * r)
-    };
-}
-
-function renderEmotionImage(markers) {
-    const markerHtml = markers.map((m) => {
-        const pos = getEmotionPlotPosition(m.key);
-        const size = m.size || 10;
-        const color = EMOTION_COLORS[m.key] || '#999999';
-        const opacity = m.opacity == null ? 1 : m.opacity;
-        return `<span class="emotion-marker" style="left:${pos.x.toFixed(2)}%; top:${pos.y.toFixed(2)}%; width:${size}px; height:${size}px; background:${color}; opacity:${opacity};"></span>`;
-    }).join('');
-
-    return `
-        <div class="emotion-image-wrap">
-            <img src="${EMOTION_IMAGE_PATH}" alt="繝励Ν繝√ャ繧ｯ縺ｮ諢滓ュ縺ｮ霈ｪ" class="emotion-image">
-            <div class="emotion-marker-layer">${markerHtml}</div>
-        </div>
-    `;
-}
-
-function getTopEmotion(analysis) {
-    if (!analysis || !Array.isArray(analysis.emotions) || analysis.emotions.length === 0) return null;
-    const sorted = [...analysis.emotions].sort((a, b) => (b.intensity_0_100 || 0) - (a.intensity_0_100 || 0));
-    const top = sorted[0];
-    const key = normalizeEmotionKey(top.label || top.emotion || top.primary);
-    return key ? { key, intensity: top.intensity_0_100 || 0 } : null;
-}
-
-function getTopPattern(analysis) {
-    if (!analysis || !analysis.patterns) return null;
-    const patternsList = Array.isArray(analysis.patterns)
-        ? analysis.patterns
-        : Object.values(analysis.patterns);
-    if (!patternsList.length) return null;
-    const sorted = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
-    const top = sorted[0];
-    const entry = getPatternEntry(top);
-    return entry ? entry.label : (top.label || top.pattern_id || null);
-}
-
-function extractTopics(entry) {
-    const base = `${entry?.content || ''}`;
-    if (!base.trim()) return [];
-    const normalized = base.replace(/\s+/g, '');
-    const topics = [];
-    Object.keys(TOPIC_KEYWORDS).forEach((topic) => {
-        const keywords = TOPIC_KEYWORDS[topic] || [];
-        if (keywords.some((kw) => normalized.includes(kw))) {
-            topics.push(topic);
-        }
-    });
-    return topics;
-}
-
-function buildNextStepSuggestion(analysis, patternsList) {
-    const topEmotion = getTopEmotion(analysis);
-    const topPatternEntry = patternsList && patternsList.length ? getPatternEntry(patternsList[0]) : null;
-    const patternId = topPatternEntry ? topPatternEntry.id : null;
-
-    const patternSuggestions = {
-        jump_to_conclusion: '邨占ｫ悶ｒ蜃ｺ縺吝燕縺ｫ縲∽ｺ句ｮ溘ｒ1縺､縺縺題ｿｽ蜉縺ｧ遒ｺ隱阪＠縺ｦ縺ｿ繧九・,
-        overgeneralization: '莉頑律縺ｮ蜃ｺ譚･莠九・萓句､悶ｒ1縺､譖ｸ縺榊・縺励※縺ｿ繧九・,
-        black_and_white: '逋ｽ鮟剃ｻ･螟悶・荳ｭ髢薙・驕ｸ謚櫁い繧・縺､閠・∴縺ｦ縺ｿ繧九・,
-        emotional_reasoning: '豌怜・縺ｨ莠句ｮ溘ｒ蛻・￠縺ｦ1陦後★縺､譖ｸ縺・※縺ｿ繧九・,
-        self_blame: '閾ｪ蛻・・隕∝屏縺ｨ螟也噪隕∝屏繧貞・縺代※謨ｴ逅・＠縺ｦ縺ｿ繧九・,
-        mind_reading: '逶ｸ謇九↓遒ｺ隱阪〒縺阪ｋ莠句ｮ溘□縺代ｒ譖ｸ縺榊・縺励※縺ｿ繧九・,
-        catastrophizing: '譛謔ｪ縺ｨ譛濶ｯ縺ｮ2繝代ち繝ｼ繝ｳ繧呈嶌縺・※蟷・ｒ菴懊ｋ縲・,
-        magnification_minimization: '濶ｯ縺九▲縺溽せ繧・縺､蜷後§驥阪＆縺ｧ譖ｸ縺・※縺ｿ繧九・,
-        should_statements: '縲後懊☆縺ｹ縺阪阪ｒ縲後懊＠縺溘＞縲阪↓險縺・鋤縺医※縺ｿ繧九・,
-        negative_filter: '濶ｯ縺九▲縺溽せ繧・縺､縺縺題ｿｽ蜉縺ｧ譖ｸ縺・※縺ｿ繧九・,
-        comparison_inferiority: '閾ｪ蛻・渕貅悶〒縺ｧ縺阪◆縺薙→繧・縺､譖ｸ縺・※縺ｿ繧九・,
-        avoidance_procrastination: '5蛻・□縺醍捩謇九☆繧句ｰ上＆縺ｪ荳豁ｩ繧呈ｱｺ繧√ｋ縲・
-    };
-    if (patternId && patternSuggestions[patternId]) return patternSuggestions[patternId];
-
-    if (!topEmotion) return '蟆上＆縺ｪ陦悟虚繧・縺､豎ｺ繧√※螳溯｡後＠縺ｦ縺ｿ繧九・;
-    switch (topEmotion.key) {
-        case 'sadness':
-            return '莉頑律縺ｯ莨第・繧・屓蠕ｩ繧貞━蜈医☆繧区凾髢薙ｒ菴懊▲縺ｦ縺ｿ繧九・;
-        case 'fear':
-            return '荳榊ｮ峨・豁｣菴薙ｒ1陦後〒譖ｸ縺榊・縺励※縺ｿ繧九・;
-        case 'anger':
-            return '關ｽ縺｡逹縺上◆繧√↓荳蠎ｦ豺ｱ蜻ｼ蜷ｸ縺励※霍晞屬繧堤ｽｮ縺上・;
-        case 'joy':
-            return '螫峨＠縺九▲縺溽炊逕ｱ繧・縺､谿九＠縺ｦ縺ｿ繧九・;
-        case 'anticipation':
-            return '譛溷ｾ・＠縺ｦ縺・ｋ縺薙→縺ｫ蜷代￠縺ｦ蟆上＆縺ｪ貅門ｙ繧偵☆繧九・;
-        case 'trust':
-            return '菫｡鬆ｼ縺ｧ縺阪ｋ莠ｺ縺ｨ縺ｮ髢｢菫ゅｒ1縺､謖ｯ繧願ｿ斐ｋ縲・;
-        case 'surprise':
-            return '鬩壹＞縺溽せ繧・縺､蟄ｦ縺ｳ縺ｫ螟峨∴縺ｦ縺ｿ繧九・;
-        case 'disgust':
-            return '雖後□縺｣縺溽せ縺ｨ霍晞屬繧貞叙繧区婿豕輔ｒ1縺､閠・∴繧九・;
-        default:
-            return '蟆上＆縺ｪ陦悟虚繧・縺､豎ｺ繧√※螳溯｡後＠縺ｦ縺ｿ繧九・;
-    }
-}
-
-function buildDiaryPersonalityInsight(stats) {
-    if (!stats || !stats.analyzedCount) {
-        return '蛻・梵繝・・繧ｿ縺後∪縺縺ゅｊ縺ｾ縺帙ｓ縲よ律險倥′蠅励∴繧九⊇縺ｩ蛯ｾ蜷代′隕九∴縺ｦ縺阪∪縺吶・;
-    }
-    if (stats.traitsSorted && stats.traitsSorted.length) {
-        const top = stats.traitsSorted.slice(0, 2).map((t) => t.label);
-        if (top.length === 1) {
-            return `譌･險倥°繧峨・縲・{top[0]}縲阪・蛯ｾ蜷代′遨阪∩荳翫′縺｣縺ｦ縺・∪縺吶Ａ;
-        }
-        return `譌･險倥°繧峨・縲・{top[0]}縲阪・{top[1]}縲阪・蛯ｾ蜷代′遨阪∩荳翫′縺｣縺ｦ縺・∪縺吶Ａ;
-    }
-    const parts = [];
-    const topEmotion = stats.emotionsSorted[0];
-    const topPattern = stats.patternsSorted[0];
-    const topTopic = stats.topicsSorted[0];
-
-    if (topEmotion) {
-        const label = EMOTION_LABELS[topEmotion.key] || topEmotion.key;
-        parts.push(`諢滓ュ縺ｯ縲・{label}縲阪′螟壹ａ`);
-    }
-    if (topPattern) {
-        parts.push(`隱咲衍繝代ち繝ｼ繝ｳ縺ｯ縲・{topPattern.label}縲阪′逶ｮ遶九▽`);
-    }
-    if (topTopic) {
-        parts.push(`縲・{topTopic.label}縲阪′繧医￥逋ｻ蝣ｴ縺吶ｋ`);
-    }
-
-    return parts.length
-        ? `${parts.join('縲・)}蛯ｾ蜷代′縺ゅｊ縺ｾ縺吶Ａ
-        : '蛻・梵邨先棡縺ｯ縺ゅｊ縺ｾ縺吶′縲∝だ蜷代′縺ｾ縺螳牙ｮ壹＠縺ｦ縺・∪縺帙ｓ縲・;
-}
-
-function getMbtiInsight(mbti) {
-    if (!mbti) return 'MBTI繧定ｨｭ螳壹☆繧九→縺薙％縺ｫ陦ｨ遉ｺ縺輔ｌ縺ｾ縺吶・;
-    return MBTI_TRAITS[mbti] || '縺薙・MBTI縺ｮ隱ｬ譏弱・譛ｪ逋ｻ骭ｲ縺ｧ縺吶・;
-}
-
-function buildHabitInsight(patternsList) {
-    if (!patternsList || !patternsList.length) return '隧ｲ蠖薙↑縺・;
-    const sorted = [...patternsList].sort((a, b) => (b.confidence_0_1 || 0) - (a.confidence_0_1 || 0));
-    const labels = [];
-    for (const p of sorted) {
-        const entry = getPatternEntry(p);
-        const id = entry ? entry.id : null;
-        const rawLabel = typeof p === 'string' ? p : (p.label || p.pattern_id || '');
-        const label = id && PERSONALITY_TRAIT_MAP[id]
-            ? PERSONALITY_TRAIT_MAP[id]
-            : (entry ? entry.label : rawLabel);
-        if (label && !labels.includes(label)) labels.push(label);
-        if (labels.length >= 2) break;
-    }
-    if (!labels.length) return '隧ｲ蠖薙↑縺・;
-    if (labels.length === 1) {
-        return `譌･險倥°繧峨・縲・{labels[0]}縲阪→縺・≧蛯ｾ蜷代′隕九ｉ繧後ｋ蜿ｯ閭ｽ諤ｧ縺後≠繧翫∪縺吶Ａ;
-    }
-    return `譌･險倥°繧峨・縲・{labels[0]}縲阪・{labels[1]}縲阪→縺・≧蛯ｾ蜷代′隕九ｉ繧後ｋ蜿ｯ閭ｽ諤ｧ縺後≠繧翫∪縺吶Ａ;
-}
-
-function getFilteredEntries() {
-    let list = appState.entries || [];
-
-    if (appState.filterByDate) {
-        const target = appState.filterByDate.toDateString();
-        list = list.filter(e => getEntryDate(e).toDateString() === target);
-    }
-
-    if (appState.filters.dateFrom) {
-        const from = new Date(appState.filters.dateFrom);
-        list = list.filter(e => getEntryDate(e) >= from);
-    }
-    if (appState.filters.dateTo) {
-        const to = new Date(appState.filters.dateTo);
-        to.setHours(23, 59, 59, 999);
-        list = list.filter(e => getEntryDate(e) <= to);
-    }
-
-    if (appState.filters.emotion && appState.filters.emotion !== 'all') {
-        list = list.filter(e => {
-            const analysis = appState.analysisById[e.id];
-            const top = getTopEmotion(analysis);
-            return top && top.key === appState.filters.emotion;
-        });
-    }
-
-    if (appState.filters.pattern && appState.filters.pattern !== 'all') {
-        list = list.filter(e => {
-            const analysis = appState.analysisById[e.id];
-            if (!analysis) return false;
-            const patternsList = Array.isArray(analysis.patterns)
-                ? analysis.patterns
-                : (analysis.patterns ? Object.values(analysis.patterns) : []);
-            return patternsList.some((p) => {
-                const entry = getPatternEntry(p);
-                return entry && entry.id === appState.filters.pattern;
-            });
-        });
-    }
-
-    if (appState.filters.trigger) {
-        const q = appState.filters.trigger.toLowerCase();
-        list = list.filter((entry) => {
-            const analysis = appState.analysisById[entry.id];
-            if (!analysis) return false;
-            return extractTopics(entry).some((t) => String(t).toLowerCase().includes(q));
-        });
-    }
-
-    if (appState.filters.query) {
-        const q = appState.filters.query.toLowerCase();
-        list = list.filter(e => (e.content || '').toLowerCase().includes(q));
-    }
-
-    return list;
-}
-
-function renderEntryList() {
-    if (!dom.entryListContainer) return;
-    dom.entryListContainer.innerHTML = '';
-    const filtered = getFilteredEntries();
-
-    if (filtered.length === 0) {
-        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>縺ｾ縺譌･險倥′縺ゅｊ縺ｾ縺帙ｓ</p><button class="btn-primary" onclick="openEntry()">譛蛻昴・繧ｸ繝｣繝ｼ繝翫Ν</button></div>';
-        return;
-    }
-
-    filtered.forEach(entry => {
-        const card = document.createElement('div');
-        card.className = `entry-card ${entry.isLocked ? 'locked' : ''}`;
-        card.onclick = () => openEntry(entry.id);
-        const day = getEntryDate(entry);
-
-        const analysis = appState.analysisById[entry.id];
+                const analysis = appState.analysisById[entry.id];
         const topEmotion = getTopEmotion(analysis);
         const miniSummary = entry.isLocked
-            ? '繝ｭ繝・け荳ｭ'
+            ? 'ロック中'
             : (analysis
-                ? `諢滓ュ: ${topEmotion ? EMOTION_LABELS[topEmotion.key] : '荳肴・'}${topEmotion ? ` (${Math.round(topEmotion.intensity || 0)}轤ｹ)` : ''}`
-                : '隗｣譫舌↑縺・);
+                ? `感情: ${topEmotion ? EMOTION_LABELS[topEmotion.key] : '不明'}${topEmotion ? ` (${Math.round(topEmotion.intensity || 0)}点)` : ''}`
+                : '解析なし');
 
         let contentPrev = entry.content || '...';
-        let cardTitle = entry.title || '\u65e5\u8a18';
+        let cardTitle = entry.title || '日記';
 
         if (entry.isLocked) {
             contentPrev = '<i class="fa-solid fa-lock" style="margin-right:5px;"></i> \u30ed\u30c3\u30af\u4e2d';
@@ -2309,24 +1266,24 @@ function renderMonthlyGoal() {
     const key = getMonthlyGoalKey(date);
     const goals = (appState.userProfile && appState.userProfile.monthlyGoals) ? appState.userProfile.monthlyGoals : {};
     const text = goals[key] || '';
-    dom.monthlyGoalTitle.textContent = `${year}蟷ｴ${month}譛医・逶ｮ讓兪;
+    dom.monthlyGoalTitle.textContent = `${year}年${month}月の目標`;
     if (!appState.user) {
-        dom.monthlyGoalText.textContent = '繝ｭ繧ｰ繧､繝ｳ縺吶ｋ縺ｨ菫晏ｭ倥〒縺阪∪縺・;
+        dom.monthlyGoalText.textContent = 'ログインすると保存できます';
     } else {
-        dom.monthlyGoalText.textContent = text ? text : '譛ｪ險ｭ螳・;
+        dom.monthlyGoalText.textContent = text ? text : '未記入';
     }
 }
 
 async function editMonthlyGoal() {
     if (!appState.user) {
-        showToast('繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞', 'error');
+        showToast('ログインしてください', 'error');
         return;
     }
     const date = appState.calendarDate || new Date();
     const key = getMonthlyGoalKey(date);
     const goals = { ...(appState.userProfile?.monthlyGoals || {}) };
     const current = goals[key] || '';
-    const input = window.prompt('莉頑怦縺ｮ逶ｮ讓吶ｒ蜈･蜉幢ｼ育ｩｺ谺・〒蜑企勁・・, current);
+    const input = window.prompt('月の目標を入力してください（空欄で削除）', current);
     if (input === null) return;
     const value = input.trim();
     if (value) {
@@ -2336,7 +1293,7 @@ async function editMonthlyGoal() {
     }
     await saveUserProfile({ monthlyGoals: goals });
     renderMonthlyGoal();
-    showToast(value ? '逶ｮ讓吶ｒ菫晏ｭ倥＠縺ｾ縺励◆' : '逶ｮ讓吶ｒ蜑企勁縺励∪縺励◆');
+    showToast(value ? '目標を保存しました' : '目標を削除しました');
 }
 
 // --- Utils ---
@@ -2470,6 +1427,13 @@ if (document.readyState === 'loading') {
 } else {
     safeInit();
 }
+
+
+
+
+
+
+
 
 
 
