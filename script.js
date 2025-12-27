@@ -2170,7 +2170,7 @@ function renderEntryList() {
     const filtered = getFilteredEntries();
 
     if (filtered.length === 0) {
-        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>まだ日記がありません</p><button class="btn-primary" onclick="openEntry()">最初のジャーナルを書く</button></div>';
+        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>まだ日記がありません</p><button class="btn-primary" onclick="openEntry()">最初のジャーナル</button></div>';
         return;
     }
 
