@@ -1473,7 +1473,7 @@ function openEntry(entryId = null, targetDate = null) {
 
         currentUploadImage = entry.image || null;
         appState.writingDate = getEntryDate(entry);
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '\u65e5\u8a18\u306e\u8a73\u7d30';
+        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = entry.title || '\u30b8\u30e3\u30fc\u30ca\u30eb\u306e\u8a73\u7d30';
         if (dom.displayDate) {
             dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-check"></i> ${formatDate(getEntryDate(entry))} <span style="font-size:0.8em; margin-left:10px;">${formatTime(getEntryDate(entry))}</span>`;
         }
@@ -1506,7 +1506,7 @@ function openEntry(entryId = null, targetDate = null) {
         renderAnalysisPanel(entry);
     } else {
         appState.writingDate = targetDate || new Date();
-        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65b0\u3057\u3044\u65e5\u8a18';
+        if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65b0\u3057\u3044\u30b8\u30e3\u30fc\u30ca\u30eb';
         if (dom.displayDate) dom.displayDate.innerHTML = `<i class="fa-regular fa-calendar-plus"></i> ${formatDate(appState.writingDate)}`;
         if (dom.selectLockStatus) dom.selectLockStatus.value = 'unlocked';
         if (dom.inputContent) dom.inputContent.value = '';
@@ -1545,12 +1545,12 @@ function toggleEditMode(isEdit) {
                 const journal = getJournalFromEntry(entry);
                 fillJournalInputs(journal);
                 if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
-                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65e5\u8a18\u3092\u7de8\u96c6';
+                if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb\u3092\u7de8\u96c6';
             }
             if (dom.btnDeleteEntry) dom.btnDeleteEntry.style.display = 'inline-flex';
         } else {
             if (dom.btnSave) dom.btnSave.innerHTML = '<i class="fa-solid fa-save"></i> \u4fdd\u5b58';
-            if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u65e5\u8a18\u3092\u66f8\u304f';
+            if (dom.editorTitleLabel) dom.editorTitleLabel.textContent = '\u30b8\u30e3\u30fc\u30ca\u30eb\u3092\u66f8\u304f';
         }
         setTimeout(() => {
             if (autoResizeTextarea) autoResizeTextarea();
@@ -2170,7 +2170,7 @@ function renderEntryList() {
     const filtered = getFilteredEntries();
 
     if (filtered.length === 0) {
-        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>まだ日記がありません</p><button class="btn-primary" onclick="openEntry()">最初の日記を書く</button></div>';
+        dom.entryListContainer.innerHTML = '<div class="empty-state"><i class="fa-solid fa-book-open"></i><p>まだ日記がありません</p><button class="btn-primary" onclick="openEntry()">最初のジャーナルを書く</button></div>';
         return;
     }
 

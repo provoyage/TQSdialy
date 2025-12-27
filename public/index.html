@@ -109,7 +109,7 @@
                     <!-- Entries will be injected here -->
                     <div class="empty-state">
                         <p>まだ日記がありません。</p>
-                        <button class="btn-primary" onclick="openEntry()">最初の日記を書く</button>
+                        <button class="btn-primary" onclick="openEntry()">最初のジャーナルを書く</button>
                     </div>
                 </div>
             </section>
@@ -152,7 +152,7 @@
             <!-- View: Editor -->
             <section id="view-editor" class="view-section hidden">
                 <header class="section-header">
-                    <h2 id="editor-title-label">新しい日記</h2>
+                    <h2 id="editor-title-label">ジャーナル</h2>
                     <div class="editor-actions">
                         <select id="select-lock-status" class="btn-secondary"
                             style="margin-right:auto; border-color:transparent; background:transparent;">
@@ -196,7 +196,7 @@
                                                             <div id="journal-sections" class="journal-grid">
                         <div class="journal-card">
                             <div class="journal-card-header">
-                                <h3>日記を書く</h3>
+                                <h3>ジャーナルを書く</h3>
                                 <span class="journal-card-note">今日の記録</span>
                             </div>
                             <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
@@ -354,7 +354,7 @@
     <script src="firebase-config.js"></script>
 
     <!-- App Logic (No Module) -->
-    <script src="script.js?v=102"></script>
+    <script src="script.js?v=103"></script>
 
     <!-- Global Error Handler -->
     <script>
