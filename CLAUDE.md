@@ -1,9 +1,11 @@
-﻿# AGENTS
+﻿# TQS Diary — Project Spec
 
-Project root: E:\lucy\Project1
+Project root: D:\02_Developments\project_ジャーナル
+Repository: github.com/provoyage/TQSdialy
 Entrypoint: public/index.html (with public/script.js, public/style.css)
-Deploy: firebase deploy --only hosting (public)
-Admin email: qutech314@gmail.com (ADMIN_EMAILS in public/script.js)
+Deploy: firebase deploy --only hosting (public). Server lives in `server/` and is deployed separately to Cloud Run.
+Local dev: `firebase serve --only hosting -p 5000` for the frontend, `npm --prefix server start` (with `FIREBASE_PROJECT_ID=tqsdiary-c640a` and `gcloud auth application-default login` ADC) for the API on port 8787.
+Admin account: qutech314@gmail.com. Frontend gate: `ADMIN_EMAILS` const in public/script.js. Server gate: `ADMIN_EMAILS` env var (comma-separated, default `qutech314@gmail.com`). firestore.rules also hardcodes the same email for admin-only collections.
 
 ## Current views (navigateTo)
 - list (Read)
@@ -32,6 +34,7 @@ Admin email: qutech314@gmail.com (ADMIN_EMAILS in public/script.js)
 
 ## Odai (questions/answers)
 - Questions: admin-only create/update/delete. Soft delete via isActive=false.
+- Admin question-management cards display aggregated answer counts per question. Counts are fetched from `GET /api/admin/answer-counts` (Bearer Firebase ID token, server gates by `ADMIN_EMAILS`). The earlier client-side `db.collection('answers').get()` approach was always rejected by firestore.rules and is no longer used.
 - Question types: text / choice.
 - Extended metadata:
   - category: normal | screening
@@ -83,8 +86,15 @@ Admin email: qutech314@gmail.com (ADMIN_EMAILS in public/script.js)
 - Avoid behavior changes unless explicitly requested.
 
 ## Auto-update policy
-- Update this AGENTS.md when a major spec/layout/data-flow change is implemented.
-- Include a short summary and update the Last updated date.
+- Update this CLAUDE.md whenever a major spec / layout / data-flow / API / config change is implemented.
+- Every entry in "Recent changes" carries a `YYYY-MM-DD` date so it is clear *when* the change happened.
+- Discard outdated entries during updates: this file should reflect the **current** state, not a full history. When a fact is no longer true, replace it; when an entry is no longer load-bearing, remove it.
+- Bump the `Last updated` date at the bottom every time this file is touched.
 
-Summary: Migrated persona screening from 4-layer type-label model to 5-layer continuous-score model (persona_5layer_v1). Added fixed 5-layer baseline question generation (SOC/COG/ACT/EMO/MOT-WRL), then replaced SOC/COG/ACT with fixed 32-question banks and EMO/MOT with fixed 40-question banks, added per-run randomized order with draft persistence (`layer_drafts`) and per-layer result snapshots to `layer_results`. Recompute API/storage writes `screening_profiles.persona5` with per-layer axis scores (0..100), completion-gated layer analysis text, and no cross-layer aggregate label. Mypage right column now has tab switching: 「5レイヤースコア」 tab (matrix + 3x2 radar cards + all-layer summary) and 「夢リスト・推移グラフ」 tab (bucket + sleep/weight trends).
-Last updated: 2026-03-04
+## Recent changes
+- **2026-05-28** Added `GET /api/admin/answer-counts` server endpoint (firebase-admin SDK, Bearer token, gated by `ADMIN_EMAILS` env var). Replaced the broken client-side `db.collection('answers').get()` aggregation in `loadAnswerCountsForAdmin()` with a fetch to this endpoint. The admin "回答 N" badge on question cards now actually displays real counts.
+- **2026-05-28** Repository hygiene: removed dead root-level duplicates (`script.js`, `style.css`, `firebase-config.js`) that were no longer referenced from `public/index.html`. Renamed `AGENTS.md` → `CLAUDE.md` (Claude Code convention). Stashed legacy unfinished edits from the old root files to `git stash`. Snapshot-committed all previously-uncommitted AntiGravity-era work as commit `722eea9` so nothing was lost.
+- **2026-05-28** Switched primary AI-assisted development from Gemini AntiGravity to Claude Code.
+- **2026-03-04** Migrated persona screening from 4-layer type-label model to 5-layer continuous-score model (persona_5layer_v1). Added fixed 5-layer baseline question generation (SOC/COG/ACT/EMO/MOT-WRL), then replaced SOC/COG/ACT with fixed 32-question banks and EMO/MOT with fixed 40-question banks, added per-run randomized order with draft persistence (`layer_drafts`) and per-layer result snapshots to `layer_results`. Recompute API/storage writes `screening_profiles.persona5` with per-layer axis scores (0..100), completion-gated layer analysis text, and no cross-layer aggregate label. Mypage right column now has tab switching: 「5レイヤースコア」 tab (matrix + 3x2 radar cards + all-layer summary) and 「夢リスト・推移グラフ」 tab (bucket + sleep/weight trends).
+
+Last updated: 2026-05-28
