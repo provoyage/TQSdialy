@@ -17,8 +17,26 @@
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Leaflet (Map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme');
+                var allowed = ['nordic', 'westcoast', 'parisienne', 'harajuku', 'cool', 'cafe', 'light', 'dark'];
+                if (theme && allowed.indexOf(theme) !== -1) {
+                    document.documentElement.setAttribute('data-theme', theme);
+                }
+            } catch (e) {
+                // ignore theme preload failures
+            }
+        })();
+    </script>
+
     <!-- Styles -->
-    <link rel="stylesheet" href="style.css?v=15">
+    <link rel="stylesheet" href="style.css?v=103">
 </head>
 
 <body>
@@ -42,14 +60,18 @@
                     <i class="fa-solid fa-pen-nib"></i>
                     <span>書く</span>
                 </button>
-                <button id="btn-settings" class="nav-item"
-                    onclick="document.getElementById('modal-settings').classList.remove('hidden'); document.getElementById('modal-settings').classList.add('active');">
-                    <i class="fa-solid fa-cog"></i>
-                    <span>設定</span>
+                <button id="btn-questions" class="nav-item" onclick="navigateTo('questions')">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>お題</span>
                 </button>
                 <button id="btn-mypage" class="nav-item" onclick="navigateTo('mypage')">
                     <i class="fa-solid fa-user-circle"></i>
                     <span>マイページ</span>
+                </button>
+                <div class="nav-divider" aria-hidden="true"></div>
+                <button id="btn-view-settings" class="nav-item" onclick="openSettingsModal()">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>設定</span>
                 </button>
             </nav>
             <div class="theme-toggle">
@@ -58,18 +80,12 @@
                     <img id="user-avatar" src="" alt="User" class="user-avatar">
                     <div class="user-info">
                         <span id="user-name" class="user-name">Guest</span>
-                        <button id="btn-logout" class="btn-text-sm">ログアウト</button>
                     </div>
                 </div>
                 <button id="btn-login" class="nav-item full-width" style="justify-content:center; margin-bottom:1rem;"
                     onclick="googleLogin()">
                     <i class="fa-brands fa-google"></i>
                     <span>ログイン</span>
-                </button>
-
-                <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme"
-                    onclick="appState.theme = appState.theme === 'dark' ? 'light' : 'dark'; applyTheme(appState.theme); localStorage.setItem('theme', appState.theme);">
-                    <i class="fa-solid fa-moon"></i>
                 </button>
             </div>
         </aside>
@@ -79,206 +95,459 @@
 
             <!-- View: My Page -->
             <section id="view-mypage" class="view-section hidden">
-                <header class="section-header">
-                    <h2>マイページ</h2>
-                </header>
                 <div class="mypage-container" id="mypage-container">
                     <!-- Stats injected by JS -->
                 </div>
             </section>
 
-            <!-- View: Entry List -->
+            <!-- View: Questions -->
+            <section id="view-questions" class="view-section hidden">
+                <div class="questions-container">
+                    <div class="questions-shell">
+                        <div class="questions-toolbar">
+                            <div class="questions-mode-switch">
+                                <button id="btn-questions-mode-persona" class="questions-mode-btn" type="button">5レイヤー診断</button>
+                                <button id="btn-questions-mode-answer" class="questions-mode-btn active" type="button">その他お題</button>
+                                <button id="btn-questions-mode-history" class="questions-mode-btn" type="button">回答一覧</button>
+                            </div>
+                            <div class="questions-toolbar-actions">
+                                <button id="btn-question-refresh" class="icon-btn questions-refresh-btn"
+                                    aria-label="お題を更新">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
+                                <button id="btn-question-admin" class="btn-secondary hidden">
+                                    <i class="fa-solid fa-gear"></i> 管理画面
+                                </button>
+                            </div>
+                        </div>
+                        <div id="questions-stage-answer" class="questions-stage active">
+                            <div class="questions-stage-card">
+                                <div class="questions-card-header">
+                                    <div class="questions-header-title">
+                                        <h3>お題</h3>
+                                    </div>
+                                </div>
+                                <div class="questions-current-body">
+                                    <h4 id="current-question-title" class="questions-title hidden"></h4>
+                                    <div id="current-question-meta" class="questions-question-meta hidden"></div>
+                                    <p id="current-question-body" class="questions-body hidden"></p>
+                                    <p id="current-question-empty" class="questions-empty">今は未回答のお題がありません。</p>
+                                </div>
+                            </div>
+                            <div class="questions-stage-card questions-answer-card">
+                                <button id="btn-persona-close-session" class="icon-btn persona-session-close hidden" type="button" aria-label="診断を終了">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                                <div id="persona-question-progress-inline" class="persona-question-progress-inline hidden" aria-live="polite">
+                                    <div id="persona-question-progress-text" class="persona-question-progress-text"></div>
+                                    <div class="persona-question-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                        <span id="persona-question-progress-fill" class="persona-question-progress-fill"></span>
+                                    </div>
+                                </div>
+                                <div id="persona-inline-question" class="persona-inline-question hidden">
+                                    <div id="persona-inline-question-meta" class="persona-inline-question-meta hidden"></div>
+                                    <p id="persona-inline-question-body" class="persona-inline-question-body"></p>
+                                </div>
+                                <label class="questions-label" for="answer-body">回答</label>
+                                <div id="question-choice-area" class="question-choice-area hidden"></div>
+                                <textarea id="answer-body" class="journal-textarea questions-textarea" rows="8"
+                                    placeholder="お題に対する回答を書いてください"></textarea>
+                                <div class="questions-actions">
+                                    <button id="btn-persona-prev-question" class="btn-secondary hidden" type="button">戻る</button>
+                                    <button id="btn-save-answer" class="btn-primary">回答を保存</button>
+                                </div>
+                                <p id="answer-login-note" class="questions-login-note hidden">ログインすると回答できます。</p>
+                            </div>
+                        </div>
+                        <div id="questions-stage-history" class="questions-stage hidden">
+                            <div class="questions-stage-card questions-history-card">
+                                <div class="questions-card-header">
+                                    <div class="questions-header-title">
+                                        <h3>回答済みお題</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="answers-list" class="answers-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Read -->
             <section id="view-list" class="view-section active">
-                <header class="section-header">
-                    <h2>読む</h2>
-                    <div class="search-bar">
-                        <i class="fa-solid fa-search"></i>
-                        <input type="text" id="search-input" placeholder="日記を検索する...">
+                <div class="read-page">
+                    <div class="read-toolbar">
+                        <button id="btn-read-custom" class="btn-secondary">カスタム</button>
+                        <div class="read-search">
+                            <input id="read-search-input" type="text" placeholder="キーワードで検索">
+                            <div class="read-search-divider"></div>
+                            <button id="read-search-btn" class="read-search-btn" type="button" aria-label="検索">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div id="list-filters" class="list-filters">
-                        <input type="date" id="filter-date-from" class="filter-input" aria-label="from">
-                        <input type="date" id="filter-date-to" class="filter-input" aria-label="to">
-                        <select id="filter-emotion" class="filter-input" aria-label="emotion"></select>
-                        <select id="filter-pattern" class="filter-input" aria-label="pattern"></select>
-                        <input type="text" id="filter-trigger" class="filter-input" placeholder="トピックを検索">
-                        <button id="btn-apply-filters" class="btn-secondary">適用</button>
-                        <button id="btn-reset-filters" class="btn-text">リセット</button>
-                    </div>
-                </header>
-                <div id="entry-list-container" class="entry-grid">
-                    <!-- Entries will be injected here -->
-                    <div class="empty-state">
-                        <p>まだ日記がありません。</p>
-                        <button class="btn-primary" onclick="openEntry()">最初のジャーナルを書く</button>
+                    <div class="read-stage-wrap">
+                        <div class="read-stage">
+                            <button id="read-prev" class="read-nav-btn" type="button" aria-label="前へ">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <div id="read-card" class="read-card">
+                                <div class="read-card-empty">読み込み中...</div>
+                            </div>
+                            <button id="read-next" class="read-nav-btn" type="button" aria-label="次へ">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- View: Calendar -->
             <section id="view-calendar" class="view-section hidden">
-                <header class="section-header">
-                    <h2>カレンダー</h2>
-                </header>
-                <div class="monthly-goal-card">
-                    <div class="monthly-goal-header">
-                        <h3 id="monthly-goal-title">今月の目標</h3>
-                        <button id="btn-edit-monthly-goal" class="btn-secondary">編集</button>
+                <div class="calendar-layout">
+                    <div class="calendar-left">
+                        <div class="calendar-left-date-row">
+                            <span id="calendar-side-date" class="calendar-selected-date">今日</span>
+                            <button id="btn-calendar-add-schedule" class="icon-btn calendar-add-btn" type="button"
+                                aria-label="予定を追加">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-left-section calendar-own-section">
+                            <div class="calendar-section-title">自分の予定</div>
+                            <div id="calendar-own-schedule" class="calendar-schedule-list"></div>
+                        </div>
+                        <div class="calendar-left-section calendar-memo-section">
+                            <div class="calendar-section-title">メモ</div>
+                            <textarea id="calendar-side-text" class="calendar-memo-input" rows="6"
+                                placeholder="メモを入力"></textarea>
+                        </div>
+                        <div class="calendar-left-section calendar-friend-section">
+                            <div class="calendar-section-title">友達の予定</div>
+                            <div id="calendar-friend-schedule" class="calendar-schedule-list is-friend"></div>
+                            <div id="calendar-friend-empty" class="calendar-friend-empty">共有されたともだちの予定はありません</div>
+                        </div>
                     </div>
-                    <p id="monthly-goal-text" class="monthly-goal-text">未設定</p>
+                    <div class="calendar-right">
+                        <div class="calendar-goal-area">
+                            <div class="monthly-goal-card">
+                                <div class="monthly-goal-body">
+                                    <textarea id="monthly-goal-text" class="monthly-goal-input" rows="3"
+                                        placeholder="今月の目標を入力"></textarea>
+                                    <button id="btn-edit-monthly-goal" class="btn-secondary monthly-goal-edit">編集</button>
+                                </div>
+                                <div id="monthly-goal-journey" class="monthly-goal-journey" aria-hidden="true">
+                                    <div class="goal-line"></div>
+                                    <div id="monthly-goal-dot" class="goal-dot"></div>
+                                    <div class="goal-flag">
+                                        <div class="goal-flag-pole"></div>
+                                        <div class="goal-flag-banner"></div>
+                                        <div class="goal-flag-text">Goal</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="calendar-right-divider" aria-hidden="true"></div>
+                        <div id="calendar-container" class="calendar-container">
+                            <div class="calendar-top-controls">
+                                <button id="btn-calendar-today" class="btn-secondary calendar-today-btn"
+                                    type="button">今日</button>
+                                <div class="calendar-month-controls">
+                                    <button id="btn-prev-month" class="icon-btn calendar-nav-btn" type="button"
+                                        aria-label="前の月">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button id="btn-next-month" class="icon-btn calendar-nav-btn" type="button"
+                                        aria-label="次の月">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                    <button id="btn-calendar-picker" class="calendar-title-btn" type="button"
+                                        aria-haspopup="dialog" aria-controls="calendar-picker-modal">
+                                        <span id="calendar-month-year">2025年 12月</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="calendar-weekdays-grid">
+                                <div>日</div>
+                                <div>月</div>
+                                <div>火</div>
+                                <div>水</div>
+                                <div>木</div>
+                                <div>金</div>
+                                <div>土</div>
+                            </div>
+                            <div id="calendar-days-grid" class="calendar-days-grid">
+                                <!-- Days injected by JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="calendar-container">
-                    <div class="calendar-controls">
-                        <button id="btn-prev-month" class="icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                        <select id="select-calendar-year" class="btn-secondary calendar-select" aria-label="年"></select>
-                        <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="月"></select>
-                        <h3 id="calendar-month-year">2025年 12月</h3>
-                        <button id="btn-next-month" class="icon-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                <div id="calendar-picker-modal" class="modal hidden" role="dialog" aria-modal="true"
+                    aria-labelledby="calendar-picker-title">
+                    <div class="modal-content calendar-picker-content">
+                        <div class="modal-header">
+                            <h3 id="calendar-picker-title">月と年を選択</h3>
+                            <button id="btn-calendar-picker-close" class="icon-btn" type="button">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-picker-body">
+                            <select id="select-calendar-year" class="btn-secondary calendar-select" aria-label="年"></select>
+                            <select id="select-calendar-month" class="btn-secondary calendar-select" aria-label="月"></select>
+                        </div>
+                        <div class="calendar-picker-actions">
+                            <button id="btn-calendar-picker-done" class="btn-primary" type="button">決定</button>
+                        </div>
                     </div>
-                    <div class="weekdays-grid">
-                        <div>日</div>
-                        <div>月</div>
-                        <div>火</div>
-                        <div>水</div>
-                        <div>木</div>
-                        <div>金</div>
-                        <div>土</div>
-                    </div>
-                    <div id="calendar-days-grid" class="days-grid">
-                        <!-- Days injected by JS -->
+                </div>
+                <div id="modal-schedule-share" class="modal hidden" role="dialog" aria-modal="true"
+                    aria-labelledby="share-modal-title">
+                    <div class="modal-content schedule-share-content">
+                        <div class="schedule-share-header">
+                            <div class="schedule-share-info">
+                                <div id="share-modal-time" class="schedule-share-time"></div>
+                                <div id="share-modal-title" class="schedule-share-title"></div>
+                            </div>
+                            <button id="btn-share-modal-close" class="icon-btn" type="button" aria-label="閉じる">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div class="schedule-share-divider" aria-hidden="true"></div>
+                        <div class="schedule-share-body">
+                            <div class="schedule-share-col">
+                                <div class="schedule-share-col-title">共有</div>
+                                <div id="share-list-shared" class="schedule-share-list"></div>
+                            </div>
+                            <div class="schedule-share-vertical" aria-hidden="true"></div>
+                            <div class="schedule-share-col">
+                                <div class="schedule-share-col-title">非共有</div>
+                                <div id="share-list-unshared" class="schedule-share-list"></div>
+                            </div>
+                        </div>
+                        <div class="schedule-share-actions">
+                            <button id="btn-share-save" class="btn-primary">共有</button>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- View: Editor -->
             <section id="view-editor" class="view-section hidden">
-                <header class="section-header">
-                    <h2 id="editor-title-label">ジャーナル</h2>
-                    <div class="editor-actions">
-                        <select id="select-lock-status" class="btn-secondary"
-                            style="margin-right:auto; border-color:transparent; background:transparent;">
-                            <option value="unlocked">🔓 公開</option>
-                            <option value="locked">🔒 ロック</option>
-                        </select>
-                        <button id="btn-delete-entry" class="btn-text" style="color:#ff6b6b; display:none;"
-                            onclick="requestDeleteEntry()">
-                            <i class="fa-solid fa-trash"></i> 削除
-                        </button>
-                        <button id="btn-edit-entry" class="btn-primary" style="display:none;"
-                            onclick="toggleEditMode(true)">
-                            <i class="fa-solid fa-pen"></i> 編集
-                        </button>
-                        <button id="btn-cancel" class="btn-text" onclick="cancelEdit()">キャンセル</button>
-                        <button id="btn-save" class="btn-primary" onclick="saveEntryHelper()">
-                            <i class="fa-solid fa-save"></i> 保存
-                        </button>
-                    </div>
-                </header>
                 <div class="editor-container">
-                    <div class="editor-meta">
-                        <span id="entry-date-display"><i class="fa-regular fa-calendar"></i> 今日</span>
-                        <span id="entry-score-display" style="margin-left: 1rem;"></span>
-                    </div>
-
-                    <!-- Photo Upload Section -->
-                    <div class="photo-section">
-                        <input type="file" id="entry-image-input" accept="image/*" style="display: none;">
-                        <button id="btn-upload-image" class="btn-secondary">
-                            <i class="fa-regular fa-image"></i> 本日のハイライトを追加
-                        </button>
-                        <div id="image-preview-container" class="hidden">
-                            <label class="highlight-label">本日のハイライト</label>
-                            <img id="image-preview" src="" alt="Highlight">
-                            <button id="btn-remove-image" class="icon-btn-small"><i
-                                    class="fa-solid fa-times"></i></button>
+                    <span id="entry-score-display" class="hidden"></span>
+                    <div id="editor-complete" class="editor-complete hidden">
+                        <p>今日のジャーナルは追加しました。お疲れさまでした。</p>
+                        <div class="editor-complete-actions">
+                            <button id="btn-view-today" class="btn-primary">本日のジャーナルを見る</button>
+                            <button id="btn-view-questions-complete" class="btn-primary">お題ページを見る</button>
                         </div>
                     </div>
 
-                                                                                                    <div id="journal-sections" class="journal-grid">
-                        <div class="journal-card">
-                            <div class="journal-card-header">
-                                <h3>モーニング</h3>
-                            </div>
-                            <textarea id="entry-morning" rows="1" placeholder="起きてすぐに書く。良い文にしようとしない。手を止めない。" class="editor-textarea"></textarea>
-                            <div id="entry-morning-display" class="journal-display hidden"></div>
-                        </div>
-                        <div class="journal-card">
-                            <div class="journal-card-header">
-                                <h3>日記</h3>
-                                <span class="journal-card-note">今日の記録</span>
-                            </div>
-                            <textarea id="entry-content" rows="1" placeholder="今日の出来事..." class="editor-textarea"></textarea>
-                            <div id="entry-content-display-text" class="entry-content-text hidden"></div>
-                        </div>
-                        <div class="journal-card">
-                            <div class="journal-card-header"></div>
-                            <div class="journal-field">
-                                <label for="entry-done">できたこと</label>
-                                <textarea id="entry-done" class="journal-input journal-textarea" rows="1" placeholder="今日できたこと"></textarea>
-                                <div id="entry-done-display" class="journal-display hidden"></div>
-                            </div>
-                            <div class="journal-field">
-                                <label for="entry-not-done">できなかったこと</label>
-                                <textarea id="entry-not-done" class="journal-input journal-textarea" rows="1" placeholder="できなかったこと"></textarea>
-                                <div id="entry-not-done-display" class="journal-display hidden"></div>
-                            </div>
-                            <div class="journal-field">
-                                <label for="entry-next-plan">これからやること</label>
-                                <textarea id="entry-next-plan" class="journal-input journal-textarea" rows="1" placeholder="これからやること"></textarea>
-                                <div id="entry-next-plan-display" class="journal-display hidden"></div>
-                            </div>
-                        </div>
-                        <div class="journal-card">
-                            <div class="journal-card-header">
-                                <h3>食べたもの</h3>
-                            </div>
-                            <div class="journal-row">
-                                <input id="entry-meal-breakfast" class="journal-input" type="text" placeholder="朝">
-                                <input id="entry-meal-lunch" class="journal-input" type="text" placeholder="昼">
-                                <input id="entry-meal-dinner" class="journal-input" type="text" placeholder="晩">
-                            </div>
-                            <div id="entry-meals-display" class="journal-display hidden"></div>
-                        </div>
-                        <div class="journal-card journal-card-inline">
-                            <div class="journal-card-header">
-                                <h3>体重</h3>
-                            </div>
-                            <input id="entry-weight" class="journal-input" type="number" step="0.1" placeholder="kg">
-                            <div id="entry-weight-display" class="journal-display hidden"></div>
-                        </div>
-                        <div class="journal-card journal-card-inline">
-                            <div class="journal-card-header">
-                                <h3>睡眠時間</h3>
-                            </div>
-                            <select id="entry-sleep" class="journal-input">
-                                <option value="">選択してください</option>
-                                <option value="1">1時間</option>
-                                <option value="1.5">1時間30分</option>
-                                <option value="2">2時間</option>
-                                <option value="2.5">2時間30分</option>
-                                <option value="3">3時間</option>
-                                <option value="3.5">3時間30分</option>
-                                <option value="4">4時間</option>
-                                <option value="4.5">4時間30分</option>
-                                <option value="5">5時間</option>
-                                <option value="5.5">5時間30分</option>
-                                <option value="6">6時間</option>
-                                <option value="6.5">6時間30分</option>
-                                <option value="7">7時間</option>
-                                <option value="7.5">7時間30分</option>
-                                <option value="8">8時間</option>
-                                <option value="8.5">8時間30分</option>
-                                <option value="9">9時間</option>
-                                <option value="9.5">9時間30分</option>
-                                <option value="10">10時間</option>
-                                <option value="10.5">10時間30分</option>
-                                <option value="11">11時間</option>
-                                <option value="11.5">11時間30分</option>
-                                <option value="12">12時間</option>
+                    <div class="editor-header-row">
+                        <div id="entry-date-display" class="editor-date-display"></div>
+                        <div class="editor-header-actions">
+                            <select id="select-lock-status" class="btn-secondary">
+                                <option value="unlocked">公開</option>
+                                <option value="locked">ロック</option>
                             </select>
-                            <div id="entry-sleep-display" class="journal-display hidden"></div>
+                            <button id="btn-edit-entry" class="btn-primary" style="display:none;"
+                                onclick="toggleEditMode(true)">
+                                <i class="fa-solid fa-pen"></i> 編集
+                            </button>
+                            <button id="btn-save" class="btn-primary" onclick="saveEntryHelper()">
+                                <i class="fa-solid fa-save"></i> 一時保存
+                            </button>
+                            <button id="btn-add" class="btn-secondary" onclick="addEntryHelper()">
+                                <i class="fa-solid fa-circle-check"></i> 追加
+                            </button>
+                            <button id="btn-reset-layout" class="btn-secondary">
+                                <i class="fa-solid fa-rotate-left"></i> 配置をリセット
+                            </button>
                         </div>
                     </div>
-<div id="analysis-panel" class="analysis-panel"></div>
+
+                    <div id="journal-sections" class="journal-grid fixed-grid">
+                        <div id="editor-column-left" class="editor-column editor-column-left">
+                            <div class="editor-insight-card">
+                                <div class="editor-insight-title">前回の分析とアドバイス</div>
+                                <p id="editor-advice-text" class="editor-insight-text">
+                                    前回のジャーナルからの気づきと、今回のアドバイスをここに表示します。
+                                </p>
+                            </div>
+
+                            <div class="journal-card journal-card-schedule" data-card-id="schedule">
+                                <div id="entry-schedule" class="schedule-list journal-input"></div>
+                                <div id="entry-schedule-display" class="journal-display hidden"></div>
+                            </div>
+
+                            <div class="journal-card journal-card-bleed journal-card-memo" data-card-id="memo">
+                                <textarea id="entry-memo" class="journal-input journal-textarea journal-textarea-bleed no-autoresize" rows="8"
+                                    placeholder="メモ..."></textarea>
+                                <div id="entry-memo-display" class="journal-display hidden"></div>
+                            </div>
+
+                            <div class="journal-card location-grid-card" data-card-id="location">
+                                <div class="location-slot-grid">
+                                    <button type="button" class="location-slot" data-location-slot="0">
+                                        <span class="location-slot-placeholder">+</span>
+                                        <img class="location-slot-map hidden" alt="場所の地図">
+                                    </button>
+                                    <button type="button" class="location-slot" data-location-slot="1">
+                                        <span class="location-slot-placeholder">+</span>
+                                        <img class="location-slot-map hidden" alt="場所の地図">
+                                    </button>
+                                    <button type="button" class="location-slot" data-location-slot="2">
+                                        <span class="location-slot-placeholder">+</span>
+                                        <img class="location-slot-map hidden" alt="場所の地図">
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="journal-card location-text-card" data-card-id="location-text">
+                                <div id="entry-location-summary" class="location-summary-text">---</div>
+                                <input id="entry-location" type="hidden">
+                                <div id="entry-location-label" class="hidden"></div>
+                                <div id="entry-location-display" class="journal-display hidden"></div>
+                            </div>
+                        </div>
+
+                        <div id="editor-column-right" class="editor-column editor-column-right">
+                            <div class="journal-right-grid">
+                                <div class="journal-card journal-summary-card" data-card-id="summary">
+                                    <div class="summary-grid">
+                                        <button type="button" class="summary-label-btn" data-target="sleep">睡眠時間</button>
+                                        <button type="button" class="summary-label-btn" data-target="workout">運動時間</button>
+                                        <button type="button" class="summary-label-btn" data-target="weight">体重</button>
+
+                                        <div class="summary-value-cell">
+                                            <button id="entry-sleep-btn" class="journal-input journal-select-btn" type="button">
+                                                <span id="entry-sleep-value" class="journal-select-value">-</span>
+                                            </button>
+                                            <input id="entry-sleep" class="journal-input" type="hidden">
+                                            <div id="entry-sleep-display" class="journal-display hidden"></div>
+                                        </div>
+                                        <div class="summary-value-cell">
+                                            <button id="entry-workout-btn" class="journal-input journal-select-btn" type="button">
+                                                <span id="entry-workout-value" class="journal-select-value">-</span>
+                                            </button>
+                                            <input id="entry-workout" class="journal-input" type="hidden">
+                                            <div id="entry-workout-display" class="journal-display hidden"></div>
+                                        </div>
+                                        <div class="summary-value-cell">
+                                            <button id="entry-weight-btn" class="journal-input journal-select-btn" type="button">
+                                                <span id="entry-weight-value" class="journal-select-value">-</span>
+                                            </button>
+                                            <input id="entry-weight" class="journal-input" type="hidden">
+                                            <div id="entry-weight-display" class="journal-display hidden"></div>
+                                        </div>
+
+                                        <button type="button" class="summary-label-btn" data-target="focus">集中時間</button>
+                                        <button type="button" class="summary-label-btn" data-target="satisfaction">満足度</button>
+                                        <button type="button" class="summary-label-btn" data-target="emotion">感情</button>
+
+                                        <div class="summary-value-cell">
+                                            <button id="entry-focus-btn" class="journal-input journal-select-btn" type="button">
+                                                <span id="entry-focus-value" class="journal-select-value">-</span>
+                                            </button>
+                                            <input id="entry-focus" class="journal-input" type="hidden">
+                                            <div id="entry-focus-display" class="journal-display hidden"></div>
+                                        </div>
+                                        <div class="summary-value-cell">
+                                            <button id="entry-satisfaction-btn" class="journal-input journal-select-btn" type="button">
+                                                <span id="entry-satisfaction-value" class="journal-select-value">-</span>
+                                            </button>
+                                            <input id="entry-satisfaction" class="journal-input" type="hidden">
+                                            <div id="entry-satisfaction-display" class="journal-display hidden"></div>
+                                        </div>
+                                        <div class="summary-value-cell summary-emotion-cell">
+                                            <button id="btn-summary-emotion" type="button" class="summary-emotion-btn">
+                                                <span id="entry-emotion-summary" class="summary-emotion-value summary-emotion-icons">---</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="summary-emotion hidden">
+                                        <input id="entry-emotion-primary" type="hidden">
+                                        <input id="entry-emotion-secondary" type="hidden">
+                                        <div id="entry-emotion-display" class="journal-display emotion-display hidden"></div>
+                                    </div>
+                                </div>
+
+                                <div class="journal-card photo-card journal-photo-card" data-card-id="photo">
+                                    <div class="photo-section" id="photo-section">
+                                        <input type="file" id="entry-image-input" accept="image/*" style="display: none;">
+                                        <button id="btn-upload-image" class="btn-secondary btn-photo-upload" aria-label="写真を追加">
+                                            <i class="fa-solid fa-file-circle-plus"></i>
+                                        </button>
+                                        <div id="image-preview-container" class="hidden">
+                                            <img id="image-preview" src="" alt="写真プレビュー">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="journal-card journal-tasks-card" data-card-id="tasks">
+                                    <div class="journal-card-header">
+                                        <h3>一日の振り返り</h3>
+                                    </div>
+                                    <div class="journal-tasks-grid">
+                                        <div class="journal-field">
+                                            <textarea id="entry-done" class="journal-input journal-textarea" rows="1"
+                                                placeholder="できたこと"></textarea>
+                                            <div id="entry-done-display" class="journal-display hidden"></div>
+                                        </div>
+                                        <div class="journal-field">
+                                            <textarea id="entry-not-done" class="journal-input journal-textarea" rows="1"
+                                                placeholder="できなかったこと"></textarea>
+                                            <div id="entry-not-done-display" class="journal-display hidden"></div>
+                                        </div>
+                                        <div class="journal-field">
+                                            <textarea id="entry-next-plan" class="journal-input journal-textarea" rows="1"
+                                                placeholder="明日やること"></textarea>
+                                            <div id="entry-next-plan-display" class="journal-display hidden"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="journal-card journal-meals-card" data-card-id="meals">
+                                    <div class="journal-card-header">
+                                        <h3>食べたもの</h3>
+                                    </div>
+                                    <div class="journal-row meals-column">
+                                        <input id="entry-meal-breakfast" class="journal-input" type="text" placeholder="朝">
+                                        <input id="entry-meal-lunch" class="journal-input" type="text" placeholder="昼">
+                                        <input id="entry-meal-dinner" class="journal-input" type="text" placeholder="夜">
+                                    </div>
+                                    <div id="entry-meals-display" class="journal-display hidden"></div>
+                                </div>
+
+                                <div class="journal-card journal-browsing-card journal-card-bleed" data-card-id="browsing">
+                                    <textarea id="entry-browsing" class="journal-input journal-textarea journal-textarea-bleed no-autoresize" rows="8"
+                                        placeholder="URLを改行で追加（複数OK）&#10;例: https://..."></textarea>
+                                    <div id="entry-browsing-display" class="journal-display hidden"></div>
+                                </div>
+
+                                <div class="journal-card journal-highlight-card journal-card-inline" data-card-id="highlight">
+                                    <input id="entry-highlight" class="journal-input" type="text" placeholder="本日のハイライトを一言で">
+                                    <div id="entry-highlight-display" class="journal-display hidden"></div>
+                                </div>
+
+                                <div class="journal-card journal-url-card" data-card-id="browsing-button">
+                                    <button id="btn-browsing-open" class="btn-secondary journal-url-btn" type="button">
+                                        URLを追加
+                                    </button>
+                                </div>
+
+                                <div class="journal-card journal-diary-card" data-card-id="diary">
+                                    <div class="journal-card-header">
+                                        <h3>日記</h3>
+                                        <span class="journal-card-note">今日の記録</span>
+                                    </div>
+                                    <textarea id="entry-content" rows="1" placeholder="ここだけの本音で、今日のログを残しましょう" class="editor-textarea no-autoresize"></textarea>
+                                    <div id="entry-content-display-text" class="entry-content-text hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Unlock Overlay -->
                     <div id="lock-overlay" class="lock-overlay hidden">
@@ -302,41 +571,483 @@
         </main>
     </div>
 
-    <div id="toast-container"></div>
+      <div id="toast-container"></div>
+  
+    <!-- Emotion Popup -->
 
-    <!-- Settings Modal -->
-    <div id="modal-settings" class="modal hidden">
-        <div class="modal-content">
-            <h3>設定</h3>
-
-            <div class="input-group">
-                <label for="input-api-base">API Base URL</label>
-                <input type="text" id="input-api-base" placeholder="http://localhost:8787">
-                <small style="color:var(--text-muted);">Self-observation API endpoint</small>
+    <div id="modal-photo" class="modal hidden">
+        <div class="modal-content photo-modal">
+            <div class="modal-header">
+                <h3>写真</h3>
+                <button id="btn-photo-close" class="btn-text">閉じる</button>
             </div>
-            <hr style="border:0; border-top:1px solid var(--glass-border); margin: 1.5rem 0;">
-
-            <h3>パスワード設定</h3>
-            <div class="input-group">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <label for="input-current-pass">現在のパスワード</label>
-                    <button id="btn-forgot-pass-settings" class="btn-text-sm"
-                        style="color:var(--accent); margin-bottom:0.5rem;">
-                        (忘れた場合)
-                    </button>
-                </div>
-                <input type="password" id="input-current-pass" placeholder="現在のパスワード（未設定なら空欄）">
+            <div class="photo-modal-body">
+                <img id="photo-modal-image" src="" alt="写真の拡大表示">
             </div>
-            <div class="input-group">
-                <label for="input-new-pass">新しいパスワード</label>
-                <input type="password" id="input-new-pass" placeholder="新しいパスワード">
-            </div>
-            <button id="btn-update-pass" class="btn-secondary" style="width:100%; margin-bottom:1rem;">
-                <i class="fa-brands fa-google"></i> Google認証して変更
-            </button>
-
             <div class="modal-actions">
-                <button id="btn-close-settings" class="btn-primary">閉じる</button>
+                <button id="btn-photo-change" class="btn-secondary">別の写真に変更</button>
+                <button id="btn-photo-delete" class="btn-text">削除</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-location" class="modal hidden">
+        <div class="modal-content location-modal">
+            <div class="modal-header">
+                <h3>場所を選択</h3>
+                <button id="btn-location-close" class="btn-text">閉じる</button>
+            </div>
+            <div class="location-modal-toolbar">
+                <input id="location-search-modal" class="journal-input location-search-input" type="text"
+                    placeholder="場所を検索">
+                <button id="btn-location-confirm" class="btn-primary">この場所にする</button>
+            </div>
+            <div id="location-modal-suggestions" class="location-suggestions location-modal-suggestions hidden"></div>
+            <div id="location-map" class="location-map-canvas"></div>
+            <div class="modal-actions">
+                <button id="btn-location-cancel" class="btn-text">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Read: Custom Search Modal -->
+    <div id="modal-read-custom" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content read-custom-modal">
+            <button id="btn-read-custom-close" class="icon-btn read-modal-close" type="button" aria-label="閉じる">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="read-custom-body">
+                <div class="read-custom-menu">
+                    <button class="read-custom-tab active" data-tab="keyword">キーワード</button>
+                    <button class="read-custom-tab" data-tab="date">日付</button>
+                    <button class="read-custom-tab" data-tab="satisfaction">満足度</button>
+                    <button class="read-custom-tab" data-tab="emotion">感情</button>
+                </div>
+                <div class="read-custom-main">
+                    <div class="read-custom-header">
+                        <h3 id="read-custom-title">キーワード</h3>
+                    </div>
+                    <div id="read-custom-input" class="read-custom-input"></div>
+                    <div class="read-custom-conditions">
+                        <div id="read-custom-conditions" class="read-custom-conditions-box"></div>
+                        <div class="read-custom-actions">
+                            <button id="btn-read-custom-clear" class="btn-text">全クリア</button>
+                            <button id="btn-read-custom-search" class="btn-primary">検索</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Read: Entry Detail Modal -->
+    <div id="modal-read-detail" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content read-detail-modal">
+            <button id="btn-read-detail-close" class="icon-btn read-modal-close" type="button" aria-label="閉じる">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="read-detail-body">
+                <div id="read-detail-left" class="read-detail-col read-detail-left"></div>
+                <div id="read-detail-right" class="read-detail-col read-detail-right"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Read: Photo Modal -->
+    <div id="modal-read-photo" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content read-photo-modal">
+            <button id="btn-read-photo-close" class="icon-btn read-modal-close" type="button" aria-label="閉じる">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="read-photo-body">
+                <img id="read-photo-image" src="" alt="写真の拡大表示">
+            </div>
+        </div>
+    </div>
+    <div id="modal-sleep" class="modal hidden">
+        <div class="modal-content picker-modal">
+            <div class="modal-header">
+                <h3>睡眠時間</h3>
+                <button id="btn-sleep-close" class="btn-text">閉じる</button>
+            </div>
+            <div id="sleep-options" class="picker-options"></div>
+        </div>
+    </div>
+    <div id="modal-weight" class="modal hidden">
+        <div class="modal-content picker-modal">
+            <div class="modal-header">
+                <h3>体重</h3>
+                <button id="btn-weight-close" class="btn-text">閉じる</button>
+            </div>
+            <div class="picker-input">
+                <input id="weight-input" class="journal-input" type="number" step="0.1" inputmode="decimal"
+                    placeholder="例: 52.4">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-weight-cancel" class="btn-text">キャンセル</button>
+                <button id="btn-weight-confirm" class="btn-primary">決定</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-satisfaction" class="modal hidden">
+        <div class="modal-content picker-modal">
+            <div class="modal-header">
+                <h3>一日の満足度</h3>
+                <button id="btn-satisfaction-close" class="btn-text">閉じる</button>
+            </div>
+            <div id="satisfaction-options" class="picker-options"></div>
+        </div>
+    </div>
+
+    <div id="modal-duration" class="modal scroll-popover hidden">
+        <div class="modal-content schedule-time-modal simple-time-modal">
+            <div class="modal-header">
+                <h3 id="duration-modal-title">時間を選択</h3>
+                <button id="btn-duration-close" class="btn-text">閉じる</button>
+            </div>
+            <div class="schedule-time-picker">
+                <div class="schedule-time-section">
+                    <div class="schedule-time-section-title">時間 / 分</div>
+                    <div class="schedule-time-drums scroll-picker-row">
+                        <div id="duration-time-hour" class="schedule-time-drum scroll-picker-list" data-role="duration-hour"></div>
+                        <span class="scroll-picker-unit">時間</span>
+                        <div id="duration-time-minute" class="schedule-time-drum scroll-picker-list" data-role="duration-minute"></div>
+                        <span class="scroll-picker-unit">分</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-duration-cancel" class="btn-text">キャンセル</button>
+                <button id="btn-duration-confirm" class="btn-primary">決定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-answer-detail" class="modal hidden">
+        <div class="modal-content answer-detail-modal">
+            <button id="btn-answer-detail-close" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="answer-detail-meta">
+                <span id="answer-detail-status" class="answer-status-pill hidden">未分析</span>
+                <span id="answer-detail-date" class="answer-detail-date"></span>
+            </div>
+            <h3 id="answer-detail-title" class="answer-detail-title hidden"></h3>
+            <p id="answer-detail-question" class="answer-detail-question"></p>
+            <div id="answer-detail-body" class="answer-detail-body"></div>
+            <div id="answer-detail-edit" class="answer-detail-edit hidden">
+                <textarea id="answer-detail-textarea" rows="8" placeholder="回答を入力"></textarea>
+            </div>
+            <div id="answer-detail-actions" class="answer-detail-actions">
+                <button id="btn-answer-detail-edit" class="btn-secondary">編集</button>
+                <button id="btn-answer-detail-delete" class="btn-secondary btn-danger">削除</button>
+            </div>
+            <div id="answer-detail-edit-actions" class="answer-detail-actions hidden">
+                <button id="btn-answer-detail-cancel" class="btn-text">キャンセル</button>
+                <button id="btn-answer-detail-save" class="btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-question-admin" class="modal hidden">
+            <div class="modal-content question-admin-modal">
+                <button id="btn-question-admin-close" class="modal-close" aria-label="close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="question-admin-layout">
+                    <div class="question-admin-sidebar">
+                        <button id="admin-tab-new" class="admin-tab active" type="button">新規お題</button>
+                        <button id="admin-tab-manage" class="admin-tab" type="button">お題の管理</button>
+                        <button id="admin-tab-deleted" class="admin-tab" type="button">削除済みお題</button>
+                    </div>
+                    <div class="question-admin-panel">
+                        <div id="admin-panel-new" class="admin-panel">
+                            <div class="input-group">
+                                <label for="question-title-input">タイトル（任意）</label>
+                            <input id="question-title-input" type="text" placeholder="タイトル">
+                        </div>
+                        <div class="input-group">
+                            <label for="question-category-input">種別</label>
+                            <select id="question-category-input">
+                                <option value="normal">通常お題</option>
+                                <option value="screening">自己スクリーニング（ADHD）</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="question-type-input">回答形式</label>
+                            <select id="question-type-input">
+                                <option value="text">記述式</option>
+                                <option value="choice">選択式</option>
+                            </select>
+                        </div>
+                        <div id="question-screening-fields" class="input-group-grid hidden">
+                            <div class="input-group">
+                                <label for="question-instrument-input">尺度ID</label>
+                                <input id="question-instrument-input" type="text" value="adhd_adult_v1">
+                            </div>
+                            <div class="input-group">
+                                <label for="question-dimension-input">次元</label>
+                                <select id="question-dimension-input">
+                                    <option value="inattention">不注意</option>
+                                    <option value="hyperactivity">多動/衝動</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="question-order-input">出題順</label>
+                                <input id="question-order-input" type="number" min="1" step="1" value="1">
+                            </div>
+                            <label class="questions-checkbox">
+                                <input id="question-core-input" type="checkbox" checked>
+                                コア質問として扱う
+                            </label>
+                        </div>
+                        <div class="input-group">
+                            <label for="question-body-input">お題本文</label>
+                            <textarea id="question-body-input" rows="8" placeholder="お題内容"></textarea>
+                        </div>
+                        <div id="question-options-group" class="input-group hidden">
+                            <label for="question-options-input">選択肢（1行に1つ）</label>
+                            <textarea id="question-options-input" rows="6" placeholder="例）今日は最高&#10;まあまあ&#10;休みたい"></textarea>
+                        </div>
+                        <label class="questions-checkbox">
+                            <input id="question-published-input" type="checkbox" checked>
+                            公開する
+                        </label>
+                        <div class="modal-actions">
+                            <button id="btn-question-create-save" class="btn-primary">保存</button>
+                        </div>
+                        </div>
+                        <div id="admin-panel-manage" class="admin-panel hidden">
+                            <div class="question-manage-section">
+                                <h4 class="question-manage-title">お題の管理</h4>
+                                <div id="question-manage-grid" class="question-manage-grid"></div>
+                            </div>
+                        </div>
+                        <div id="admin-panel-deleted" class="admin-panel hidden">
+                            <div class="question-manage-section">
+                                <h4 class="question-manage-title">削除済みお題</h4>
+                                <div id="question-manage-deleted-grid" class="question-manage-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div id="modal-question-edit" class="modal hidden">
+        <div class="modal-content question-edit-modal">
+            <button id="btn-question-edit-close" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header">
+                <h3>お題を編集</h3>
+            </div>
+            <div class="input-group">
+                <label for="question-edit-title">タイトル（任意）</label>
+                <input id="question-edit-title" type="text" placeholder="タイトル">
+            </div>
+            <div class="input-group">
+                <label for="question-edit-category">種別</label>
+                <select id="question-edit-category">
+                    <option value="normal">通常お題</option>
+                    <option value="screening">自己スクリーニング（ADHD）</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="question-edit-type">回答形式</label>
+                <select id="question-edit-type">
+                    <option value="text">記述式</option>
+                    <option value="choice">選択式</option>
+                </select>
+            </div>
+            <div id="question-edit-screening-fields" class="input-group-grid hidden">
+                <div class="input-group">
+                    <label for="question-edit-instrument">尺度ID</label>
+                    <input id="question-edit-instrument" type="text" value="adhd_adult_v1">
+                </div>
+                <div class="input-group">
+                    <label for="question-edit-dimension">次元</label>
+                    <select id="question-edit-dimension">
+                        <option value="inattention">不注意</option>
+                        <option value="hyperactivity">多動/衝動</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="question-edit-order">出題順</label>
+                    <input id="question-edit-order" type="number" min="1" step="1" value="1">
+                </div>
+                <label class="questions-checkbox">
+                    <input id="question-edit-core" type="checkbox" checked>
+                    コア質問として扱う
+                </label>
+            </div>
+            <div class="input-group">
+                <label for="question-edit-body">お題本文</label>
+                <textarea id="question-edit-body" rows="6" placeholder="お題内容"></textarea>
+            </div>
+            <div id="question-edit-options-group" class="input-group hidden">
+                <label for="question-edit-options">選択肢（1行に1つ）</label>
+                <textarea id="question-edit-options" rows="5" placeholder="1行に1つずつ入力"></textarea>
+            </div>
+            <label class="questions-checkbox">
+                <input id="question-edit-published" type="checkbox">
+                公開する
+            </label>
+            <div class="modal-actions question-edit-actions">
+                <button id="btn-question-delete" class="btn-text btn-danger">削除</button>
+                <button id="btn-question-edit-save" class="btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-answer-confirm" class="modal hidden">
+        <div class="modal-content answer-confirm-modal">
+            <button id="btn-answer-confirm-close" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header">
+                <h3>送信内容の確認</h3>
+            </div>
+            <div class="answer-confirm-body">
+                <p class="answer-confirm-label">お題</p>
+                <p id="answer-confirm-question" class="answer-confirm-question"></p>
+                <p class="answer-confirm-label">回答</p>
+                <p id="answer-confirm-text" class="answer-confirm-text"></p>
+            </div>
+            <div class="modal-actions answer-confirm-actions">
+                <span class="answer-confirm-note">回答は次回のジャーナル投稿時に分析されます</span>
+                <div class="answer-confirm-buttons">
+                    <button id="btn-answer-confirm-cancel" class="btn-text">キャンセル</button>
+                    <button id="btn-answer-confirm-send" class="btn-primary">送信</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-answer-edit-confirm" class="modal hidden">
+        <div class="modal-content answer-confirm-modal">
+            <button id="btn-answer-edit-confirm-close" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header">
+                <h3>編集の確認</h3>
+            </div>
+            <div class="answer-confirm-body">
+                <p>この回答を編集すると、このお題の分析は最初からになります。それでも編集しますか？</p>
+            </div>
+            <div class="modal-actions answer-confirm-actions">
+                <div class="answer-confirm-buttons">
+                    <button id="btn-answer-edit-confirm-cancel" class="btn-text">キャンセル</button>
+                    <button id="btn-answer-edit-confirm-approve" class="btn-primary">編集する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-answer-edit" class="modal hidden">
+        <div class="modal-content answer-edit-modal">
+            <button id="btn-answer-edit-close" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header">
+                <h3>回答を編集</h3>
+            </div>
+            <div class="answer-edit-body">
+                <p id="answer-edit-question" class="answer-edit-question"></p>
+                <textarea id="answer-edit-text" rows="6" placeholder="回答を入力"></textarea>
+            </div>
+            <div class="modal-actions answer-edit-actions">
+                <button id="btn-answer-edit-save" class="btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-answer-delete" class="modal hidden">
+        <div class="modal-content answer-delete-modal">
+            <button id="btn-answer-delete-close" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-header">
+                <h3>この回答を削除しますか？</h3>
+            </div>
+            <div class="modal-actions answer-delete-actions">
+                <button id="btn-answer-delete-cancel" class="btn-text">キャンセル</button>
+                <button id="btn-answer-delete-confirm" class="btn-primary">削除</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="modal-schedule-time" class="modal scroll-popover hidden">
+        <div class="modal-content schedule-time-modal">
+            <div class="modal-header">
+                <h3>時間を設定</h3>
+                <button id="btn-schedule-time-close" class="btn-text">閉じる</button>
+            </div>
+            <div class="schedule-time-picker">
+                <div class="schedule-time-section">
+                    <div class="schedule-time-section-title">開始</div>
+                    <div class="schedule-time-drums scroll-picker-row">
+                        <div id="schedule-time-start-hour" class="schedule-time-drum scroll-picker-list" data-role="start-hour"></div>
+                        <span class="scroll-picker-unit">時</span>
+                        <div id="schedule-time-start-minute" class="schedule-time-drum scroll-picker-list" data-role="start-minute"></div>
+                        <span class="scroll-picker-unit">分</span>
+                    </div>
+                </div>
+                <div class="schedule-time-section">
+                    <div class="schedule-time-section-title">終了</div>
+                    <div class="schedule-time-drums scroll-picker-row">
+                        <div id="schedule-time-end-hour" class="schedule-time-drum scroll-picker-list" data-role="end-hour"></div>
+                        <span class="scroll-picker-unit">時</span>
+                        <div id="schedule-time-end-minute" class="schedule-time-drum scroll-picker-list" data-role="end-minute"></div>
+                        <span class="scroll-picker-unit">分</span>
+                    </div>
+                </div>
+            </div>
+            <div class="schedule-time-toggle">
+                <button id="btn-schedule-all-day" class="schedule-all-day-btn" type="button" aria-pressed="false">終日</button>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-schedule-time-cancel" class="btn-text">キャンセル</button>
+                <button id="btn-schedule-time-confirm" class="btn-primary">決定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-emotion" class="modal scroll-popover hidden">
+        <div class="modal-content schedule-time-modal simple-time-modal">
+            <div class="modal-header">
+                <h3 id="emotion-modal-title">感情を選択</h3>
+                <button id="btn-emotion-close" class="btn-text">閉じる</button>
+            </div>
+            <div class="schedule-time-picker">
+                <div class="schedule-time-section">
+                    <div class="schedule-time-section-title">感情</div>
+                    <div class="schedule-time-drums scroll-picker-row">
+                        <div id="emotion-primary-list" class="schedule-time-drum scroll-picker-list" data-role="emotion-primary"></div>
+                        <span class="scroll-picker-unit">＋</span>
+                        <div id="emotion-secondary-list" class="schedule-time-drum scroll-picker-list" data-role="emotion-secondary"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="btn-emotion-cancel" class="btn-text">キャンセル</button>
+                <button id="btn-emotion-confirm" class="btn-primary">決定</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-browsing" class="modal hidden">
+        <div class="modal-content browsing-modal">
+            <div class="modal-header">
+                <h3>URLを追加</h3>
+                <button id="btn-browsing-close" class="btn-text" type="button">閉じる</button>
+            </div>
+            <textarea id="entry-browsing-modal" class="journal-textarea browsing-modal-textarea no-autoresize" rows="8"
+                placeholder="URLを改行で追加（複数OK）&#10;例: https://..."></textarea>
+            <div class="modal-actions">
+                <button id="btn-browsing-cancel" class="btn-text" type="button">キャンセル</button>
+                <button id="btn-browsing-save" class="btn-primary" type="button">保存</button>
             </div>
         </div>
     </div>
@@ -374,17 +1085,76 @@
         </div>
     </div>
 
+    <div id="modal-settings" class="modal hidden">
+        <div class="modal-content settings-modal">
+            <button id="btn-close-settings" class="modal-close" aria-label="close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="settings-container" id="settings-container"></div>
+        </div>
+    </div>
+
+    <div id="modal-friend-id" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="friend-id-title">
+        <div class="modal-content friend-id-modal">
+            <div class="modal-header">
+                <h3 id="friend-id-title">IDで友だち追加</h3>
+                <button id="btn-friend-id-close" class="icon-btn" type="button" aria-label="閉じる">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="settings-field">
+                <label for="input-friend-id">ID</label>
+                <div class="settings-input-row">
+                    <input id="input-friend-id" type="text" placeholder="IDを入力">
+                    <button id="btn-friend-id-search" class="btn-secondary" type="button">検索</button>
+                </div>
+            </div>
+            <div id="friend-id-result" class="friend-id-result"></div>
+            <div class="modal-actions">
+                <button id="btn-friend-request" class="btn-primary" type="button" disabled>申請</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-app-password" class="modal hidden">
+        <div class="modal-content app-password-modal">
+            <div class="modal-header">
+                <h3>アプリ内パスワード</h3>
+                <button id="btn-app-pass-close" class="btn-text" type="button">閉じる</button>
+            </div>
+            <p class="settings-note-block">日記ロック解除に使うパスワードです。</p>
+            <div class="input-group">
+                <label for="app-password-new">新しいパスワード</label>
+                <input id="app-password-new" type="password" placeholder="8文字以上">
+            </div>
+            <div class="input-group">
+                <label for="app-password-confirm">確認用パスワード</label>
+                <input id="app-password-confirm" type="password" placeholder="もう一度入力">
+            </div>
+            <div class="modal-actions">
+                <button id="btn-app-pass-remove" class="btn-text hidden" type="button">削除する</button>
+                <button id="btn-app-pass-cancel" class="btn-text" type="button">キャンセル</button>
+                <button id="btn-app-pass-save" class="btn-primary" type="button">保存</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK (Compat) -->
     <!-- MUST BE LOADED BEFORE SCRIPT.JS -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <!-- Firebase Config & Init (Loads BEFORE script.js) -->
     <script src="firebase-config.js"></script>
 
+    <!-- Leaflet (Map) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- App Logic (No Module) -->
-    <script src="script.js?v=115"></script>
+    <script src="script.js?v=236"></script>
 
     <!-- Global Error Handler -->
     <script>
@@ -395,3 +1165,10 @@
 </body>
 
 </html>
+
+
+
+
+
+
+

@@ -17,6 +17,7 @@ window.app = null;
 window.auth = null;
 window.db = null;
 window.googleProvider = null;
+window.storage = null;
 
 if (typeof firebase !== 'undefined') {
     if (!firebase.apps.length) {
@@ -31,6 +32,7 @@ if (typeof firebase !== 'undefined') {
     window.auth = firebase.auth();
     window.db = firebase.firestore();
     window.googleProvider = new firebase.auth.GoogleAuthProvider();
+    window.storage = firebase.storage();
 
     console.log('[Firebase Config] Globals ready on window: app, auth, db');
 } else {

@@ -16,8 +16,69 @@ service cloud.firestore {
           || get(/databases/$(database)/documents/diary_entries/$(entryId)).data.user_id == request.auth.uid);
     }
 
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email in ['qutech314@gmail.com'];
+    }
+
     match /users/{uid} {
       allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/layer_drafts/{docId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/layer_results/{resultId} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /diagnosis_versions/{versionId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /diagnosis_versions/{versionId}/layers/{layerId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /friend_ids/{friendId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && !exists(/databases/$(database)/documents/friend_ids/$(friendId));
+      allow update, delete: if signedIn()
+        && resource.data.uid == request.auth.uid;
+    }
+
+    // -------------------------
+    // Friend Requests
+    // -------------------------
+    match /friend_requests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.fromUid == request.auth.uid;
+      allow read: if signedIn()
+        && (resource.data.fromUid == request.auth.uid
+          || resource.data.toUid == request.auth.uid);
+      allow update: if signedIn()
+        && resource.data.toUid == request.auth.uid;
+      allow delete: if signedIn()
+        && (resource.data.fromUid == request.auth.uid
+          || resource.data.toUid == request.auth.uid);
+    }
+
+    // -------------------------
+    // Shared Schedules
+    // -------------------------
+    match /shared_schedules/{docId} {
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow read: if signedIn()
+        && (resource.data.ownerUid == request.auth.uid
+          || resource.data.sharedWithUids.hasAny([request.auth.uid]));
+      allow update, delete: if signedIn()
+        && resource.data.ownerUid == request.auth.uid;
     }
 
     match /diary_entries/{entryId} {
@@ -48,6 +109,43 @@ service cloud.firestore {
       allow create, update: if ownsEntry(entryId)
         && !request.resource.data.keys().hasAny(['text', 'content']);
       allow delete: if ownsEntry(entryId);
+    }
+
+    match /questions/{questionId} {
+      allow read: if resource.data.isPublished == true || isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /answers/{answerId} {
+      allow create: if signedIn()
+        && (
+          request.resource.data.userId == request.auth.uid
+          || request.resource.data.user_id == request.auth.uid
+        );
+      allow read, delete: if isOwner(resource.data);
+      allow update: if isOwner(resource.data)
+        && (
+          request.resource.data.userId == request.auth.uid
+          || request.resource.data.user_id == request.auth.uid
+        );
+    }
+
+    match /screening_profiles/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    match /screening_history/{docId} {
+      allow create: if signedIn()
+        && (
+          request.resource.data.userId == request.auth.uid
+          || request.resource.data.user_id == request.auth.uid
+        );
+      allow read: if signedIn()
+        && (
+          resource.data.userId == request.auth.uid
+          || resource.data.user_id == request.auth.uid
+        );
+      allow update, delete: if false;
     }
 
     match /{document=**} {
