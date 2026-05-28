@@ -693,6 +693,26 @@ async function getRequestUserId(req) {
   return decoded.uid;
 }
 
+async function getRequestAuthInfo(req) {
+  const authHeader = String(req.headers.authorization || '');
+  if (!authHeader.startsWith('Bearer ')) {
+    throw new Error('missing_auth_token');
+  }
+  const token = authHeader.slice('Bearer '.length).trim();
+  if (!token) throw new Error('missing_auth_token');
+  const decoded = await admin.auth().verifyIdToken(token);
+  return { uid: decoded.uid, email: String(decoded.email || '').toLowerCase() };
+}
+
+const ADMIN_EMAILS = String(process.env.ADMIN_EMAILS || 'qutech314@gmail.com')
+  .split(',')
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
+
+function isAdminEmail(email) {
+  return ADMIN_EMAILS.includes(String(email || '').toLowerCase());
+}
+
 async function loadScreeningQuestions() {
   let snapshot;
   try {
@@ -1883,6 +1903,32 @@ ${JSON.stringify(aggregate)}
   }
 
   return res.json(buildInsightFallback(payload));
+});
+
+app.get('/api/admin/answer-counts', async (req, res) => {
+  let authInfo;
+  try {
+    authInfo = await getRequestAuthInfo(req);
+  } catch (err) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  if (!isAdminEmail(authInfo.email)) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
+  try {
+    const snapshot = await db.collection('answers').get();
+    const counts = {};
+    snapshot.forEach((doc) => {
+      const data = doc.data() || {};
+      const qid = data.questionId || '';
+      if (!qid) return;
+      counts[qid] = (counts[qid] || 0) + 1;
+    });
+    return res.json({ countsByQuestionId: counts });
+  } catch (err) {
+    console.error('[admin/answer-counts] failed', err);
+    return res.status(500).json({ error: 'internal' });
+  }
 });
 
 const port = Number(process.env.PORT || 8787);

@@ -7711,18 +7711,23 @@ function renderAnswersList() {
 }
 
 async function loadAnswerCountsForAdmin() {
-    const db = window.db;
-    if (!db || !isAdminUser()) return;
+    if (!isAdminUser()) return;
+    const currentUser = window.auth?.currentUser || appState.user;
+    if (!currentUser) return;
+    const base = getApiBase();
+    if (!base) return;
     try {
-        const snapshot = await db.collection('answers').get();
-        const counts = {};
-        snapshot.forEach((doc) => {
-            const data = doc.data() || {};
-            const questionId = data.questionId || '';
-            if (!questionId) return;
-            counts[questionId] = (counts[questionId] || 0) + 1;
+        const token = await currentUser.getIdToken();
+        const res = await fetch(`${base}/api/admin/answer-counts`, {
+            headers: { Authorization: `Bearer ${token}` }
         });
-        appState.answerCountsByQuestionId = counts;
+        if (!res.ok) {
+            console.warn('[questions] admin counts API failed', res.status);
+            appState.answerCountsByQuestionId = {};
+            return;
+        }
+        const data = await res.json();
+        appState.answerCountsByQuestionId = data.countsByQuestionId || {};
     } catch (err) {
         console.warn('[questions] failed to load answer counts', err);
         appState.answerCountsByQuestionId = {};
